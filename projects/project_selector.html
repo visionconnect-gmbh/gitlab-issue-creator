@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Projekt wählen</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+        padding: 0;
+        background: #f9f9f9;
+        color: #333;
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 20px;
+      }
+
+      label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      select,
+      input,
+      textarea,
+      button {
+        width: 100%;
+        margin-top: 5px;
+        font-size: 14px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      button {
+        background-color: #2185d0;
+        color: white;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.2s ease;
+      }
+
+      button:hover {
+        background-color: #1678c2;
+      }
+
+      .section {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>GitLab-Ticket erstellen</h2>
+
+    <div class="section">
+      <label for="projectSearch">Projekte durchsuchen:</label>
+      <input
+        type="text"
+        id="projectSearch"
+        placeholder="Projektname filtern..."
+      />
+      <select id="projectSelect" size="10" style="width: 100%"></select>
+    </div>
+
+    <div class="section">
+      <label for="ticketTitle">Titel des Tickets:</label>
+      <input type="text" id="ticketTitle" />
+    </div>
+
+    <div class="section">
+      <label for="ticketDescription">Beschreibung:</label>
+      <textarea id="ticketDescription"></textarea>
+    </div>
+
+    <button id="create">Ticket erstellen</button>
+
+    <script src="project_selector.js"></script>
+  </body>
+</html>

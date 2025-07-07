@@ -1,0 +1,35 @@
+{
+    "manifest_version": 2,
+    "name": "GitLab Ticket Creator",
+    "version": "1.0",
+    "description": "Erstellt GitLab-Issues aus E-Mails.",
+    "applications": {
+        "gecko": {
+            "id": "gitlab-ticket-addon@example.com",
+            "strict_min_version": "91.0"
+        }
+    },
+    "options_ui": {
+        "page": "options/options.html",
+        "open_in_tab": true
+    },
+    "permissions": [
+        "messagesRead",
+        "storage",
+        "menus",
+        "tabs",
+        "notifications"
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "browser_action": {
+        "default_title": "GitLab Ticket erstellen",
+        "default_icon": "icon.png"
+    },
+    "icons": {
+        "48": "icon.png"
+    }
+}

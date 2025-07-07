@@ -1,4 +1,5 @@
 import { displayNotification } from "./utils/utils.js";
+import { clearAllCache } from "./utils/cache.js";
 import {
   getProjects,
   createGitLabIssue,
@@ -272,28 +273,63 @@ async function sendProjectDataToPopup() {
 }
 
 async function handleRuntimeMessages(msg, sender) {
-  if (msg.type === "popup-ready") {
-    popupReady = true;
-    sendProjectDataToPopup();
-  }
+  const msgType = msg.type;
+  if (!msgType) return;
 
-  if (msg.type === "project-selected") {
-    const projectId = msg.projectId;
-    const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
+  switch (msgType) {
+    case "popup-ready": {
+      popupReady = true;
+      sendProjectDataToPopup();
+      break;
+    }
 
-    const conversation = emailGlobal.conversationHistory
-      .map((entry) => {
-        const header = entry.from
-          ? `**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}`
-          : "";
-        return `${header}\n\n${entry.message}`;
-      })
-      .join("\n\n---\n\n");
+    case "project-selected": {
+      const projectId = msg.projectId;
+      const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
-    const description = msg.description?.trim() || conversation;
+      const conversation = emailGlobal.conversationHistory
+        .map((entry) => {
+          const header = entry.from
+            ? `**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}`
+            : "";
+          return `${header}\n\n${entry.message}`;
+        })
+        .join("\n\n---\n\n");
 
-    const assignee = await getCurrentUser();
-    await createGitLabIssue(projectId, assignee.id, title, description);
+      const description = msg.description?.trim() || conversation;
+
+      try {
+        const assignee = await getCurrentUser();
+        await createGitLabIssue(projectId, assignee.id, title, description);
+      } catch (error) {
+        console.error("Fehler beim Erstellen des GitLab-Issues:", error);
+        displayNotification(
+          "GitLab Ticket Addon",
+          "Fehler beim Erstellen des Tickets: " + error.message
+        );
+      }
+      break;
+    }
+
+    case "clear-cache": {
+      try {
+        clearAllCache();
+        displayNotification(
+          "GitLab Ticket Addon",
+          "Cache erfolgreich geleert."
+        );
+      } catch (error) {
+        console.error("Fehler beim Leeren des Caches:", error);
+        displayNotification(
+          "GitLab Ticket Addon",
+          "Fehler beim Leeren des Caches: " + error.message
+        );
+      }
+      break;
+    }
+
+    default:
+      console.warn("Unbekannter Nachrichtentyp:", msgType);
   }
 }
 

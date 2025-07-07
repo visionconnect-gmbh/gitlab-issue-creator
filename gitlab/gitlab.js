@@ -1,5 +1,6 @@
 import { displayNotification } from "../utils/utils.js";
 import { apiGet, apiPost } from "./api.js";
+import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
 
 /**
  * Shows a standard GitLab settings missing notification.
@@ -57,11 +58,6 @@ export async function getCurrentUser() {
   }
 }
 
-let projectCache = {
-  projects: null,
-  timestamp: null,
-};
-
 const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
 
 /**
@@ -70,19 +66,18 @@ const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
  * @param {function(Array):void} [onUpdate] - Optional callback for live update
  */
 export async function getProjects(onUpdate) {
-  const now = Date.now();
+  const cached = getCache("projects", CACHE_TTL_MS);
 
-  // Return cached if valid
-  if (
-    projectCache.projects &&
-    projectCache.timestamp &&
-    now - projectCache.timestamp < CACHE_TTL_MS
-  ) {
-    if (onUpdate) onUpdate(projectCache.projects); // Provide immediately
-    return;
+  if (cached) {
+    // Add new projects to the cache if they are not already present
+    const newProjects = await getNewProjects();
+    if (newProjects.length > 0) {
+      addToCacheArray("projects", newProjects, "id");
+    }
+    if (onUpdate) onUpdate(cached);
+    return cached;
   }
 
-  // Load settings first
   const settings = await requireValidSettings();
   if (!settings) return;
 
@@ -110,11 +105,7 @@ export async function getProjects(onUpdate) {
 
     console.log(`Fetched ${allProjects.length} projects`);
 
-    projectCache = {
-      projects: allProjects,
-      timestamp: Date.now(),
-    };
-
+    setCache("projects", allProjects);
     if (onUpdate) onUpdate(allProjects);
   } catch (error) {
     console.error("Error fetching projects:", error);
@@ -125,15 +116,48 @@ export async function getProjects(onUpdate) {
   }
 }
 
+async function getNewProjects() {
+  const settings = await requireValidSettings();
+  if (!settings) return [];
+
+  const current_projects = getCache("projects", CACHE_TTL_MS); // from cache
+
+  // Entry 0 is the most recent project
+  const last_id = current_projects.length > 0 ? current_projects[0].id : -1;
+
+  if (last_id === -1) {
+    console.warn("No projects found, cannot fetch new ones.");
+    return [];
+  }
+
+  try {
+    const projects = await apiGet(
+      `/api/v4/projects?membership=true&simple=true&id_after=${last_id}`,
+      {
+        headers: { "PRIVATE-TOKEN": settings.gitlabToken },
+      }
+    );
+    return projects || [];
+  } catch (error) {
+    console.error("Error fetching new projects:", error);
+    displayNotification(
+      "GitLab Ticket Addon",
+      "Fehler beim Laden der neuen Projekte: " + error.message
+    );
+    return [];
+  }
+}
+
 /**
  * Creates a new GitLab issue.
  * @param {string} projectId
+ * @param {string} assignee
  * @param {string} title
  * @param {string} description
  */
 export async function createGitLabIssue(
   projectId,
-  assigne,
+  assignee,
   title,
   description
 ) {
@@ -144,7 +168,7 @@ export async function createGitLabIssue(
     const issueData = {
       title: title,
       description: description,
-      assignee_ids: [assigne],
+      assignee_ids: [assignee],
     };
     await apiPost(`/api/v4/projects/${projectId}/issues`, issueData, {
       headers: { "PRIVATE-TOKEN": settings.gitlabToken },

@@ -3,18 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <title>Projekt wählen</title>
+    <link rel="stylesheet" href="../theme.css" />
     <style>
       body {
-        font-family: sans-serif;
         margin: 20px;
         padding: 0;
-        background: #f9f9f9;
-        color: #333;
-        /* Erhöhe die minimale Breite des gesamten Fensters */
         min-width: 450px;
-        /* Erhöhe die minimale Höhe des gesamten Fensters */
         min-height: 500px;
-        /* Ermögliche dem Body, bei Bedarf zu scrollen, falls Inhalte überlaufen */
         overflow-y: auto;
       }
 
@@ -37,36 +32,26 @@
         margin-top: 5px;
         font-size: 14px;
         padding: 8px;
-        border: 1px solid #ccc;
         border-radius: 4px;
         box-sizing: border-box;
       }
 
-      /* Spezifische Anpassungen für das Auswahlfeld */
       select {
-        /* Setze eine feste Höhe für die Projektauswahl, z.B. 100px */
-        height: 100px; /* Oder eine andere passende Höhe */
-        overflow-y: auto; /* Aktiviere Scrollen, wenn mehr Projekte vorhanden sind */
+        height: 50px;
+        overflow-y: auto;
       }
 
       textarea {
         resize: vertical;
-        /* Erhöhe die minimale Höhe der Beschreibung */
-        min-height: 200px; /* Deutlich mehr Platz für die Beschreibung */
+        min-height: 200px;
       }
 
       button {
-        background-color: #2185d0;
-        color: white;
         font-weight: bold;
         border: none;
         cursor: pointer;
         margin-top: 20px;
         transition: background-color 0.2s ease;
-      }
-
-      button:hover {
-        background-color: #1678c2;
       }
 
       .section {
@@ -78,13 +63,14 @@
     <h2>GitLab-Ticket erstellen</h2>
 
     <div class="section">
-      <label for="projectSearch">Projekte durchsuchen:</label>
+      <label for="projectSearch">Projekt auswählen:</label>
       <input
         type="text"
         id="projectSearch"
-        placeholder="Projektname filtern..."
+        list="projectSuggestions"
+        placeholder="Projektname suchen..."
       />
-      <select id="projectSelect"></select>
+      <datalist id="projectSuggestions"></datalist>
     </div>
 
     <div class="section">
@@ -99,6 +85,6 @@
 
     <button id="create">Ticket erstellen</button>
 
-    <script src="project_selector.js"></script>
+    <script src="ticket_creator.js"></script>
   </body>
 </html>

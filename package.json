@@ -1,11 +1,11 @@
 {
   "name": "thunderbird-gitlab-issue",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "main": "background.js",
   "scripts": {
-    "build": "rollup -c",
-    "watch": "rollup -c -w"
+    "build": "npm i && rollup -c",
+    "watch": "npm i && rollup -c -w"
   },
   "keywords": [],
   "author": "kirchner@visionconnect.de",

@@ -55,8 +55,8 @@ Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visio
 │   └── options.html           # Die Seite für Einstellungen
 │   └── options.js             # Kleines Script zum verabeiten der Einfaben
 ├── projects/
-│   └── project_selector.html  # Die Popup für Ticketerstellung
-│   └── project_selector.js    # Das JS für das Popup-Fenster (Projektauswahl etc.)
+│   └── ticket_creator.html    # Die Popup für Ticketerstellung
+│   └── ticket_creator.js      # Das JS für das Popup-Fenster (Projektauswahl etc.)
 ├── package.json               # Node.js-Einstellungen und Abhängigkeiten
 ├── rollup.config.mjs          # Wie Rollup unseren Code zusammenpackt
 └── dist/                      # Hier landen die fertigen, gebündelten Skripte (wird von Git ignoriert!)

@@ -1,10 +1,14 @@
 import { displayNotification } from "./utils/utils.js";
-import { setApiBaseUrl } from "./gitlab/api.js"; // Note: changed to api.js
-import { fetchProjects, createGitLabIssue } from "./gitlab/gitlab.js";
+import {
+  getProjects,
+  createGitLabIssue,
+  getCurrentUser,
+} from "./gitlab/gitlab.js";
 
 let projectsGlobal = [];
 let emailGlobal = null;
 let popupWindowId = null;
+let popupReady = false;
 
 /**
  * Finds the plain text part of a raw message.
@@ -198,7 +202,6 @@ async function getEmailContent() {
   const emailBody = textPart ? textPart.body : "";
 
   const conversationHistory = extractConversationHistory(emailBody);
-  console.log("Extrahierte E-Mail-Konversation:", conversationHistory);
 
   return {
     subject: message.subject,
@@ -208,51 +211,37 @@ async function getEmailContent() {
   };
 }
 
-/**
- * Retrieves GitLab URL and token from local storage and validates them.
- * @returns {Promise<Object|null>} An object with gitlabUrl and gitlabToken, or null if invalid.
- */
-async function getGitLabSettings() {
-  const settings = await browser.storage.local.get([
-    "gitlabUrl",
-    "gitlabToken",
-  ]);
-  if (!settings.gitlabUrl || !settings.gitlabToken) {
-    displayNotification(
-      "GitLab Ticket Addon",
-      "GitLab-Einstellungen fehlen. Bitte in den Addon-Einstellungen konfigurieren."
-    );
-    browser.runtime.openOptionsPage();
-    return null;
-  }
-  // Set the base URL for api.js
-  setApiBaseUrl(settings.gitlabUrl);
-  return settings;
-}
-
-/**
- * Handles the browser action button click event.
- */
 async function handleBrowserActionClick() {
   try {
     const emailData = await getEmailContent();
     if (!emailData) return;
-    emailGlobal = emailData; // Store email data globally
+    emailGlobal = emailData;
 
-    const settings = await getGitLabSettings();
-    if (!settings) return;
-
-    const projects = await fetchProjects(settings);
-    if (!projects) return;
-    projectsGlobal = projects; // Store projects globally
-
+    // Popup öffnen
     const popupWindow = await browser.windows.create({
-      url: browser.runtime.getURL(`projects/project_selector.html`),
+      url: browser.runtime.getURL(`projects/ticket_creator.html`),
       type: "popup",
       width: 500,
       height: 700,
     });
+
     popupWindowId = popupWindow.id;
+
+    // Projekte laden
+    getProjects((projects) => {
+      projectsGlobal = projects;
+      if (popupReady) {
+        sendProjectDataToPopup();
+      } else {
+        // Popup ist noch nicht bereit, warten auf Nachricht
+        browser.runtime.onMessage.addListener((msg) => {
+          if (msg.type === "popup-ready") {
+            popupReady = true;
+            sendProjectDataToPopup();
+          }
+        });
+      }
+    });
   } catch (err) {
     console.error("Error in addon:", err);
     displayNotification(
@@ -262,28 +251,33 @@ async function handleBrowserActionClick() {
   }
 }
 
-/**
- * Handles messages received from other parts of the addon (e.g., popup).
- * @param {Object} msg - The message object.
- * @param {Object} sender - Information about the sender of the message.
- */
-async function handleRuntimeMessages(msg, sender) {
-  if (msg.type === "popup-ready") {
-    if (!popupWindowId) return;
-    const tabs = await browser.tabs.query({ windowId: popupWindowId });
-    if (tabs.length === 0) return;
+async function sendProjectDataToPopup() {
+  if (!popupWindowId) return;
+  const tabs = await browser.tabs.query({ windowId: popupWindowId });
 
+  if (tabs.length === 0) {
+    console.warn("Popup window tab not found.");
+    return;
+  }
+
+  try {
     await browser.tabs.sendMessage(tabs[0].id, {
       type: "project-list",
       projects: projectsGlobal,
       email: emailGlobal,
     });
+  } catch (err) {
+    console.warn("Could not send message to popup:", err);
+  }
+}
+
+async function handleRuntimeMessages(msg, sender) {
+  if (msg.type === "popup-ready") {
+    popupReady = true;
+    sendProjectDataToPopup();
   }
 
   if (msg.type === "project-selected") {
-    const settings = await getGitLabSettings();
-    if (!settings) return;
-
     const projectId = msg.projectId;
     const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
@@ -298,12 +292,8 @@ async function handleRuntimeMessages(msg, sender) {
 
     const description = msg.description?.trim() || conversation;
 
-    await createGitLabIssue(
-      projectId,
-      title,
-      description,
-      settings.gitlabToken
-    );
+    const assignee = await getCurrentUser();
+    await createGitLabIssue(projectId, assignee.id, title, description);
   }
 }
 

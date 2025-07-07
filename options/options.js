@@ -10,6 +10,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const eyeIcon = document.getElementById("eyeIcon");
   const saveButton = document.getElementById("save");
 
+  const cacheClearButton = document.getElementById("clearCacheBtn");
+
+  // Event Listener für den Cache-Löschen-Button
+  cacheClearButton.addEventListener("click", async () => {
+    try {
+      alert("NOT IMPLEMENTED YET");
+    } catch (error) {
+      console.error("Fehler beim Löschen des Caches:", error);
+      alert("Fehler beim Löschen des Caches.");
+    }
+  });
+
   // Lade das gespeicherte Token beim Laden der Seite
   const { gitlabToken } = await browser.storage.local.get(["gitlabToken"]);
   tokenInput.value = gitlabToken || "";

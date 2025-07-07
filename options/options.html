@@ -81,29 +81,37 @@
     </style>
   </head>
   <body>
-    <h1>GitLab Einstellungen</h1>
-    <label for="gitlabToken">Private Access Token:</label>
-    <div class="input-wrapper">
-      <input
-        type="password"
-        id="gitlabToken"
-        placeholder="xxxxxxxxxxxxxxxxxxxx"
-      />
-      <svg
-        id="toggleVisibility"
-        class="toggle-visibility"
-        viewBox="0 0 24 24"
-        role="button"
-        aria-label="Sichtbarkeit umschalten"
-        tabindex="0"
-      >
-        <path
-          id="eyeIcon"
-          d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5c-1.73-3.89-6-7.5-11-7.5zm0 3a4.5 4.5 0 110 9 4.5 4.5 0 010-9z"
+    <div>
+      <h1>GitLab Einstellungen</h1>
+      <label for="gitlabToken">Private Access Token:</label>
+      <div class="input-wrapper">
+        <input
+          type="password"
+          id="gitlabToken"
+          placeholder="xxxxxxxxxxxxxxxxxxxx"
         />
-      </svg>
+        <svg
+          id="toggleVisibility"
+          class="toggle-visibility"
+          viewBox="0 0 24 24"
+          role="button"
+          aria-label="Sichtbarkeit umschalten"
+          tabindex="0"
+        >
+          <path
+            id="eyeIcon"
+            d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5c-1.73-3.89-6-7.5-11-7.5zm0 3a4.5 4.5 0 110 9 4.5 4.5 0 010-9z"
+          />
+        </svg>
+      </div>
+      <button id="save">Speichern</button>
     </div>
-    <button id="save">Speichern</button>
+
+    <div>
+      <h1>Add-on Optionen</h1>
+      <label for="clearCacheBtn">Cache leeren:</label>
+      <button id="clearCacheBtn">leeren</button>
+    </div>
 
     <script src="options.js"></script>
   </body>

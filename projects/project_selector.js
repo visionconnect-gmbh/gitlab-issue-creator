@@ -1,3 +1,5 @@
+import { displayNotification } from "./utils.js";
+
 let projects = [];
 let filteredProjects = [];
 let messageData = null; // Wird jetzt das Objekt mit subject, author, date und conversationHistory enthalten
@@ -72,12 +74,10 @@ projectSearch.addEventListener("input", () => {
 // Ticket erstellen
 createBtn.addEventListener("click", () => {
   if (projectSelect.selectedOptions.length === 0) {
-    browser.notifications.create({
-      type: "basic",
-      iconUrl: browser.runtime.getURL("icons/icon.png"),
-      title: "GitLab Ticket Addon",
-      message: "Bitte ein Projekt auswählen.",
-    });
+    displayNotification(
+      "GitLab Ticket Addon",
+      "Bitte wähle ein Projekt aus, bevor du ein Ticket erstellst."
+    );
     return;
   }
   const projectId = projectSelect.value;

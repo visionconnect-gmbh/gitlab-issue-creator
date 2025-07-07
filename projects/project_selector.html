@@ -10,6 +10,12 @@
         padding: 0;
         background: #f9f9f9;
         color: #333;
+        /* Erhöhe die minimale Breite des gesamten Fensters */
+        min-width: 450px;
+        /* Erhöhe die minimale Höhe des gesamten Fensters */
+        min-height: 500px;
+        /* Ermögliche dem Body, bei Bedarf zu scrollen, falls Inhalte überlaufen */
+        overflow-y: auto;
       }
 
       h2 {
@@ -36,9 +42,17 @@
         box-sizing: border-box;
       }
 
+      /* Spezifische Anpassungen für das Auswahlfeld */
+      select {
+        /* Setze eine feste Höhe für die Projektauswahl, z.B. 100px */
+        height: 100px; /* Oder eine andere passende Höhe */
+        overflow-y: auto; /* Aktiviere Scrollen, wenn mehr Projekte vorhanden sind */
+      }
+
       textarea {
         resize: vertical;
-        min-height: 100px;
+        /* Erhöhe die minimale Höhe der Beschreibung */
+        min-height: 200px; /* Deutlich mehr Platz für die Beschreibung */
       }
 
       button {
@@ -70,7 +84,7 @@
         id="projectSearch"
         placeholder="Projektname filtern..."
       />
-      <select id="projectSelect" size="10" style="width: 100%"></select>
+      <select id="projectSelect"></select>
     </div>
 
     <div class="section">

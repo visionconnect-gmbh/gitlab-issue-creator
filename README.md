@@ -1,93 +1,74 @@
-# Thunderbird Gitlab Issue
+# GitLab Ticket Creator Thunderbird Add-on
 
+Dieses kleine Thunderbird Add-on ermöglicht, **GitLab-Issues direkt aus E-Mails zu erstellen**.
 
+## Was kann es?
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.visionconnect.de/kirchner/thunderbird-gitlab-issue.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.visionconnect.de/kirchner/thunderbird-gitlab-issue/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+  * **Direkt aus der Mail:** Erstellt GitLab-Issues, während ihr noch in der E-Mail seid.
+  * **Titel-Automatik:** Der E-Mail-Betreff wird direkt zum Ticket-Titel\!
+  * **Voller Kontext:** Der gesamte E-Mail-Verlauf landet automatisch in der Ticketbeschreibung. So ist immer klar, worum es geht.
+  * **Projekt schnell finden:** Eine einfache Suche hilft euch, das richtige GitLab-Projekt auszuwählen.
+  * **Anpassbar:** Ihr könnt den Titel und die Beschreibung vor dem Absenden natürlich noch anpassen oder Infos hinzufügen.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Für alle Kollegen
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+**TO BE ANNOUNCED**
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Für die Entwickler (zum Testen)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Wenn ihr am Add-on schraubt oder es testen wollt:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+1.  Klonen des Repos: `git clone https://gitlab.visionconnect.de/kirchner/thunderbird-gitlab-issue.git`
+2.  In den Ordner wechseln: `cd thunderbird-gitlab-issue` (oder wie immer der Ordner bei euch heißt)
+3.  Abhängigkeiten installieren: `npm install`
+4.  Build starten: `npm run build` (das erzeugt den `dist/` Ordner mit dem gebündelten Code)
+5.  Thunderbird öffnen.
+6.  Geht zu `Extras` \> `Add-ons und Themes`.
+7.  Klickt auf das Zahnrad-Symbol (⚙️) und wählt `Temporäres Add-on laden...`.
+8.  Navigiert zum Ordner eures geklonten Repos und wählt die Datei `manifest.json` aus.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## So funktioniert's
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1.  **E-Mail aufmachen:** Sucht die E-Mail, aus der ihr ein Ticket machen wollt.
+2.  **Add-on klicken:** In der Thunderbird-Symbolleiste (meist oben rechts) findet den Add-on-Button. Draufklicken, um das kleine Fenster zu öffnen.
+3.  **Projekt wählen:** Tippt im Suchfeld, um euer GitLab-Projekt zu finden, und wählt es aus der Liste.
+4.  **Titel & Beschreibung checken:** Der Titel kommt vom E-Mail-Betreff, die Beschreibung ist der E-Mail-Verlauf. Passt beides an, wenn nötig.
+5.  **Ticket erstellen:** Klickt auf "Ticket erstellen". Das Add-on schickt alles an unser GitLab und zack – das Issue ist da\!
 
-## License
-For open source projects, say how it is licensed.
+## Konfiguration 
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Vor der ersten Verwendung werdet ihr aufgefordert die Gitlab URL, sowie einen persönlichen Access Tocken zu hinterlegen.
+Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visionconnect.de/-/user_settings/personal_access_tokens)
+- Wichtig: Dieser Token benötigt Rechte für die API
+
+### Aufbau des Projekts
+
+```
+.
+├── manifest.json              # Die "Identitätskarte" des Add-ons
+├── background.js              # Unser Haupt-Hintergrundskript (die Logik)
+├── utils/
+│   └── utils.js               # Kleine Helferlein für background.js
+├── options/
+│   └── options.html           # Die Seite für Einstellungen
+│   └── options.js             # Kleines Script zum verabeiten der Einfaben
+├── projects/
+│   └── project_selector.html  # Die Popup für Ticketerstellung
+│   └── project_selector.js    # Das JS für das Popup-Fenster (Projektauswahl etc.)
+├── package.json               # Node.js-Einstellungen und Abhängigkeiten
+├── rollup.config.mjs          # Wie Rollup unseren Code zusammenpackt
+└── dist/                      # Hier landen die fertigen, gebündelten Skripte (wird von Git ignoriert!)
+    └── bundled-background.js
+```
+
+### Build-Befehle
+
+  * **Abhängigkeiten installieren:** `npm install`
+  * **Projekt bauen:** `npm run build`
+  * **Automatisch bauen bei Änderungen:** `npm run watch`
+
+## Lizenz
+
+[MIT-Lizenz](https://www.google.com/search?q=LICENSE) ---

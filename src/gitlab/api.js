@@ -1,32 +1,37 @@
+import { displayNotification, openOptionsPage } from "../utils/utils";
+
 let API_BASE_URL = null;
-/*
- * Set the base URL for the GitLab API.
- * This should be called before making any API requests.
- * The URL should not end with a slash.
- */
-export function setApiBaseUrl(url) {
-  if (!url) {
-    throw new Error("API base URL cannot be empty");
-  }
-  API_BASE_URL = url.endsWith("/") ? url.slice(0, -1) : url;
-}
 
 async function handleResponse(response) {
+  if (!response) {
+    return null;
+  }
   if (!response.ok) {
     const error = await response.text();
     throw new Error(error || response.statusText);
   }
 
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    return response.json();
-  }
-  return response.text();
+  return response.json();
 }
 
 async function doRequest(endpoint, options = {}) {
   if (!API_BASE_URL) {
-    throw new Error("API base URL is not set. Call setApiBaseUrl() first.");
+    const settings = await browser.storage.local.get(["gitlabUrl"]);
+    API_BASE_URL = settings.gitlabUrl;
+
+    if (!API_BASE_URL) {
+      displayNotification(
+        "GitLab Ticket Addon",
+        "GitLab URL ist nicht konfiguriert. Bitte in den Addon-Einstellungen angeben."
+      );
+      openOptionsPage();
+      return;
+    }
+  }
+
+  // Remove trailing slash from API_BASE_URL if it exists
+  if (API_BASE_URL.endsWith("/")) {
+    API_BASE_URL = API_BASE_URL.slice(0, -1);
   }
 
   const headers = {
@@ -40,6 +45,14 @@ async function doRequest(endpoint, options = {}) {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      displayNotification(
+        "GitLab Ticket Addon",
+        "Ungültiges Token. Bitte in den Addon-Einstellungen aktualisieren."
+      );
+      openOptionsPage();
+      return;
+    }
     const error = await res.text();
     throw new Error(error || res.statusText);
   }

@@ -1,5 +1,4 @@
 import { displayNotification } from "./src/utils/utils.js";
-import { setApiBaseUrl } from "./src/gitlab/api.js";
 import { clearAllCache } from "./src/utils/cache.js";
 import { getEmailContent } from "./src/emailContent.js";
 import {
@@ -143,18 +142,6 @@ async function handleRuntimeMessages(msg, sender) {
         const tabs = await browser.tabs.query({ windowId: popupWindowId });
         if (tabs.length > 0) {
           await browser.tabs.reload(tabs[0].id);
-        }
-      }
-      if (msg.url) {
-        // Update API base URL if provided
-        try {
-          setApiBaseUrl(msg.url);
-        } catch (error) {
-          console.error("Fehler beim Setzen der API-Basis-URL:", error);
-          displayNotification(
-            "GitLab Ticket Addon",
-            "Fehler beim Setzen der API-Basis-URL: " + error.message
-          );
         }
       }
       break;

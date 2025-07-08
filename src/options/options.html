@@ -49,6 +49,11 @@
         outline: none;
       }
 
+      .token-help {
+        margin: -8px 0 8px 0;
+        font-size: 0.9rem;
+      }
+
       .toggle-visibility {
         position: absolute;
         top: 50%;
@@ -119,6 +124,15 @@
         />
       </div>
       <label for="gitlabToken">Private Access Token:</label>
+      <div id="tokenHelpLink" class="token-help" hidden>
+        <a
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Öffnet die Seite für persönliche Zugriffstoken. Erstelle einen neuen Token und wähle 'api' als Berechtigung, kopiere den Token und füge ihn hier ein."
+          >Access Token erstellen</a
+        >
+      </div>
       <div class="input-wrapper">
         <input
           type="password"

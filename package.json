@@ -7,6 +7,7 @@
     "version:patch": "node scripts/bump-version.js patch",
     "version:minor": "node scripts/bump-version.js minor",
     "version:major": "node scripts/bump-version.js major",
+    "build:dev": "npm i && rollup -c",
     "build": "npm i && node scripts/build.js",
     "watch": "npm i && rollup -c -w"
   },

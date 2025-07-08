@@ -22,7 +22,7 @@ async function handleBrowserActionClick() {
     emailGlobal = emailData;
 
     if (!(await requireValidSettings())) {
-      browser.runtime.openOptionsPage();
+      openOptionsPage();
       return;
     }
 

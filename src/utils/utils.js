@@ -11,3 +11,10 @@ export function displayNotification(title, message) {
     message: message,
   });
 }
+
+export function openOptionsPage() {
+  browser.runtime.openOptionsPage().catch((error) => {
+    console.error("Error opening options page:", error);
+    displayNotification("GitLab Ticket Addon", "Fehler beim Öffnen der Einstellungen.");
+  });
+}

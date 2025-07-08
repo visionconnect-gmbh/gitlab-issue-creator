@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Projekt wählen</title>
     <link rel="stylesheet" href="../theme.css" />
+    <link rel="stylesheet" href="easymde/easymde.min.css" />
     <style>
       body {
         margin: 20px;
@@ -26,8 +27,8 @@
 
       select,
       input,
-      textarea,
       button {
+        /* textarea aus dieser Liste entfernt, da EasyMDE es stylt */
         width: 100%;
         margin-top: 5px;
         font-size: 14px;
@@ -41,17 +42,45 @@
         overflow-y: auto;
       }
 
-      textarea {
-        resize: vertical;
-        min-height: 200px;
-      }
-
+      /* Spezifische Styles für den Button, beachte, dass keine 'textarea' mehr hier ist */
       button {
         font-weight: bold;
         border: none;
         cursor: pointer;
         margin-top: 20px;
         transition: background-color 0.2s ease;
+      }
+
+      /* Styles für EasyMDE, um es besser in Ihr Design zu integrieren */
+      .CodeMirror,
+      .EasyMDEContainer {
+        border: 1px solid #ccc; /* Einheitlicher Rahmen wie andere Input-Felder */
+        border-radius: 4px;
+      }
+      /* Optional: Anpassung für den Fullscreen-Modus, falls EasyMDE verwendet wird */
+      .CodeMirror-fullscreen {
+        z-index: 99999;
+      }
+      /* Optional: Anpassung für die Toolbar */
+      .editor-toolbar {
+        border: 1px solid #ccc; /* Passender Rahmen für die Toolbar */
+        border-bottom: none; /* Keine doppelte Linie zwischen Toolbar und Editor */
+        border-radius: 4px 4px 0 0; /* Abgerundete Ecken oben */
+      }
+      .editor-toolbar button {
+        /* Setze Button-Styles innerhalb der Toolbar zurück, wenn nötig */
+        width: auto;
+        padding: 6px 10px;
+        margin-top: 0;
+        font-size: 1em;
+        background: none; /* Toolbar-Buttons sind oft transparent */
+        color: inherit;
+      }
+      .editor-toolbar button.active {
+        background-color: #e0e0e0; /* Aktiver Button-Hintergrund */
+      }
+      .editor-toolbar button:hover {
+        background-color: #f0f0f0;
       }
     </style>
   </head>
@@ -81,6 +110,7 @@
 
     <button id="create">Ticket erstellen</button>
 
+    <script src="easymde/easymde.min.js"></script>
     <script src="ticket_creator.js"></script>
   </body>
 </html>

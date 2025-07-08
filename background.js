@@ -6,6 +6,8 @@ import {
   getCurrentUser,
 } from "./gitlab/gitlab.js";
 
+const POPUP_PATH = "popup/ticket_creator.html"; // Pfad zum Popup
+
 let projectsGlobal = [];
 let emailGlobal = null;
 let popupWindowId = null;
@@ -43,13 +45,16 @@ function extractConversationHistory(body) {
 
   const messages = [];
 
+  // Regex to identify message headers (e.g., "Am DD.MM.YYYY um HH:MM schrieb Sender Name:")
   const headerRegex =
     /^(>+\s*)?Am (\d{2}\.\d{2}\.\d{4}) um (\d{2}:\d{2}) schrieb ([\s\S]+?):\s*$/m;
 
+  // Find all header occurrences.
   const allHeaders = [...body.matchAll(new RegExp(headerRegex.source, "gm"))];
 
   if (allHeaders.length > 0) {
     const firstHeaderMatch = allHeaders[0];
+    // Extract content before the first header, treated as the initial message.
     const mainMessageContent = body.substring(0, firstHeaderMatch.index).trim();
     if (mainMessageContent) {
       messages.push({
@@ -60,6 +65,7 @@ function extractConversationHistory(body) {
       });
     }
   } else {
+    // If no headers, the entire body is one message.
     messages.push({
       from: null,
       date: null,
@@ -69,6 +75,7 @@ function extractConversationHistory(body) {
     return messages;
   }
 
+  // Iterate through headers to extract individual messages.
   for (let i = 0; i < allHeaders.length; i++) {
     const currentHeaderMatch = allHeaders[i];
     const nextHeaderMatch = allHeaders[i + 1];
@@ -84,6 +91,7 @@ function extractConversationHistory(body) {
     const time = currentHeaderMatch[3];
     const from = currentHeaderMatch[4].replace(/\s+/g, " ").trim();
 
+    // Remove quote prefixes from message content.
     const escapedQuotePrefix = quotePrefix.replace(
       /[.*+?^${}()|[\]\\]/g,
       "\\$&"
@@ -103,22 +111,25 @@ function extractConversationHistory(body) {
 }
 
 /**
- * Cleans up a message body by removing common email signatures, disclaimers,
- * and any remaining quoting characters.
+ * Extracts the relevant body text from an email-like string by cleaning up quotes,
+ * removing signatures, disclaimers, and excessive blank lines.
  *
- * @param {string} body The raw message body.
- * @returns {string} The cleaned message body.
+ * @param {string} body - The input string, potentially containing quotes, signatures, and disclaimers.
+ * @returns {string} The cleaned and relevant message body, or "(Kein Nachrichtentext)" if no relevant text is found.
  */
 function extractRelevantBody(body) {
   if (!body) return "(Kein Nachrichtentext)";
 
+  // Remove leading ">" characters often used for quoting in email replies.
   body = body
     .split("\n")
     .map((line) => line.replace(/^>+\s*/, ""))
     .join("\n");
 
+  // Remove content after common signature delimiters like "--" or "__+".
   let cleanedText = body.split(/\n--\s*\n|__+\n/)[0];
 
+  // Filter out lines that consist solely of repetitive characters (e.g., "---", "==="), often used as separators.
   cleanedText = cleanedText
     .split("\n")
     .filter((line) => {
@@ -126,11 +137,14 @@ function extractRelevantBody(body) {
     })
     .join("\n");
 
+  // Remove blocks of text that are enclosed by lines of repeating special characters,
+  // which might indicate embedded content or banners.
   cleanedText = cleanedText.replace(
     /^([ \t]*[*_=\-#~]{4,}.*\n)([\s\S]*?)(^\1|\n[ \t]*[*_=\-#~]{4,}.*\n)/gm,
     ""
   );
 
+  // Define a list of keywords commonly found in email disclaimers or signatures.
   const disclaimerKeywords = [
     "Datenschutz:",
     "Weitere Informationen zum Thema PGP-Verschlüsselung:",
@@ -161,6 +175,7 @@ function extractRelevantBody(body) {
     "*************************************************************************************",
   ];
 
+  // Iterate through disclaimer keywords and truncate the text at the first occurrence of any keyword.
   for (const kw of disclaimerKeywords) {
     const idx = cleanedText.indexOf(kw);
     if (idx !== -1) {
@@ -168,6 +183,8 @@ function extractRelevantBody(body) {
     }
   }
 
+  // Trim trailing whitespace from each line, and remove excessive blank lines
+  // (ensuring no more than one consecutive blank line).
   cleanedText = cleanedText
     .split("\n")
     .map((line) => line.trimEnd())
@@ -175,8 +192,10 @@ function extractRelevantBody(body) {
     .join("\n")
     .trim();
 
+  // Remove any remaining leading quote characters or asterisks from the beginning of the cleaned text.
   cleanedText = cleanedText.replace(/^[*>]+\s*/, "");
 
+  // Return the cleaned text, or the default message if the text is empty after cleaning.
   return cleanedText || "(Kein Nachrichtentext)";
 }
 
@@ -220,10 +239,10 @@ async function handleBrowserActionClick() {
 
     // Popup öffnen
     const popupWindow = await browser.windows.create({
-      url: browser.runtime.getURL(`projects/ticket_creator.html`),
+      url: browser.runtime.getURL(POPUP_PATH),
       type: "popup",
-      width: 500,
-      height: 700,
+      width: 700,
+      height: 850,
     });
 
     popupWindowId = popupWindow.id;
@@ -283,7 +302,7 @@ async function handleRuntimeMessages(msg, sender) {
       break;
     }
 
-    case "project-selected": {
+    case "create-gitlab-issue": {
       const projectId = msg.projectId;
       const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
@@ -326,6 +345,10 @@ async function handleRuntimeMessages(msg, sender) {
         );
       }
       break;
+    }
+
+    case "settings-updated": {
+        return; // No use, as of now
     }
 
     default:

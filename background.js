@@ -1,6 +1,5 @@
 import { MessageTypes } from "./src/Enums.js";
-import { displayNotification } from "./src/utils/utils.js";
-import { clearAllCache } from "./src/utils/cache.js";
+import { displayNotification, openOptionsPage } from "./src/utils/utils.js";
 import { getEmailContent } from "./src/emailContent.js";
 import {
   requireValidSettings,

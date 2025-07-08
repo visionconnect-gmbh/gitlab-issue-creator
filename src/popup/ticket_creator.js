@@ -6,19 +6,24 @@ let filteredProjects = [];
 let messageData = null;
 let selectedProjectId = null;
 
-// Doku: https://github.com/Ionaru/easy-markdown-editor#configuration
+const elements = {
+  projectSearch: document.getElementById("projectSearch"),
+  projectSuggestions: document.getElementById("projectSuggestions"),
+  attachmentsCheckbox: document.getElementById("attachmentsCheckbox"),
+  ticketTitle: document.getElementById("ticketTitle"),
+  createBtn: document.getElementById("create"),
+};
+
 const easyMDE = new EasyMDE({
   element: document.getElementById("ticketDescription"),
-  spellChecker: false, // Rechtschreibprüfung deaktiviert (kann bei Bedarf aktiviert werden)
+  spellChecker: false,
   autosave: {
-    // Optional: Speichert den Inhalt im LocalStorage
     enabled: true,
     delay: 1000,
-    uniqueId: "gitlab-ticket-creator-description-popup", // Eindeutiger ID für dieses Popup
+    uniqueId: "gitlab-ticket-creator-description-popup",
   },
-  status: false, // Optional: Statusleiste unten (Zeichenzähler etc.)
-  forceSync: true, // Sehr wichtig: Stellt sicher, dass die ursprüngliche Textarea immer den aktuellen Inhalt des Editors hat.
-  // Optionen für die Toolbar, falls gewünscht. Standard-Toolbar enthält meist auch Preview.
+  status: false,
+  forceSync: true,
   toolbar: [
     "bold",
     "italic",
@@ -41,101 +46,77 @@ const easyMDE = new EasyMDE({
 
 console.log("GitLab Ticket Addon: Projekt-Auswahl Popup geladen");
 
-const projectSearch = document.getElementById("projectSearch");
-const projectSuggestions = document.getElementById("projectSuggestions");
-const ticketTitle = document.getElementById("ticketTitle");
-// Die ursprüngliche ticketDescription Textarea wird jetzt von EasyMDE verwaltet.
-const createBtn = document.getElementById("create");
-
 // Signalisiere Background, dass das Popup bereit ist
 browser.runtime.sendMessage({ type: MessageTypes.POPUP_READY });
 
-// Empfange Nachricht mit Projektliste und E-Mail-Daten vom Background-Script
 browser.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "project-list" && msg.email) {
-    projects = msg.projects || [];
-    filteredProjects = projects;
-    renderProjectSuggestions();
+  if (msg.type !== "project-list" || !msg.email) return;
 
-    messageData = msg.email;
-    ticketTitle.value = messageData.subject || "";
+  projects = msg.projects || [];
+  filteredProjects = projects;
+  renderProjectSuggestions();
 
-    let descriptionContent = "";
-    if (
-      messageData.conversationHistory &&
-      messageData.conversationHistory.length > 0
-    ) {
-      messageData.conversationHistory.forEach((entry) => {
-        if (entry.from) {
-          // Verwende Markdown für Formatierung
-          descriptionContent += `\n---\n\n**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}\n\n`;
-        }
-        descriptionContent += `${entry.message}\n`;
-      });
-    } else {
-      descriptionContent = "(Kein Konversationsverlauf verfügbar)";
-    }
+  messageData = msg.email;
+  elements.ticketTitle.value = messageData.subject || "";
 
-    // Setze den Inhalt des EasyMDE-Editors
-    easyMDE.value(descriptionContent.trim());
-  }
+  const descriptionContent =
+    (messageData.conversationHistory || [])
+      .map((entry) => {
+        const fromLine = entry.from
+          ? `**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}\n\n`
+          : "";
+        return `\n---\n\n${fromLine}${entry.message}`;
+      })
+      .join("\n") || "(Kein Konversationsverlauf verfügbar)";
+
+  easyMDE.value(descriptionContent.trim());
 });
 
-projectSearch.addEventListener("input", () => {
-  const search = projectSearch.value.toLowerCase();
+elements.projectSearch.addEventListener("input", () => {
+  const search = elements.projectSearch.value.toLowerCase();
+
   filteredProjects = projects.filter((p) =>
     (p.name_with_namespace || p.name || "").toLowerCase().includes(search)
   );
   renderProjectSuggestions();
 
-  // Prüfen, ob exakter Match → Projekt-ID setzen
-  const match = projects.find(
+  const exactMatch = projects.find(
     (p) => (p.name_with_namespace || p.name || "").toLowerCase() === search
   );
-  selectedProjectId = match ? match.id : null;
+  selectedProjectId = exactMatch?.id || null;
 });
 
-// Listener für das 'change'-Event auf der Datalist, um die ID zu setzen, wenn ein Vorschlag gewählt wird
-projectSearch.addEventListener("change", () => {
-  const selectedOption = Array.from(projectSuggestions.options).find(
-    (option) => option.value === projectSearch.value
+elements.projectSearch.addEventListener("change", () => {
+  const selectedName = elements.projectSearch.value;
+  const matchedProject = projects.find(
+    (p) => (p.name_with_namespace || p.name) === selectedName
   );
-  selectedProjectId = selectedOption
-    ? projects.find(
-        (p) => (p.name_with_namespace || p.name) === selectedOption.value
-      )?.id
-    : null;
+  selectedProjectId = matchedProject?.id || null;
 });
 
-createBtn.addEventListener("click", () => {
+elements.createBtn.addEventListener("click", () => {
   if (!selectedProjectId) {
-    displayNotification(
+    return displayNotification(
       "GitLab Ticket Addon",
       "Bitte gib ein gültiges Projekt aus der Vorschlagsliste ein."
     );
-    return;
   }
-
-  // Hole den Markdown-Inhalt vom EasyMDE-Editor
-  const ticketDescriptionMarkdown = easyMDE.value();
 
   browser.runtime.sendMessage({
     type: MessageTypes.CREATE_GITLAB_ISSUE,
     projectId: selectedProjectId,
-    title: ticketTitle.value,
-    description: ticketDescriptionMarkdown, // Sende den Markdown-Inhalt
+    title: elements.ticketTitle.value,
+    description: easyMDE.value(),
   });
 
-  setTimeout(() => {
-    window.close();
-  }, 100);
+  setTimeout(() => window.close(), 100);
 });
 
 function renderProjectSuggestions() {
-  projectSuggestions.innerHTML = "";
+  elements.projectSuggestions.innerHTML = "";
   filteredProjects.forEach((proj) => {
     const option = document.createElement("option");
     option.value = proj.name_with_namespace || proj.name || "Unbekannt";
-    projectSuggestions.appendChild(option);
+    elements.projectSuggestions.appendChild(option);
   });
 }

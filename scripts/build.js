@@ -5,7 +5,7 @@ const { rimrafSync } = require("rimraf");
 const { execSync } = require("child_process");
 
 const BUILD_DIR = "temp_build"; // Temporary directory for staging files
-const DIST_DIR = "builds"; // Directory for the final .zip file
+const DEST_DIR = "builds"; // Directory for the final .zip file
 const ADDON_NAME = "gitlab-ticket-creator"; // Name of addon for the zip file
 
 // Files/folders to exclude from the final .zip package
@@ -13,6 +13,8 @@ const EXCLUDE_PATTERNS = [
   "node_modules",
   "scripts", // Exclude the scripts directory itself
   "*.zip", // Exclude any existing zip files
+  "temp_build", // Exclude the temporary build directory
+  "builds", // Exclude the builds directory
   ".git",
   ".gitignore",
   "package.json",
@@ -147,12 +149,10 @@ async function buildAddon() {
   const currentDirContents = fs.readdirSync(process.cwd());
   for (const item of currentDirContents) {
     const itemPath = path.join(process.cwd(), item);
-    // Exclude the target build and dist directories from being copied into themselves
-    // Also exclude any files/folders that would have been handled by Rollup,
-    // or source files that are transformed by Rollup (if your config is set up that way)
+    // Exclude the target build and dest directories from being copied into themselves
     if (
       item === BUILD_DIR ||
-      item === DIST_DIR ||
+      item === DEST_DIR ||
       item === "rollup.config.mjs"
     ) {
       continue;
@@ -173,10 +173,10 @@ async function buildAddon() {
     }
   }
   const zipFileName = `${ADDON_NAME}-${version}.zip`;
-  const zipFilePath = path.join(DIST_DIR, zipFileName);
+  const zipFilePath = path.join(DEST_DIR, zipFileName);
 
   // Ensure output directory exists
-  fs.mkdirSync(DIST_DIR, { recursive: true });
+  fs.mkdirSync(DEST_DIR, { recursive: true });
 
   await createZipArchive(BUILD_DIR, zipFilePath);
 

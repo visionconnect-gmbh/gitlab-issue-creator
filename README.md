@@ -46,21 +46,36 @@ Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visio
 ### Aufbau des Projekts
 
 ```
-.
-├── manifest.json              # Die "Identitätskarte" des Add-ons
-├── background.js              # Unser Haupt-Hintergrundskript (die Logik)
-├── utils/
-│   └── utils.js               # Kleine Helferlein für background.js
-├── options/
-│   └── options.html           # Die Seite für Einstellungen
-│   └── options.js             # Kleines Script zum verabeiten der Einfaben
-├── popup/
-│   └── ticket_creator.html    # Das Popup für Ticketerstellung
-│   └── ticket_creator.js      # Das JS für das Popup-Fenster (Projektauswahl etc.)
-├── package.json               # Node.js-Einstellungen und Abhängigkeiten
-├── rollup.config.mjs          # Wie Rollup unseren Code zusammenpackt
-└── dist/                      # Hier landen die fertigen, gebündelten Skripte (wird von Git ignoriert!)
-    └── bundled-background.js
+├── manifest.json                  # Die "Identitätskarte" des Add-ons
+├── background.js                  # Einstiegspunkt für den Hintergrundprozess (Logik)
+├── package.json                   # Node.js-Konfiguration und Abhängigkeiten
+├── rollup.config.mjs              # Rollup-Bundler-Konfiguration
+├── readme.md                      # Projektbeschreibung und Hinweise
+├── dist/                          # Ausgabeordner für gebündelte Skripte (wird von Git ignoriert!)
+│   ├── bundled-background.js
+│   └── bundled-background.js.map
+├── icons/                         # Icons für verschiedene Auflösungen
+│   ├── icon-16x.png
+│   ├── [...]
+│   ├── icon-64x.png
+│   └── Ixon.svg
+└── src/                           # Quellverzeichnis
+    ├── theme.css                  # Globale Styles
+    ├── gitlab/                    # GitLab-bezogene Module
+    │   ├── api.js                 # API-Wrapper für GitLab
+    │   └── gitlab.js             # Logik für GitLab-Interaktionen
+    ├── options/                   # Einstellungsseite
+    │   ├── options.html           # Oberfläche für Nutzeroptionen
+    │   └── options.js             # Logik zur Verarbeitung der Eingaben
+    ├── popup/                     # Popup-Fenster zur Ticketerstellung
+    │   ├── ticket_creator.html    # UI für das Ticket-Popup
+    │   ├── ticket_creator.js      # JS-Logik für Projektauswahl & Co.
+    │   └── easymde/               # Eingebundener Markdown-Editor (Drittanbieter)
+    │       ├── easymde.min.css
+    │       └── easymde.min.js
+    └── utils/                     # Hilfsfunktionen
+        ├── utils.js               # Allgemeine Utility-Funktionen
+        └── cache.js               # Zwischenspeicher für API-Antworten
 ```
 
 ### Build-Befehle

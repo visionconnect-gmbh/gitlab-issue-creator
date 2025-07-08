@@ -1,6 +1,8 @@
 import { displayNotification } from "../utils/utils.js";
 import { apiGet, apiPost } from "./api.js";
 import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
+import { CacheKeys } from "../Enums.js";
+
 
 /**
  * Shows a standard GitLab settings missing notification.
@@ -65,13 +67,13 @@ const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
  * @param {function(Array):void} [onUpdate] - Optional callback for live update
  */
 export async function getProjects(onUpdate) {
-  const cached = getCache("projects", CACHE_TTL_MS);
+  const cached = getCache(CacheKeys.PROJECTS, CACHE_TTL_MS);
 
   if (cached) {
     // Add new projects to the cache if they are not already present
     const newProjects = await getNewProjects();
     if (newProjects.length > 0) {
-      addToCacheArray("projects", newProjects, "id");
+      addToCacheArray(CacheKeys.PROJECTS, newProjects, "id");
     }
     if (onUpdate) onUpdate(cached);
     return cached;
@@ -104,7 +106,7 @@ export async function getProjects(onUpdate) {
 
     console.log(`Fetched ${allProjects.length} projects`);
 
-    setCache("projects", allProjects);
+    setCache(CacheKeys.PROJECTS, allProjects);
     if (onUpdate) onUpdate(allProjects);
   } catch (error) {
     console.error("Error fetching projects:", error);
@@ -119,7 +121,7 @@ async function getNewProjects() {
   const settings = await requireValidSettings();
   if (!settings) return [];
 
-  const current_projects = getCache("projects", CACHE_TTL_MS); // from cache
+  const current_projects = getCache(CacheKeys.PROJECTS, CACHE_TTL_MS); // from cache
 
   // Entry 0 is the most recent project
   const last_id = current_projects.length > 0 ? current_projects[0].id : -1;

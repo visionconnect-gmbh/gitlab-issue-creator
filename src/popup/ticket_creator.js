@@ -1,3 +1,6 @@
+import { displayNotification } from "../utils/utils.js";
+import { MessageTypes } from "../Enums.js";
+
 let projects = [];
 let filteredProjects = [];
 let messageData = null;
@@ -45,7 +48,7 @@ const ticketTitle = document.getElementById("ticketTitle");
 const createBtn = document.getElementById("create");
 
 // Signalisiere Background, dass das Popup bereit ist
-browser.runtime.sendMessage({ type: "popup-ready" });
+browser.runtime.sendMessage({ type: MessageTypes.POPUP_READY });
 
 // Empfange Nachricht mit Projektliste und E-Mail-Daten vom Background-Script
 browser.runtime.onMessage.addListener((msg) => {
@@ -117,7 +120,7 @@ createBtn.addEventListener("click", () => {
   const ticketDescriptionMarkdown = easyMDE.value();
 
   browser.runtime.sendMessage({
-    type: "create-gitlab-issue",
+    type: MessageTypes.CREATE_GITLAB_ISSUE,
     projectId: selectedProjectId,
     title: ticketTitle.value,
     description: ticketDescriptionMarkdown, // Sende den Markdown-Inhalt

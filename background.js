@@ -1,3 +1,4 @@
+import { MessageTypes } from "./src/Enums.js";
 import { displayNotification } from "./src/utils/utils.js";
 import { clearAllCache } from "./src/utils/cache.js";
 import { getEmailContent } from "./src/emailContent.js";
@@ -44,7 +45,7 @@ async function handleBrowserActionClick() {
       } else {
         // Popup ist noch nicht bereit, warten auf Nachricht
         browser.runtime.onMessage.addListener((msg) => {
-          if (msg.type === "popup-ready") {
+          if (msg.type === MessageTypes.POPUP_READY) {
             popupReady = true;
             sendProjectDataToPopup();
           }
@@ -70,7 +71,7 @@ async function sendProjectDataToPopup() {
 
   try {
     await browser.tabs.sendMessage(tabs[0].id, {
-      type: "project-list",
+      type: MessageTypes.PROJECT_LIST,
       projects: projectsGlobal,
       email: emailGlobal,
     });
@@ -85,13 +86,13 @@ async function handleRuntimeMessages(msg, sender) {
 
   // TODO: Switch to Enums
   switch (msgType) {
-    case "popup-ready": {
+    case MessageTypes.POPUP_READY: {
       popupReady = true;
       sendProjectDataToPopup();
       break;
     }
 
-    case "create-gitlab-issue": {
+    case MessageTypes.CREATE_GITLAB_ISSUE: {
       const projectId = msg.projectId;
       const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
@@ -119,24 +120,7 @@ async function handleRuntimeMessages(msg, sender) {
       break;
     }
 
-    case "clear-cache": {
-      try {
-        clearAllCache();
-        displayNotification(
-          "GitLab Ticket Addon",
-          "Cache erfolgreich geleert."
-        );
-      } catch (error) {
-        console.error("Fehler beim Leeren des Caches:", error);
-        displayNotification(
-          "GitLab Ticket Addon",
-          "Fehler beim Leeren des Caches: " + error.message
-        );
-      }
-      break;
-    }
-
-    case "settings-updated": {
+    case MessageTypes.SETTINGS_UPDATED: {
       // Einstellungen wurden aktualisiert, Popup neu laden
       if (popupWindowId) {
         const tabs = await browser.tabs.query({ windowId: popupWindowId });

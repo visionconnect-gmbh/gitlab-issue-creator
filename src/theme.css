@@ -101,6 +101,7 @@ button {
   background-color: var(--color-primary);
   border: none;
   padding: 0.85rem 1rem;
+  margin-bottom: 8px;
   color: white;
   font-weight: 700;
   font-size: 1.1rem;

@@ -1,3 +1,6 @@
+import { MessageTypes, CacheKeys } from "../Enums.js";
+import { clearAllCache, resetCache } from "../utils/cache.js";
+
 const SVG_PATH = {
   EYE_OPEN:
     "M2.1 3.51L1 4.62l4.02 4.02C3.43 10.18 2.07 11.96 1 14c2.73 3.89 7 7.5 11 7.5 2.13 0 4.25-.7 6.09-1.9l3.29 3.29 1.11-1.11L2.1 3.51zM12 18c-3.03 0-5.5-2.47-5.5-5.5 0-.72.14-1.41.39-2.04l1.52 1.52a3.5 3.5 0 004.62 4.62l1.51 1.51A5.49 5.49 0 0112 18zm6.3-2.3l-2.17-2.17a5.5 5.5 0 00-6.66-6.66L7.3 5.7A13.9 13.9 0 0112 4.5c5 0 9.27 3.61 11 7.5-1.03 2.3-2.61 4.27-4.7 5.7z",
@@ -131,7 +134,10 @@ async function saveOptions(data) {
     showTokenHelpLink(trimmedUrl, trimmedToken);
     showAlert("Einstellungen erfolgreich gespeichert!");
     // Notify background script or other parts of the extension about the update
-    browser.runtime.sendMessage({ type: "settings-updated", url: trimmedUrl });
+    browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      url: trimmedUrl,
+    });
     window.close(); // Close the options page
   } catch (error) {
     handleError("Fehler beim Speichern der Einstellungen", error);
@@ -143,7 +149,7 @@ async function saveOptions(data) {
  */
 async function clearCache() {
   try {
-    await browser.runtime.sendMessage({ type: "clear-cache" });
+    clearAllCache(); // Call the utility function to clear cache
     showAlert("Cache erfolgreich geleert!"); // Add success message for cache clear
   } catch (error) {
     handleError("Fehler beim Löschen des Caches", error);
@@ -176,6 +182,14 @@ function setupEventListeners() {
     saveOptions({ token: DOM.tokenInput.value, url: DOM.urlInput.value })
   );
   DOM.cacheClearButton.addEventListener("click", clearCache);
+  DOM.clearProjectsButton.addEventListener("click", async () => {
+    try {
+      resetCache(CacheKeys.PROJECTS); // Clear the projects cache
+      showAlert("Projekte erfolgreich gelöscht!");
+    } catch (error) {
+      handleError("Fehler beim Löschen der Projekte", error);
+    }
+  });
 }
 
 /**
@@ -192,6 +206,7 @@ async function initSettingsUI() {
   DOM.toggleBtn = document.getElementById("toggleVisibility");
   DOM.saveButton = document.getElementById("save");
   DOM.cacheClearButton = document.getElementById("clearCacheBtn");
+  DOM.clearProjectsButton = document.getElementById("clearProjectsBtn");
 
   DOM.tokenHelpLink = document.getElementById("tokenHelpLink");
 

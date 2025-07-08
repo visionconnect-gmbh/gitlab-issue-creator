@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "GitLab Ticket Creator",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "author": "kirchner@visionconnect.de",
   "applications": {

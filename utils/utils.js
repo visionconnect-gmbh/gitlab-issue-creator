@@ -6,7 +6,7 @@
 export function displayNotification(title, message) {
   browser.notifications.create({
     type: "basic",
-    iconUrl: browser.runtime.getURL("icons/icon.png"),
+    iconUrl: browser.runtime.getURL("icons/icon-48px.png"),
     title: title,
     message: message,
   });

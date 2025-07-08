@@ -1,4 +1,15 @@
-const API_BASE_URL = "https://gitlab.visionconnect.de";
+let API_BASE_URL = null;
+/*
+ * Set the base URL for the GitLab API.
+ * This should be called before making any API requests.
+ * The URL should not end with a slash.
+ */
+export function setApiBaseUrl(url) {
+  if (!url) {
+    throw new Error("API base URL cannot be empty");
+  }
+  API_BASE_URL = url.endsWith("/") ? url.slice(0, -1) : url;
+}
 
 async function handleResponse(response) {
   if (!response.ok) {
@@ -14,6 +25,10 @@ async function handleResponse(response) {
 }
 
 async function doRequest(endpoint, options = {}) {
+  if (!API_BASE_URL) {
+    throw new Error("API base URL is not set. Call setApiBaseUrl() first.");
+  }
+
   const headers = {
     "Content-Type": "application/json",
     ...(options.headers || {}),

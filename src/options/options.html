@@ -72,6 +72,34 @@
         user-select: none;
       }
 
+      /* Styles for the footer */
+      footer {
+        margin-top: 40px; /* Add some space above the footer */
+        text-align: center;
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        display: flex; /* Use flexbox to align text and image */
+        flex-direction: column; /* Stack them vertically */
+        align-items: center; /* Center horizontally */
+        gap: 8px; /* Space between text and image */
+      }
+
+      footer a {
+        color: #2980b9;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Style for the footer icon */
+      .footer-icon {
+        height: 24px; /* Adjust size as needed, e.g., 24px or 32px */
+        width: auto; /* Maintain aspect ratio */
+        vertical-align: middle; /* Align with text if on the same line (though flexbox might handle this better) */
+      }
+
       @media (max-width: 500px) {
         body {
           padding: 20px 12px;
@@ -82,6 +110,14 @@
   <body>
     <div class="section">
       <h1>GitLab Einstellungen</h1>
+      <label for="gitlabUrl">GitLab URL:</label>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="gitlabUrl"
+          placeholder="https://gitlab.example.com"
+        />
+      </div>
       <label for="gitlabToken">Private Access Token:</label>
       <div class="input-wrapper">
         <input
@@ -111,6 +147,23 @@
       <label for="clearCacheBtn">Cache leeren:</label>
       <button id="clearCacheBtn">leeren</button>
     </div>
+
+    <footer>
+      <p>
+        Entwickelt von
+        <a
+          href="https://www.visionconnect.de"
+          target="_blank"
+          rel="noopener noreferrer"
+          >VisionConnect GmbH</a
+        >
+        <img
+          src="../../icons/vc-icon-32px.png"
+          alt="VisionConnect Logo"
+          class="footer-icon"
+        />
+      </p>
+    </footer>
 
     <script src="options.js"></script>
   </body>

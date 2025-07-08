@@ -4,7 +4,10 @@
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "main": "background.js",
   "scripts": {
-    "build": "npm i && rollup -c",
+    "version:patch": "node scripts/bump-version.js patch",
+    "version:minor": "node scripts/bump-version.js minor",
+    "version:major": "node scripts/bump-version.js major",
+    "build": "npm i && node scripts/build.js",
     "watch": "npm i && rollup -c -w"
   },
   "keywords": [],
@@ -14,5 +17,9 @@
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup": "^4.44.2"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "rimraf": "^6.0.1"
   }
 }

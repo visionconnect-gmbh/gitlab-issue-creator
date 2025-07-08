@@ -19,8 +19,11 @@ function notifyMissingSettings() {
  * @returns {Promise<Object|null>} Settings or null if invalid.
  */
 async function getGitLabSettings() {
-  const settings = await browser.storage.local.get(["gitlabToken"]);
-  if (!settings.gitlabToken) {
+  const settings = await browser.storage.local.get([
+    "gitlabToken",
+    "gitlabUrl",
+  ]);
+  if (!settings.gitlabToken || !settings.gitlabUrl) {
     notifyMissingSettings();
     return null;
   }
@@ -95,6 +98,11 @@ export async function getProjects(onUpdate) {
         }
       );
 
+      if (!fetched) {
+        console.warn("Keine Projekte gefunden oder API-Fehler.");
+        break;
+      }
+
       if (!Array.isArray(fetched)) {
         console.warn("Unerwartete Antwort:", fetched);
         break;
@@ -138,6 +146,15 @@ async function getNewProjects() {
         headers: { "PRIVATE-TOKEN": settings.gitlabToken },
       }
     );
+
+    if (!projects) {
+      return [];
+    }
+
+    if (!Array.isArray(projects)) {
+      return [];
+    }
+
     return projects || [];
   } catch (error) {
     console.error("Error fetching new projects:", error);

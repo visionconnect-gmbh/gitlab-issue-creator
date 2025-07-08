@@ -21,13 +21,15 @@ export async function getEmailContent() {
   const rawMessage = await browser.messages.getFull(message.id);
   const textPart = findTextPart(rawMessage.parts);
   const emailBody = textPart ? textPart.body : "";
-
   const conversationHistory = extractConversationHistory(emailBody);
+
+  const attachments = findAttachmentParts(rawMessage.parts);
 
   return {
     subject: message.subject,
     author: message.author,
     date: message.date,
+    attachments: attachments,
     conversationHistory,
   };
 }
@@ -48,6 +50,35 @@ function findTextPart(parts) {
     }
   }
   return null;
+}
+
+const ALLOWED_ATTACHMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+/**
+ * Finds all attachment parts in the raw message parts.
+ * @param {Array} parts - The parts array of the raw message.
+ * @returns {Array} An array of attachment parts.
+ * */
+function findAttachmentParts(parts) {
+  const attachments = [];
+  for (const part of parts) {
+    if (
+      part.headers.contentDisposition &&
+      part.headers.contentDisposition.includes("attachment") &&
+      part.contentType &&
+      ALLOWED_ATTACHMENT_TYPES.includes(part.contentType)
+    ) {
+      attachments.push({
+        name: part.name || "Attachment",
+        contentType: part.contentType,
+        size: part.size,
+        content: part.content, // Add this line: raw content (e.g. base64 or Uint8Array)
+      });
+    }
+    if (part.parts) {
+      attachments.push(...findAttachmentParts(part.parts));
+    }
+  }
+  return attachments;
 }
 
 /**

@@ -51,6 +51,11 @@
         transition: background-color 0.2s ease;
       }
 
+      input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+      }
+
       /* Styles für EasyMDE, um es besser in Ihr Design zu integrieren */
       .CodeMirror,
       .EasyMDEContainer {
@@ -88,14 +93,21 @@
     <h2>GitLab-Ticket erstellen</h2>
 
     <div class="section">
-      <label for="projectSearch">Projekt auswählen:</label>
-      <input
-        type="text"
-        id="projectSearch"
-        list="projectSuggestions"
-        placeholder="Projektname suchen..."
-      />
-      <datalist id="projectSuggestions"></datalist>
+      <div class="select-container">
+        <label for="projectSearch">Projekt auswählen:</label>
+        <input
+          type="text"
+          id="projectSearch"
+          list="projectSuggestions"
+          placeholder="Projektname suchen..."
+        />
+        <datalist id="projectSuggestions"></datalist>
+      </div>
+      <div class="select-container">
+        <label for="attachmentsCheckbox"
+          >Anhänge hinzufügen: <input type="checkbox" id="attachmentsCheckbox"
+        /></label>
+      </div>
     </div>
 
     <div class="section">

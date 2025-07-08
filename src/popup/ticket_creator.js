@@ -1,5 +1,3 @@
-// ticket_creator.js
-
 let projects = [];
 let filteredProjects = [];
 let messageData = null;

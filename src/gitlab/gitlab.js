@@ -20,7 +20,6 @@ async function getGitLabSettings() {
   const settings = await browser.storage.local.get(["gitlabToken"]);
   if (!settings.gitlabToken) {
     notifyMissingSettings();
-    browser.runtime.openOptionsPage();
     return null;
   }
   return settings;
@@ -30,7 +29,7 @@ async function getGitLabSettings() {
  * Gets and validates GitLab settings. Displays notification if missing.
  * @returns {Promise<Object|null>} Valid settings or null.
  */
-async function requireValidSettings() {
+export async function requireValidSettings() {
   const settings = await getGitLabSettings();
   if (!settings) return null;
   return settings;

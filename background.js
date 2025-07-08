@@ -1,12 +1,13 @@
-import { displayNotification } from "./utils/utils.js";
-import { clearAllCache } from "./utils/cache.js";
+import { displayNotification } from "./src/utils/utils.js";
+import { clearAllCache } from "./src/utils/cache.js";
 import {
+  requireValidSettings,
   getProjects,
   createGitLabIssue,
   getCurrentUser,
-} from "./gitlab/gitlab.js";
+} from "./src/gitlab/gitlab.js";
 
-const POPUP_PATH = "popup/ticket_creator.html"; // Pfad zum Popup
+const POPUP_PATH = "src/popup/ticket_creator.html"; // Pfad zum Popup
 
 let projectsGlobal = [];
 let emailGlobal = null;
@@ -237,6 +238,11 @@ async function handleBrowserActionClick() {
     if (!emailData) return;
     emailGlobal = emailData;
 
+    if (!(await requireValidSettings())) {
+      browser.runtime.openOptionsPage();
+      return;
+    }
+    
     // Popup öffnen
     const popupWindow = await browser.windows.create({
       url: browser.runtime.getURL(POPUP_PATH),
@@ -263,10 +269,9 @@ async function handleBrowserActionClick() {
       }
     });
   } catch (err) {
-    console.error("Error in addon:", err);
     displayNotification(
       "GitLab Ticket Addon",
-      "Ein Fehler ist aufgetreten. Details siehe Konsole."
+      `Ein Fehler ist aufgetreten. Fehler: ${err.message}`
     );
   }
 }
@@ -295,6 +300,7 @@ async function handleRuntimeMessages(msg, sender) {
   const msgType = msg.type;
   if (!msgType) return;
 
+  // TODO: Switch to Enums
   switch (msgType) {
     case "popup-ready": {
       popupReady = true;
@@ -348,7 +354,7 @@ async function handleRuntimeMessages(msg, sender) {
     }
 
     case "settings-updated": {
-        return; // No use, as of now
+      return; // No use, as of now
     }
 
     default:

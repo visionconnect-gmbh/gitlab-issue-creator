@@ -1,6 +1,6 @@
 {
   "name": "thunderbird-gitlab-issue",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "main": "background.js",
   "scripts": {

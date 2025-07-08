@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,  
   "name": "GitLab Ticket Creator",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "author": "kirchner@visionconnect.de",
   "applications": {        
@@ -12,7 +12,7 @@
     }
   },
   "options_ui": {
-    "page": "options/options.html",
+    "page": "src/options/options.html",
     "open_in_tab": true
   },
   "permissions": [
@@ -27,9 +27,10 @@
       "dist/bundled-background.js" 
     ]
   },
-  "browser_action": {   
-    "default_title": "GitLab Ticket erstellen",
-    "default_icon": "icons/icon-48x.png"
+  "browser_action": {
+    "allowed_spaces": ["mail"],
+    "default_title": "Create GitLab Issue",
+    "default_icon": "icons/icon-48px.png"
   },
   "icons": {
     "64": "icons/icon-64px.png",

@@ -26,7 +26,7 @@ async function getGitLabSettings() {
     notifyMissingSettings();
     return null;
   }
-  return settings;
+  return settings
 }
 
 /**

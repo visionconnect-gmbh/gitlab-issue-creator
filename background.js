@@ -19,14 +19,15 @@ let popupReady = false;
 
 async function handleBrowserActionClick() {
   try {
-    const emailData = await getEmailContent();
-    if (!emailData) return;
-    emailGlobal = emailData;
-
     if (!(await requireValidSettings())) {
+      console.warn("GitLab settings are not valid.");
       openOptionsPage();
       return;
     }
+
+    const emailData = await getEmailContent();
+    if (!emailData) return;
+    emailGlobal = emailData;
 
     const popupWindow = await browser.windows.create({
       url: browser.runtime.getURL(POPUP_PATH),

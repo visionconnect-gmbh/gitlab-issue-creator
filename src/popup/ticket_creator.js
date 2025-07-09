@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   elements.projectSearch.addEventListener("input", handleProjectSearchInput);
   elements.projectSearch.addEventListener("change", handleProjectSearchChange);
+
   // On load set assignee to current user
   getCurrentUser().then((user) => {
     if (user) {
@@ -76,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
   });
+
   elements.attachmentsCheckbox.addEventListener(
     "change",
     handleAttachmentsCheckboxChange

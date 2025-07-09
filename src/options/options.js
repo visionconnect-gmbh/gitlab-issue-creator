@@ -1,5 +1,5 @@
 import { MessageTypes, CacheKeys } from "../Enums.js";
-import { clearAllCache, getCacheKeys, resetCache } from "../utils/cache.js";
+import { clearAllCache, resetCache } from "../utils/cache.js";
 
 const SVG_PATH = {
   EYE_OPEN:

@@ -47,7 +47,7 @@ Wenn ihr am Add-on schraubt oder es testen wollt:
 
 ## Konfiguration 
 
-Vor der ersten Verwendung werdet ihr aufgefordert die Gitlab URL, sowie einen persönlichen Access Tocken zu hinterlegen.
+Vor der ersten Verwendung werdet ihr aufgefordert die Gitlab URL, sowie einen persönlichen Access Token zu hinterlegen.
 Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visionconnect.de/-/user_settings/personal_access_tokens)
 - Wichtig: Dieser Token benötigt Rechte für die API
 

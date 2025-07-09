@@ -281,7 +281,8 @@ export async function createGitLabIssue(
   projectId,
   assignee,
   title,
-  description
+  description,
+  issueEndDate = null
 ) {
   const settings = await requireValidSettings();
   if (!settings) return;
@@ -291,6 +292,7 @@ export async function createGitLabIssue(
       title: title,
       description: description,
       assignee_ids: [assignee],
+      due_date: issueEndDate,
     };
     await apiPost(`/api/v4/projects/${projectId}/issues`, issueData, {
       headers: { "PRIVATE-TOKEN": settings.gitlabToken },

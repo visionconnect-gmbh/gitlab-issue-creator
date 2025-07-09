@@ -1,5 +1,3 @@
-// popup/state.js
-
 let isAssigneeLoadingEnabled = false;
 let assigneesCache = {};
 let currentAssignees = [];
@@ -8,14 +6,16 @@ let filteredProjects = [];
 let messageData = null;
 let selectedProjectId = null;
 let selectedAssigneeId = null;
+let issueEndDate = null;
 
 const elements = {
   projectSearch: document.getElementById("projectSearch"),
   projectSuggestions: document.getElementById("projectSuggestions"),
-  attachmentsCheckbox: document.getElementById("attachmentsCheckbox"),
-  ticketTitle: document.getElementById("ticketTitle"),
-  createBtn: document.getElementById("create"),
+  issueTitle: document.getElementById("issueTitle"),
   assigneeSelect: document.getElementById("assigneeSelect"),
+  issueEnd: document.getElementById("issueEnd"),
+  attachmentsCheckbox: document.getElementById("attachmentsCheckbox"),
+  createBtn: document.getElementById("create"),
 };
 
 const easyMDE = new EasyMDE({
@@ -57,6 +57,7 @@ export {
   messageData,
   selectedProjectId,
   selectedAssigneeId,
+  issueEndDate,
   elements,
   easyMDE,
 };
@@ -93,9 +94,16 @@ export function setSelectedAssigneeId(id) {
   selectedAssigneeId = id;
 }
 
+export function setIssueEndDate(date) {
+  const newDate = date ? date.toISOString().split("T")[0] : null;
+  elements.issueEnd.value = newDate;
+  issueEndDate = newDate;
+}
+
 export function resetState() {
   easyMDE.value("");
-  elements.ticketTitle.value = "";
+  elements.issueTitle.value = "";
+  elements.issueEnd.value = null;
   elements.attachmentsCheckbox.checked = false;
   selectedProjectId = null;
   currentAssignees = [];

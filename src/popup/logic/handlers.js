@@ -11,6 +11,7 @@ import {
   isAssigneeLoadingEnabled,
   assigneesCache,
   selectedAssigneeId,
+  issueEndDate as selectedIssueEndDate,
   filteredProjects,
   setProjects,
   setFilteredProjects,
@@ -50,7 +51,7 @@ export function handleIncomingMessage(msg) {
     renderProjectSuggestions();
 
     setMessageData(msg.email);
-    elements.ticketTitle.value = messageData.subject ?? "";
+    elements.issueTitle.value = messageData.subject ?? "";
     easyMDE.value(generateFullDescription());
   } else if (msg.type === MessageTypes.ASSIGNEES_RESPONSE) {
     if (msg.projectId === selectedProjectId) {
@@ -201,7 +202,8 @@ function sendCreateIssueMessage(description) {
     type: MessageTypes.CREATE_GITLAB_ISSUE,
     projectId: selectedProjectId,
     assignee: selectedAssigneeId || null,
-    title: elements.ticketTitle.value,
+    endDate: selectedIssueEndDate,
+    title: elements.issueTitle.value,
     description,
   });
 }

@@ -33,7 +33,7 @@ async function handleBrowserActionClick() {
       url: browser.runtime.getURL(POPUP_PATH),
       type: "popup",
       width: 700,
-      height: 850,
+      height: 900,
     });
 
     popupWindowId = popupWindow.id;
@@ -121,10 +121,16 @@ async function handleRuntimeMessages(msg, sender) {
         .join("\n\n---\n\n");
 
       const description = msg.description?.trim() || conversation;
-
+      const issueEnd = msg.endDate;
       try {
         const assignee = msg.assignee || (await getCurrentUser());
-        await createGitLabIssue(projectId, assignee, title, description);
+        await createGitLabIssue(
+          projectId,
+          assignee,
+          title,
+          description,
+          issueEnd
+        );
       } catch (error) {
         console.error("Error creating GitLab issue:", error);
         displayNotification(

@@ -56,6 +56,22 @@
         margin-right: 10px;
       }
 
+      input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+      }
+
+      .date-range {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        flex-wrap: wrap; /* mobile-friendly */
+      }
+
+      .date-field {
+        flex: 1 1 48%;
+      }
+
       /* Styles für EasyMDE, um es besser in Ihr Design zu integrieren */
       .CodeMirror,
       .EasyMDEContainer {
@@ -111,16 +127,27 @@
           </option>
         </select>
       </div>
-      <div class="select-container">
-        <label for="attachmentsCheckbox"
-          >Anhänge hinzufügen: <input type="checkbox" id="attachmentsCheckbox"
-        /></label>
-      </div>
     </div>
 
     <div class="section">
-      <label for="ticketTitle">Titel des Tickets:</label>
-      <input type="text" id="ticketTitle" />
+      <div class="select-container">
+        <label for="issueTitle">Titel des Tickets:</label>
+        <input type="text" id="issueTitle" />
+      </div>
+
+      <div class="select-container date-range">
+        <div class="date-field">
+          <label for="issueEnd">Enddatum:</label>
+          <input type="date" id="issueEnd" />
+        </div>
+      </div>
+
+      <div class="select-container">
+        <label for="attachmentsCheckbox">
+          Email-Anhänge hinzufügen:
+          <input type="checkbox" id="attachmentsCheckbox" />
+        </label>
+      </div>
     </div>
 
     <div class="section">

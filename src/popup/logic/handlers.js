@@ -27,6 +27,7 @@ import {
   renderProjectSuggestions,
   renderAssignees,
   updateAssigneeSelectVisibility,
+  showButtonLoadingState,
 } from "./ui.js";
 
 export async function resetEditor() {
@@ -105,7 +106,7 @@ export async function handleCreateButtonClick() {
   try {
     const description = await createTicketDescription();
     await sendCreateIssueMessage(description);
-    closeWindowAfterDelay(100);
+    showButtonLoadingState();
   } catch (error) {
     console.error("Ticket creation failed:", error);
   }
@@ -206,10 +207,6 @@ function sendCreateIssueMessage(description) {
     title: elements.issueTitle.value,
     description,
   });
-}
-
-function closeWindowAfterDelay(delayMs) {
-  setTimeout(() => window.close(), delayMs);
 }
 
 function generateBaseDescription() {

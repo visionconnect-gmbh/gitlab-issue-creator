@@ -41,3 +41,15 @@ export function updateAssigneeSelectVisibility(isVisible) {
     parentDiv.style.display = isVisible ? "block" : "none";
   }
 }
+
+const LOADING_TIMNEOUT_S = 10;
+export function showButtonLoadingState() {
+  elements.createBtn.disabled = true;
+  elements.createBtn.classList.add("loading");
+
+  // Reset after a short delay
+  setTimeout(() => {
+    elements.createBtn.disabled = false;
+    elements.createBtn.classList.remove("loading");
+  }, LOADING_TIMNEOUT_S * 1000);
+}

@@ -25,8 +25,18 @@ async function handleBrowserActionClick() {
       return;
     }
 
+    // Close existing popup if it exists
+    closePopup();
+
     const emailData = await getEmailContent();
-    if (!emailData) return;
+    if (!emailData) {
+      displayNotification(
+        "GitLab Ticket Addon",
+        "E-Mail-Inhalt konnte nicht abgerufen werden."
+      );
+      return;
+    }
+
     emailGlobal = emailData;
 
     const popupWindow = await browser.windows.create({
@@ -131,6 +141,7 @@ async function handleRuntimeMessages(msg, sender) {
           description,
           issueEnd
         );
+        closePopup();
       } catch (error) {
         console.error("Error creating GitLab issue:", error);
         displayNotification(
@@ -153,6 +164,23 @@ async function handleRuntimeMessages(msg, sender) {
 
     default:
       console.warn("Unknown message type:", msg.type);
+  }
+}
+
+function closePopup() {
+  if (popupWindowId) {
+    browser.windows.remove(popupWindowId).catch((err) => {
+      console.warn("Error closing popup:", err);
+    });
+    reset();
+  }
+
+  function reset() {
+    projectsGlobal = [];
+    assigneesGlobal = {};
+    emailGlobal = null;
+    popupWindowId = null;
+    popupReady = false;
   }
 }
 

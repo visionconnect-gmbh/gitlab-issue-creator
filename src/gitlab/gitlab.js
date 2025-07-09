@@ -301,17 +301,15 @@ export async function createGitLabIssue(
       { headers: { "PRIVATE-TOKEN": settings.gitlabToken } }
     );
 
-    const issueUrl = response.web_url; // GitLab gibt die URL des Tickets zurück
-
-    const notificationId = displayNotification(
+    const url = response.web_url || "";
+    const notificationid = await displayNotification(
       "GitLab Ticket Addon",
-      "Ticket erfolgreich erstellt. Zum Ticket öffnen klicken."
+      "Ticket erfolgreich erstellt. Klicke zum Öffnen."
     );
 
-    // OnClick-Handler registrieren
-    browser.notifications.onClicked.addListener((clickedId) => {
-      if (clickedId === notificationId) {
-        // TODO - Open the issue URL in a new tab
+    browser.notifications.onClicked.addListener((id) => {
+      if (id === notificationid) {
+        messenger.windows.openDefaultBrowser(url);
       }
     });
   } catch (error) {

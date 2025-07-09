@@ -43,14 +43,24 @@ export async function requireValidSettings() {
  * Fetches the current GitLab user.
  * @returns {Promise<Object|null>}
  */
+const USER_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 export async function getCurrentUser() {
+  //Get cached user if available
+  const cachedUser = getCache(CacheKeys.CURRENT_USER, USER_CACHE_TTL);
+  if (cachedUser) {
+    return cachedUser;
+  }
+
   const settings = await requireValidSettings();
   if (!settings) return null;
 
   try {
-    return await apiGet("/api/v4/user", {
+    const user = await apiGet("/api/v4/user", {
       headers: { "PRIVATE-TOKEN": settings.gitlabToken },
     });
+    // cache user
+    setCache(CacheKeys.CURRENT_USER, user, USER_CACHE_TTL);
+    return user;
   } catch (error) {
     console.error("Error fetching current user:", error);
     displayNotification(
@@ -166,11 +176,11 @@ async function getNewProjects() {
 }
 
 /**
- * Fetches and caches assignees for a specific GitLab project.
- * Uses cache if available and fresh, otherwise fetches from API and updates cache.
+ * Fetches and caches assignees for GitLab projects using a shared cache entry.
+ * Each project's assignees are stored under their projectId.
  * @param {string|number} projectId - GitLab project ID
  * @param {function(Array):void} [onUpdate] - Optional callback called with data when available
- * @returns {Promise<Array>} Array of assignees
+ * @returns {Promise<Array>} Array of assignees for the given project
  */
 export async function getAssignees(projectId, onUpdate) {
   if (!projectId) {
@@ -178,12 +188,11 @@ export async function getAssignees(projectId, onUpdate) {
     return [];
   }
 
-  const cacheKey = `${CacheKeys.ASSIGNEES}_${projectId}`;
-  const cached = getCache(cacheKey, CACHE_TTL_MS);
+  const cachedWrapper = getCache(CacheKeys.ASSIGNEES, CACHE_TTL_MS);
 
-  if (cached) {
-    if (onUpdate) onUpdate(cached);
-    return cached;
+  if (cachedWrapper && cachedWrapper[projectId]) {
+    if (onUpdate) onUpdate(cachedWrapper[projectId]);
+    return cachedWrapper[projectId];
   }
 
   const settings = await requireValidSettings();
@@ -199,7 +208,13 @@ export async function getAssignees(projectId, onUpdate) {
       return [];
     }
 
-    setCache(cacheKey, assignees);
+    // Merge with existing cache or create fresh
+    const newCache = {
+      ...(cachedWrapper || {}),
+      [projectId]: assignees,
+    };
+
+    setCache(CacheKeys.ASSIGNEES, newCache);
 
     if (onUpdate) onUpdate(assignees);
 

@@ -167,6 +167,10 @@ async function loadInitialSettings() {
     const { gitlabUrl } = await browser.storage.local.get("gitlabUrl");
     DOM.urlInput.value = gitlabUrl || "";
 
+    const { enableAssigneeLoading } =
+      await browser.storage.local.get("enableAssigneeLoading");
+    DOM.assigneesToggleBtn.checked = enableAssigneeLoading || false;
+
     showTokenHelpLink(gitlabUrl, gitlabToken);
   } catch (error) {
     handleError("Fehler beim Laden der Einstellungen", error);
@@ -192,22 +196,30 @@ function setupEventListeners() {
   });
   DOM.clearAssigneesButton.addEventListener("click", async () => {
     try {
-      const cacheKeys = getCacheKeys();
-      if (cacheKeys.length === 0)
-        return showAlert("Keine Zuständigen im Cache gefunden.");
-
-      // Filter all keys including assignee key
-      const assigneeKeys = cacheKeys.filter((key) =>
-        key.includes(CacheKeys.ASSIGNEES)
-      );
-      if (assigneeKeys.length === 0)
-        return showAlert("Keine Zuständigen im Cache gefunden.");
-      // Reset all assignee caches
-      assigneeKeys.forEach((key) => resetCache(key));
+      resetCache(CacheKeys.ASSIGNEES); // Clear the assignees cache
 
       showAlert("Zuständige erfolgreich gelöscht!");
     } catch (error) {
       handleError("Fehler beim Löschen der Zuständigen", error);
+    }
+  });
+
+  DOM.assigneesToggleBtn.addEventListener("change", async (event) => {
+    const isChecked = event.target.checked;
+    try {
+      await browser.storage.local.set({
+        enableAssigneeLoading: isChecked,
+      });
+      showAlert(
+        `Zuständigen-Laden ${isChecked ? "aktiviert" : "deaktiviert"}.`
+      );
+      // Notify background script or other parts of the extension about the update
+      browser.runtime.sendMessage({
+        type: MessageTypes.SETTINGS_UPDATED,
+        enableAssigneeLoading: isChecked,
+      });
+    } catch (error) {
+      handleError("Fehler beim Speichern der Assignee-Einstellung", error);
     }
   });
 }
@@ -225,6 +237,10 @@ async function initSettingsUI() {
   DOM.eyeIcon = document.getElementById("eyeIcon");
   DOM.toggleBtn = document.getElementById("toggleVisibility");
   DOM.saveButton = document.getElementById("save");
+
+  DOM.assigneesToggleBtn = document.getElementById("enableAssigneeLoading"); // Checkbox to enable/disable assignee loading
+
+  // Cache clear buttons
   DOM.cacheClearButton = document.getElementById("clearCacheBtn");
   DOM.clearProjectsButton = document.getElementById("clearProjectsBtn");
   DOM.clearAssigneesButton = document.getElementById("clearAssigneesBtn");

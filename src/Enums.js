@@ -10,5 +10,6 @@ export const MessageTypes = Object.freeze({
 
 export const CacheKeys = Object.freeze({
   PROJECTS: "projects",
-  ASSIGNEES: "assignees",
+  ASSIGNEES: "assignees_ALL",
+  CURRENT_USER: "current_user",
 });

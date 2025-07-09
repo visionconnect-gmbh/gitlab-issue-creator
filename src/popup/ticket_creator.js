@@ -2,6 +2,7 @@ import { MessageTypes } from "../Enums.js";
 import { displayNotification } from "../utils/utils.js";
 import { uploadAttachmentToGitLab, getCurrentUser } from "../gitlab/gitlab.js";
 
+let isAssigneeLoadingEnabled = false; // This can be set based on user preference in options
 let assigneesCache = {};
 let currentAssignees = [];
 
@@ -50,10 +51,10 @@ const easyMDE = new EasyMDE({
   ],
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   console.log("GitLab Ticket Addon: Projekt-Auswahl Popup geladen");
 
-  resetEditor();
+  await resetEditor();
 
   // Signal background that the popup is ready
   browser.runtime.sendMessage({ type: MessageTypes.POPUP_READY });
@@ -82,22 +83,33 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.createBtn.addEventListener("click", handleCreateButtonClick);
 });
 
-function resetEditor() {
+async function resetEditor() {
   easyMDE.value("");
   elements.ticketTitle.value = "";
   elements.attachmentsCheckbox.checked = false;
-  elements.assigneeSelect.innerHTML =
-    "<option>(Keine Bearbeiter gefunden)</option>";
-  elements.assigneeSelect.disabled = true;
   selectedProjectId = null;
   currentAssignees = [];
   filteredProjects = [];
   projects = [];
   assigneesCache = {};
+  selectedAssigneeId = null; // Reset to no selection
   elements.projectSearch.value = "";
   elements.projectSuggestions.innerHTML = "";
   elements.projectSearch.focus();
   elements.projectSearch.select();
+
+  const { enableAssigneeLoading } = await browser.storage.local.get(
+    "enableAssigneeLoading"
+  );
+  isAssigneeLoadingEnabled = enableAssigneeLoading || false;
+  // Hide assignee select if loading is disabled
+  const parentDiv = elements.assigneeSelect.parentElement;
+  if (parentDiv) {
+    parentDiv.style.display = isAssigneeLoadingEnabled ? "block" : "none";
+  }
+  elements.assigneeSelect.innerHTML =
+    "<option>(Keine Bearbeiter gefunden)</option>";
+  elements.assigneeSelect.disabled = true;
 }
 
 function handleIncomingMessage(msg) {
@@ -165,6 +177,11 @@ function updateAssigneesForSelectedProject() {
     renderAssignees();
   } else {
     // Request assignees from background script if not cached
+
+    // ONLY request if assignee loading is enabled
+    if (!isAssigneeLoadingEnabled) {
+      return;
+    }
     browser.runtime.sendMessage({
       type: MessageTypes.REQUEST_ASSIGNEES,
       projectId: selectedProjectId,

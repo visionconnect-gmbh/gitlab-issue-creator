@@ -116,12 +116,12 @@ async function saveOptions(data) {
   const trimmedUrl = data.url.trim();
 
   if (!trimmedUrl || !isValidUrl(trimmedUrl)) {
-    showAlert("Bitte geben Sie eine gültige GitLab-URL ein.");
+    showAlert(browser.i18n.getMessage('OptionsAlertAddGitLabUrl'));
     return;
   }
 
   if (!trimmedToken) {
-    showAlert("Bitte geben Sie ein gültiges GitLab-Token ein.");
+    showAlert(browser.i18n.getMessage('OptionsAlertAddGitLabToken'));
     showTokenHelpLink(trimmedUrl, trimmedToken);
     return;
   }
@@ -132,7 +132,7 @@ async function saveOptions(data) {
       gitlabUrl: trimmedUrl,
     });
     showTokenHelpLink(trimmedUrl, trimmedToken);
-    showAlert("Einstellungen erfolgreich gespeichert!");
+    showAlert(browser.i18n.getMessage('OptionsAlertOptionsSaved'));
     // Notify background script or other parts of the extension about the update
     browser.runtime.sendMessage({
       type: MessageTypes.SETTINGS_UPDATED,
@@ -140,7 +140,7 @@ async function saveOptions(data) {
     });
     window.close(); // Close the options page
   } catch (error) {
-    handleError("Fehler beim Speichern der Einstellungen", error);
+    handleError(browser.i18n.getMessage('OptionsErrorOptionsSaved'), error);
   }
 }
 

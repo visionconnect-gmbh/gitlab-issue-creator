@@ -1,0 +1,114 @@
+{
+  "extensionName": {
+    "message": "GitLab Ticket Creator",
+    "description": "Name of the extension."
+  },
+  "extensionDescription": {
+    "message": "Erstellt GitLab-Issues aus E-Mails.",
+    "description": "Description of the extension."
+  },
+  "BrowserActionTitle": {
+    "message": "GitLab Issue erzeugen",
+    "description": "Description of the extension."
+  },
+  "ButtonSave": {
+    "message": "Speichern",
+    "description": "Title of save buttons."
+  },
+  "ButtonClearCache": {
+    "message": "Cache leeren",
+    "description": "Title of save buttons."
+  },
+  "OptionsAlertAddGitLabUrl": {
+    "message": "Bitte geben Sie eine gültige GitLab-URL ein.",
+    "description": "Alert for missing GitLab url."
+  },
+  "OptionsAlertAddGitLabToken": {
+    "message": "Bitte geben Sie ein gültiges GitLab-Token ein.",
+    "description": "Alert for missing GitLab token."
+  },
+  "OptionsAlertOptionsSaved": {
+    "message": "Einstellungen erfolgreich gespeichert!",
+    "description": "Response for saved options."
+  },
+  "OptionsErrorOptionsSaved": {
+    "message": "Fehler beim Speichern der Einstellungen!",
+    "description": "Error for not saved options."
+  },
+  "OptionsTitle": {
+    "message": "GitLab Einstellungen",
+    "description": "Title of options window."
+  },
+  "OptionsLabelGitlabURL": {
+    "message": "GitLab URL",
+    "description": "Label of GitLab url."
+  },
+  "OptionsLabelGitlabToken": {
+    "message": "Privater GitLab Access Token",
+    "description": "Label for private GitLab access token."
+  },
+  "OptionsTitleAdditionalOptions": {
+    "message": "Weitere Optionen",
+    "description": "Title for additional options."
+  },
+  "OptionsLabelEnableAssigneeLoading": {
+    "message": "Zuständige laden",
+    "description": "Label for add loading of assignees."
+  },
+  "OptionsTitleCleanup": {
+    "message": "Addon zurücksetzen",
+    "description": "Title for cleanup section."
+  },
+  "OptionsButtonEmptyProjects": {
+    "message": "Projekte leeren",
+    "description": "Title for button empty projects."
+  },
+  "OptionsButtonEmptyAsignees": {
+    "message": "Liste der Beauftragten leeren",
+    "description": "Title for button empty assignees."
+  },
+  "OptionsMadeBy": {
+    "message": "Entwickelt von",
+    "description": "Infotext for made by."
+  },
+  "PopupTitle": {
+    "message": "GitLab-Ticket erstellen",
+    "description": "Title of popup window."
+  },
+  "PopupLabelSelectProject": {
+    "message": "Projekt auswählen",
+    "description": "Label for project select."
+  },
+  "PopupPlaceholderSelectProject": {
+    "message": "Projektname suchen...",
+    "description": "Label for project placeholder."
+  },
+  "PopupLabelTitleOfProject": {
+    "message": "Titel des Tickets",
+    "description": "Label for project title."
+  },
+  "PopupLabelAttachmentsCheckbox": {
+    "message": "Email-Anhänge hinzufügen",
+    "description": "Label for attachment checkbox."
+  },
+  "PopupLabelAssigneeSelect": {
+    "message": "Beauftragte(r)",
+    "description": "Label for assignee selectbox."
+  },
+  "PopupLabelTicketDescription": {
+    "message": "Beschreibung",
+    "description": "Label of project description."
+  },
+  "PopupAssigneeSelectFirstEntry": {
+    "message": "Bitte wählen Sie einen Zuständigen",
+    "description": "First entry of assignee select box."
+  },
+  "PopupLabelIssueEnd": {
+    "message": "Fällig",
+    "description": "Label for issue enddate."
+  },
+  "PopupButtonSubmit": {
+    "message": "Ticket erstellen",
+    "description": "Title submit Button."
+  }
+}

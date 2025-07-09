@@ -115,8 +115,8 @@
   </head>
   <body>
     <div class="section">
-      <h1>GitLab Einstellungen</h1>
-      <label for="gitlabUrl">GitLab URL:</label>
+      <h1 data-message="localize">__MSG_OptionsTitle__</h1>
+      <label for="gitlabUrl" data-message="localize">__MSG_OptionsLabelGitlabURL__:</label>
       <div class="input-wrapper">
         <input
           type="text"
@@ -124,7 +124,7 @@
           placeholder="https://gitlab.example.com"
         />
       </div>
-      <label for="gitlabToken">Private Access Token:</label>
+      <label for="gitlabToken" data-message="localize">__MSG_OptionsLabelGITlabToken__:</label>
       <div id="tokenHelpLink" class="token-help" hidden>
         <a
           href="#"
@@ -154,32 +154,31 @@
           />
         </svg>
       </div>
-      <button id="save">Speichern</button>
+      <button id="save" data-message="localize">__MSG_ButtonSave__</button>
     </div>
 
     <div class="section">
-      <h1>Add-on Optionen</h1>
+      <h2 data-message="localize">__MSG_OptionsTitleAdditionalOptions__</h2>
       <div class="input-wrapper">
-        <label for="enableAssigneeLoading"
-          >Zuständige laden:
+        <label for="enableAssigneeLoading" data-message="localize">__MSG_OptionsLabelEnableAssigneeLoading__:</label>
           <input
             type="checkbox"
             id="enableAssigneeLoading"
             title="Aktiviert: Projekt-Zuständige laden. Deaktiviert: Nur dich setzen."
-        /></label>
+        />
       </div>
 
       <div class="input-wrapper">
-        <label for="clearCacheBtn">Cache leeren:</label>
-        <button id="clearCacheBtn">Cache leeren</button>
-        <button id="clearProjectsBtn">Projekte leeren</button>
-        <button id="clearAssigneesBtn">Zuständige leeren</button>
+        <h2 data-message="localize">__MSG_OptionsTitleCleanup__:</h2>
+        <button id="clearCacheBtn" data-message="localize">__MSG_ButtonClearCache__</button>
+        <button id="clearProjectsBtn" data-message="localize">__MSG_OptionsButtonEmptyProjects__</button>
+        <button id="clearAssigneesBtn" data-message="localize">__MSG_OptionsButtonEmptyAsignees__</button>
       </div>
     </div>
 
     <footer>
       <p>
-        Entwickelt von
+        <span data-message="localize">__MSG_OptionsMadeBy__</span>
         <a
           href="https://www.visionconnect.de"
           target="_blank"
@@ -193,6 +192,7 @@
       </p>
     </footer>
 
+    <script src="../../src/popup/logic/localize.js"></script>
     <script type="module" src="../../dist/bundled-options.js"></script>
   </body>
 </html>

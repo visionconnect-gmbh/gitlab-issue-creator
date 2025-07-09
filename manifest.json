@@ -1,8 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "GitLab Ticket Creator",
+  "name": "__MSG_extensionName__",
   "version": "3.3.0",
-  "description": "Erstellt GitLab-Issues aus E-Mails.",
+  "default_locale": "de",
+  "description": "__MSG_extensionDescription__",
   "author": "kirchner@visionconnect.de",
   "applications": {
     "gecko": {
@@ -31,9 +32,10 @@
     "allowed_spaces": [
       "mail"
     ],
-    "default_title": "Create GitLab Issue",
-    "default_icon": "icons/icon-48px.png"
+    "default_title": "__MSG_BrowserActionTitle__",
+    "default_icon": "icons/icon-64px.png"
   },
+
   "icons": {
     "16": "icons/icon-16px.png",
     "32": "icons/icon-32px.png",

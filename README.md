@@ -66,11 +66,12 @@ Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visio
 │   ├── icon-16x.png
 │   ├── [...]
 │   ├── icon-64x.png
-│   └── Ixon.svg
+│   └── Icon.svg
+│   └── vc-icon-32px.png           # Firmenlogo für den Contributions-Footer in den Optionen
 └── src/                           # Quellverzeichnis
     ├── theme.css                  # Globale Styles
-    ├── emailContent.js            # Logik für parsen der Email
-    ├── Enums.js                   # Konstanten zum einheitlichen handling
+    ├── emailContent.js            # Logik für das Parsen der E-Mail-Inhalte
+    ├── Enums.js                   # Konstanten zum einheitlichen Handling
     ├── gitlab/                    # GitLab-bezogene Module
     │   ├── api.js                 # API-Wrapper für GitLab
     │   └── gitlab.js              # Logik für GitLab-Interaktionen
@@ -79,7 +80,11 @@ Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visio
     │   └── options.js             # Logik zur Verarbeitung der Eingaben
     ├── popup/                     # Popup-Fenster zur Ticketerstellung
     │   ├── ticket_creator.html    # UI für das Ticket-Popup
-    │   ├── ticket_creator.js      # JS-Logik für Projektauswahl & Co.
+    │   ├── main.js                # Einstiegspunkt für das Popup
+    │   ├── logic/                 # Strukturierte Logik für das Popup
+    │   │   ├── handler.js         # Event-Handler und Interaktionen
+    │   │   ├── state.js           # Zustandsverwaltung des Formulars
+    │   │   └── ui.js              # Funktionen zur UI-Manipulation
     │   └── easymde/               # Eingebundener Markdown-Editor (Drittanbieter)
     │       ├── easymde.min.css
     │       └── easymde.min.js

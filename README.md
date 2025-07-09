@@ -1,4 +1,4 @@
-# GitLab Ticket Creator Thunderbird Add-on
+# GitLab Ticket Creator | Thunderbird Add-on
 
 Dieses kleine Thunderbird Add-on ermöglicht, **GitLab-Issues direkt aus E-Mails zu erstellen**.
 

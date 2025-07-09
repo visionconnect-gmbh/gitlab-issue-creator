@@ -1,6 +1,6 @@
 {
-  "name": "thunderbird-gitlab-issue",
-  "version": "2.4.1",
+  "name": "gitlab-ticket-creator",
+  "version": "3.0.0",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "main": "background.js",
   "scripts": {

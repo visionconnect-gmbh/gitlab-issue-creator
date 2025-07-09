@@ -26,7 +26,7 @@ async function getGitLabSettings() {
     notifyMissingSettings();
     return null;
   }
-  return settings
+  return settings;
 }
 
 /**
@@ -294,10 +294,26 @@ export async function createGitLabIssue(
       assignee_ids: [assignee],
       due_date: issueEndDate,
     };
-    await apiPost(`/api/v4/projects/${projectId}/issues`, issueData, {
-      headers: { "PRIVATE-TOKEN": settings.gitlabToken },
+
+    const response = await apiPost(
+      `/api/v4/projects/${projectId}/issues`,
+      issueData,
+      { headers: { "PRIVATE-TOKEN": settings.gitlabToken } }
+    );
+
+    const issueUrl = response.web_url; // GitLab gibt die URL des Tickets zurück
+
+    const notificationId = displayNotification(
+      "GitLab Ticket Addon",
+      "Ticket erfolgreich erstellt. Zum Ticket öffnen klicken."
+    );
+
+    // OnClick-Handler registrieren
+    browser.notifications.onClicked.addListener((clickedId) => {
+      if (clickedId === notificationId) {
+        // TODO - Open the issue URL in a new tab
+      }
     });
-    displayNotification("GitLab Ticket Addon", "Ticket erfolgreich erstellt.");
   } catch (error) {
     console.error("Error creating issue:", error);
     displayNotification(

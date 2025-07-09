@@ -4,12 +4,13 @@
  * @param {string} message The message content of the notification.
  */
 export function displayNotification(title, message) {
-  browser.notifications.create({
+  const notificationId = browser.notifications.create({
     type: "basic",
     iconUrl: browser.runtime.getURL("icons/icon-48px.png"),
     title: title,
     message: message,
   });
+  return notificationId;
 }
 
 export function openOptionsPage() {

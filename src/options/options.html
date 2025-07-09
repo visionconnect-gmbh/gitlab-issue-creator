@@ -29,6 +29,7 @@
 
       .input-wrapper {
         position: relative;
+        margin-bottom: 10px;
       }
 
       input[type="password"],
@@ -158,9 +159,23 @@
 
     <div class="section">
       <h1>Add-on Optionen</h1>
-      <label for="clearCacheBtn">Cache leeren:</label>
-      <button id="clearCacheBtn">Cache leeren</button>
-      <button id="clearProjectsBtn">Projekte leeren</button>
+      <div class="input-wrapper">
+        <label for="enableAssigneeLoading"
+          >Zuständige laden:
+          <input
+            type="checkbox"
+            id="enableAssigneeLoading"
+            checked
+            title="Aktiviert: Projekt-Zuständige laden. Deaktiviert: Nur dich setzen."
+        /></label>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="clearCacheBtn">Cache leeren:</label>
+        <button id="clearCacheBtn">Cache leeren</button>
+        <button id="clearProjectsBtn">Projekte leeren</button>
+        <button id="clearAssigneesBtn">Zuständige leeren</button>
+      </div>
     </div>
 
     <footer>
@@ -179,6 +194,6 @@
       </p>
     </footer>
 
-    <script type="module" src="options.js"></script>
+    <script type="module" src="../../dist/bundled-options.js"></script>
   </body>
 </html>

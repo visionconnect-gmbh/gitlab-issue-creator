@@ -77,6 +77,14 @@ export function clearAllCache() {
 }
 
 /**
+ * Returns all cache keys that start with the cache prefix.
+ * @returns {string[]}
+ */
+export function getCacheKeys() {
+  return Object.keys(localStorage).filter((key) => key.startsWith(cachePrefix));
+}
+
+/**
  * Returns all raw cache entries (for debugging).
  */
 export function getRawCache() {

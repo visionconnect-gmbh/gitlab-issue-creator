@@ -1,22 +1,35 @@
-// rollup.config.js
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
+// rollup.config.mjs
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
 
-export default {
-  // Define the entry point for your background script
-  input: 'background.js',
+const plugins = [resolve(), commonjs()];
 
-  // Define the output configuration
-  output: {
-    file: 'dist/bundled-background.js', // Output file path
-    format: 'iife',                     // Immediately Invoked Function Expression (good for browser environments)
-    name: 'ThunderbirdBackground',      // A global variable name if needed (optional for IIFE)
-    sourcemap: true                     // Generate sourcemaps for easier debugging
+export default [
+  {
+    input: "background.js",
+    output: {
+      file: "dist/bundled-background.js",
+      format: "iife",
+      sourcemap: true,
+    },
+    plugins,
   },
-
-  // Add plugins
-  plugins: [
-    resolve(),  // Locates modules in node_modules
-    commonjs(), // Converts CommonJS modules to ES modules
-  ]
-};
+  {
+    input: "src/popup/ticket_creator.js",
+    output: {
+      file: "dist/bundled-ticket_creator.js",
+      format: "iife",
+      sourcemap: true,
+    },
+    plugins,
+  },
+  {
+    input: "src/options/options.js",
+    output: {
+      file: "dist/bundled-options.js",
+      format: "iife",
+      sourcemap: true,
+    },
+    plugins,
+  },
+];

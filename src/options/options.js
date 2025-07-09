@@ -1,5 +1,5 @@
 import { MessageTypes, CacheKeys } from "../Enums.js";
-import { clearAllCache, resetCache } from "../utils/cache.js";
+import { clearAllCache, getCacheKeys, resetCache } from "../utils/cache.js";
 
 const SVG_PATH = {
   EYE_OPEN:
@@ -190,6 +190,26 @@ function setupEventListeners() {
       handleError("Fehler beim Löschen der Projekte", error);
     }
   });
+  DOM.clearAssigneesButton.addEventListener("click", async () => {
+    try {
+      const cacheKeys = getCacheKeys();
+      if (cacheKeys.length === 0)
+        return showAlert("Keine Zuständigen im Cache gefunden.");
+
+      // Filter all keys including assignee key
+      const assigneeKeys = cacheKeys.filter((key) =>
+        key.includes(CacheKeys.ASSIGNEES)
+      );
+      if (assigneeKeys.length === 0)
+        return showAlert("Keine Zuständigen im Cache gefunden.");
+      // Reset all assignee caches
+      assigneeKeys.forEach((key) => resetCache(key));
+
+      showAlert("Zuständige erfolgreich gelöscht!");
+    } catch (error) {
+      handleError("Fehler beim Löschen der Zuständigen", error);
+    }
+  });
 }
 
 /**
@@ -207,6 +227,7 @@ async function initSettingsUI() {
   DOM.saveButton = document.getElementById("save");
   DOM.cacheClearButton = document.getElementById("clearCacheBtn");
   DOM.clearProjectsButton = document.getElementById("clearProjectsBtn");
+  DOM.clearAssigneesButton = document.getElementById("clearAssigneesBtn");
 
   DOM.tokenHelpLink = document.getElementById("tokenHelpLink");
 

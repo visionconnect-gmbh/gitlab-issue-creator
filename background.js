@@ -1,16 +1,18 @@
-import { MessageTypes } from "./src/Enums.js";
-import { displayNotification, openOptionsPage } from "./src/utils/utils.js";
-import { getEmailContent } from "./src/emailContent.js";
 import {
-  requireValidSettings,
+  getAssignees,
   getProjects,
+  requireValidSettings,
   createGitLabIssue,
   getCurrentUser,
 } from "./src/gitlab/gitlab.js";
+import { MessageTypes } from "./src/Enums.js";
+import { displayNotification, openOptionsPage } from "./src/utils/utils.js";
+import { getEmailContent } from "./src/emailContent.js";
 
-const POPUP_PATH = "src/popup/ticket_creator.html"; // Pfad zum Popup
+const POPUP_PATH = "src/popup/ticket_creator.html";
 
 let projectsGlobal = [];
+let assigneesGlobal = {}; // key: projectId, value: assignees array
 let emailGlobal = null;
 let popupWindowId = null;
 let popupReady = false;
@@ -26,7 +28,6 @@ async function handleBrowserActionClick() {
       return;
     }
 
-    // Popup öffnen
     const popupWindow = await browser.windows.create({
       url: browser.runtime.getURL(POPUP_PATH),
       type: "popup",
@@ -36,13 +37,13 @@ async function handleBrowserActionClick() {
 
     popupWindowId = popupWindow.id;
 
-    // Projekte laden
-    getProjects((projects) => {
+    // Load projects and send to popup
+    getProjects(async (projects) => {
       projectsGlobal = projects;
+
       if (popupReady) {
         sendProjectDataToPopup();
       } else {
-        // Popup ist noch nicht bereit, warten auf Nachricht
         browser.runtime.onMessage.addListener((msg) => {
           if (msg.type === MessageTypes.POPUP_READY) {
             popupReady = true;
@@ -52,17 +53,13 @@ async function handleBrowserActionClick() {
       }
     });
   } catch (err) {
-    displayNotification(
-      "GitLab Ticket Addon",
-      `Ein Fehler ist aufgetreten. Fehler: ${err.message}`
-    );
+    displayNotification("GitLab Ticket Addon", `Error: ${err.message}`);
   }
 }
 
 async function sendProjectDataToPopup() {
   if (!popupWindowId) return;
   const tabs = await browser.tabs.query({ windowId: popupWindowId });
-
   if (tabs.length === 0) {
     console.warn("Popup window tab not found.");
     return;
@@ -73,6 +70,7 @@ async function sendProjectDataToPopup() {
       type: MessageTypes.PROJECT_LIST,
       projects: projectsGlobal,
       email: emailGlobal,
+      assignees: assigneesGlobal ? assigneesGlobal : null,
     });
   } catch (err) {
     console.warn("Could not send message to popup:", err);
@@ -80,14 +78,31 @@ async function sendProjectDataToPopup() {
 }
 
 async function handleRuntimeMessages(msg, sender) {
-  const msgType = msg.type;
-  if (!msgType) return;
-
-  // TODO: Switch to Enums
-  switch (msgType) {
-    case MessageTypes.POPUP_READY: {
+  switch (msg.type) {
+    case MessageTypes.POPUP_READY:
       popupReady = true;
       sendProjectDataToPopup();
+      break;
+
+    case MessageTypes.REQUEST_ASSIGNEES: {
+      // Lazy load assignees for a single project on demand from popup
+      const projectId = msg.projectId;
+      if (!projectId) return;
+      if (!assigneesGlobal[projectId]) {
+        try {
+          assigneesGlobal[projectId] = await getAssignees(projectId);
+        } catch {
+          assigneesGlobal[projectId] = [];
+        }
+      }
+      const tabs = await browser.tabs.query({ windowId: popupWindowId });
+      if (tabs.length > 0) {
+        await browser.tabs.sendMessage(tabs[0].id, {
+          type: MessageTypes.ASSIGNEES_RESPONSE,
+          projectId,
+          assignees: assigneesGlobal[projectId],
+        });
+      }
       break;
     }
 
@@ -107,20 +122,19 @@ async function handleRuntimeMessages(msg, sender) {
       const description = msg.description?.trim() || conversation;
 
       try {
-        const assignee = await getCurrentUser();
-        await createGitLabIssue(projectId, assignee.id, title, description);
+        const assignee = msg.assignee || (await getCurrentUser());
+        await createGitLabIssue(projectId, assignee, title, description);
       } catch (error) {
-        console.error("Fehler beim Erstellen des GitLab-Issues:", error);
+        console.error("Error creating GitLab issue:", error);
         displayNotification(
           "GitLab Ticket Addon",
-          "Fehler beim Erstellen des Tickets: " + error.message
+          "Error creating ticket: " + error.message
         );
       }
       break;
     }
 
     case MessageTypes.SETTINGS_UPDATED: {
-      // Einstellungen wurden aktualisiert, Popup neu laden
       if (popupWindowId) {
         const tabs = await browser.tabs.query({ windowId: popupWindowId });
         if (tabs.length > 0) {
@@ -131,10 +145,9 @@ async function handleRuntimeMessages(msg, sender) {
     }
 
     default:
-      console.warn("Unbekannter Nachrichtentyp:", msgType);
+      console.warn("Unknown message type:", msg.type);
   }
 }
 
-// Add event listeners
 browser.browserAction.onClicked.addListener(handleBrowserActionClick);
 browser.runtime.onMessage.addListener(handleRuntimeMessages);

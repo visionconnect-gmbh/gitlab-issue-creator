@@ -104,6 +104,12 @@
         <datalist id="projectSuggestions"></datalist>
       </div>
       <div class="select-container">
+        <label for="assigneeSelect">Zuständiger:</label>
+        <select id="assigneeSelect">
+          <option value="" disabled selected>Bitte wählen Sie einen Zuständigen</option>
+        </select>
+      </div>
+      <div class="select-container">
         <label for="attachmentsCheckbox"
           >Anhänge hinzufügen: <input type="checkbox" id="attachmentsCheckbox"
         /></label>
@@ -123,6 +129,6 @@
     <button id="create">Ticket erstellen</button>
 
     <script src="easymde/easymde.min.js"></script>
-    <script type="module" src="ticket_creator.js"></script>
+    <script type="module" src="../../dist/bundled-ticket_creator.js"></script>
   </body>
 </html>

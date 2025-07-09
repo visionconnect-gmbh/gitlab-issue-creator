@@ -1,8 +1,7 @@
 import { displayNotification } from "../utils/utils.js";
-import { apiGet, apiPost } from "./api.js";
+import { apiGet, apiPost, doRequest } from "./api.js";
 import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
 import { CacheKeys } from "../Enums.js";
-
 
 /**
  * Shows a standard GitLab settings missing notification.
@@ -164,6 +163,96 @@ async function getNewProjects() {
     );
     return [];
   }
+}
+
+/**
+ * Fetches and caches assignees for a specific GitLab project.
+ * Uses cache if available and fresh, otherwise fetches from API and updates cache.
+ * @param {string|number} projectId - GitLab project ID
+ * @param {function(Array):void} [onUpdate] - Optional callback called with data when available
+ * @returns {Promise<Array>} Array of assignees
+ */
+export async function getAssignees(projectId, onUpdate) {
+  if (!projectId) {
+    console.warn("getAssignees called without projectId");
+    return [];
+  }
+
+  const cacheKey = `${CacheKeys.ASSIGNEES}_${projectId}`;
+  const cached = getCache(cacheKey, CACHE_TTL_MS);
+
+  if (cached) {
+    if (onUpdate) onUpdate(cached);
+    return cached;
+  }
+
+  const settings = await requireValidSettings();
+  if (!settings) return [];
+
+  try {
+    const assignees = await apiGet(`/api/v4/projects/${projectId}/users`, {
+      headers: { "PRIVATE-TOKEN": settings.gitlabToken },
+    });
+
+    if (!Array.isArray(assignees)) {
+      console.warn("Unexpected assignees response:", assignees);
+      return [];
+    }
+
+    setCache(cacheKey, assignees);
+
+    if (onUpdate) onUpdate(assignees);
+
+    return assignees;
+  } catch (error) {
+    console.error(`Error fetching assignees for project ${projectId}:`, error);
+    displayNotification(
+      "GitLab Ticket Addon",
+      `Fehler beim Laden der Bearbeiter für Projekt ${projectId}: ${error.message}`
+    );
+    return [];
+  }
+}
+
+export async function uploadAttachmentToGitLab(projectId, attachmentFile) {
+  const { gitlabToken } = await getGitLabSettings();
+
+  if (!attachmentFile || !(attachmentFile instanceof File)) {
+    throw new Error("Invalid attachment file.");
+  }
+
+  const content = await attachmentFile.arrayBuffer();
+
+  if (!content || !content.byteLength) {
+    throw new Error("Attachment content is empty or invalid.");
+  }
+
+  const blob = new Blob([new Uint8Array(content)], {
+    type: attachmentFile.type || "application/octet-stream",
+  });
+
+  const formData = new FormData();
+  formData.append("file", blob, attachmentFile.name || "Attachment");
+
+  const res = await doRequest(
+    `/api/v4/projects/${projectId}/uploads`,
+    {
+      method: "POST",
+      body: formData,
+      headers: {
+        "PRIVATE-TOKEN": gitlabToken,
+        // Don't manually set 'Content-Type' for FormData — the browser sets it correctly with boundary.
+      },
+    },
+    false
+  );
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`GitLab upload failed: ${res.status} ${text}`);
+  }
+
+  return await res.json(); // { url, markdown, alt }
 }
 
 /**

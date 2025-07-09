@@ -22,10 +22,9 @@ export async function getEmailContent() {
   const textPart = findTextPart(rawMessage.parts);
   const emailBody = textPart ? textPart.body : "";
   const conversationHistory = extractConversationHistory(emailBody);
-
   const attachments = findAttachmentParts(rawMessage.parts);
-
   return {
+    id: message.id,
     subject: message.subject,
     author: message.author,
     date: message.date,
@@ -40,6 +39,9 @@ export async function getEmailContent() {
  * @returns {Object|null} The text part object or null if not found.
  */
 function findTextPart(parts) {
+  if (!parts || !Array.isArray(parts)) {
+    return null;
+  }
   for (const part of parts) {
     if (part.contentType === "text/plain" && part.body) {
       return part;
@@ -62,16 +64,15 @@ function findAttachmentParts(parts) {
   const attachments = [];
   for (const part of parts) {
     if (
-      part.headers.contentDisposition &&
-      part.headers.contentDisposition.includes("attachment") &&
       part.contentType &&
-      ALLOWED_ATTACHMENT_TYPES.includes(part.contentType)
+      ALLOWED_ATTACHMENT_TYPES.includes(part.contentType) &&
+      part.name // treat named image/pdf as an attachment regardless of disposition
     ) {
       attachments.push({
         name: part.name || "Attachment",
         contentType: part.contentType,
         size: part.size,
-        content: part.content, // Add this line: raw content (e.g. base64 or Uint8Array)
+        partName: part.partName
       });
     }
     if (part.parts) {

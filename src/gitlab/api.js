@@ -14,7 +14,7 @@ async function handleResponse(response) {
   return response.json();
 }
 
-async function doRequest(endpoint, options = {}) {
+export async function doRequest(endpoint, options = {}, addContentType = true) {
   if (!API_BASE_URL) {
     const settings = await browser.storage.local.get(["gitlabUrl"]);
     API_BASE_URL = settings.gitlabUrl;
@@ -35,7 +35,7 @@ async function doRequest(endpoint, options = {}) {
   }
 
   const headers = {
-    "Content-Type": "application/json",
+    ...(addContentType ? { "Content-Type": "application/json" } : {}),
     ...(options.headers || {}),
   };
 

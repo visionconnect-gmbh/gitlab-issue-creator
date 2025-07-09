@@ -12,9 +12,17 @@ Dieses kleine Thunderbird Add-on ermöglicht, **GitLab-Issues direkt aus E-Mails
 
 ## Installation
 
-### Für alle Kollegen
+### Für alle Kollegen:
 
-**TO BE ANNOUNCED**
+**(Offizielle Ankündigung folgt noch)**
+Bis dahin bitte so vorgehen:
+
+1. Die aktuellste ZIP-Datei aus dem Repository herunterladen.
+2. In Thunderbird oben rechts auf das Hamburger-Menü klicken.
+3. „Add-ons und Themes“ auswählen.
+4. Das Zahnrad-Symbol (⚙️) anklicken.
+5. „Add-on aus Datei installieren“ auswählen.
+6. Die zuvor heruntergeladene ZIP-Datei auswählen und installieren.
 
 ### Für die Entwickler (zum Testen)
 
@@ -61,9 +69,11 @@ Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visio
 │   └── Ixon.svg
 └── src/                           # Quellverzeichnis
     ├── theme.css                  # Globale Styles
+    ├── emailContent.js            # Logik für parsen der Email
+    ├── Enums.js                   # Konstanten zum einheitlichen handling
     ├── gitlab/                    # GitLab-bezogene Module
     │   ├── api.js                 # API-Wrapper für GitLab
-    │   └── gitlab.js             # Logik für GitLab-Interaktionen
+    │   └── gitlab.js              # Logik für GitLab-Interaktionen
     ├── options/                   # Einstellungsseite
     │   ├── options.html           # Oberfläche für Nutzeroptionen
     │   └── options.js             # Logik zur Verarbeitung der Eingaben

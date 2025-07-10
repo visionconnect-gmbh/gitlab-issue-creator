@@ -191,6 +191,10 @@
     "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
     "description": "Generic error notification."
   },
+  "NotificationUploadAttachmentError": {
+    "message": "Fehler beim Hochladen des Anhangs. Bitte überprüfen Sie Ihre Internetverbindung.",
+    "description": "Notification when there is an error uploading an attachment."
+  },
   "NotificationNoMessageSelected": {
     "message": "Kein E-Mail ausgewählt. Bitte eine E-Mail öffnen.",
     "description": "Notification when no email is selected."

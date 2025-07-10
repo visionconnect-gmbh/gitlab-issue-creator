@@ -188,7 +188,7 @@ async function uploadAttachmentOrNotify(file, attachmentName) {
     return await uploadAttachmentToGitLab(selectedProjectId, file);
   } catch (error) {
     console.error(`Error uploading attachment ${attachmentName}:`, error);
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification("NotificationUploadAttachmentError");
     throw error;
   }
 }

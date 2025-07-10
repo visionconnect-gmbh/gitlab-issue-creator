@@ -10,7 +10,7 @@ import {
   displayLocalizedNotification,
   openOptionsPage,
 } from "./src/utils/utils.js";
-import { getEmailContent } from "./src/emailContent.js";
+import { getEmailContent } from "./src/email/emailContent.js";
 
 const POPUP_PATH = "src/popup/ticket_creator.html";
 

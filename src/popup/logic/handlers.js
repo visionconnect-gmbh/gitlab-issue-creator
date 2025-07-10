@@ -42,8 +42,9 @@ export async function resetEditor() {
   setIsAssigneeLoadingEnabled(enableAssigneeLoading || false);
   updateAssigneeSelectVisibility(isAssigneeLoadingEnabled);
 
-  elements.assigneeSelect.innerHTML =
-    "<option>(Keine Bearbeiter gefunden)</option>";
+  const noAssigneesFoundMessage =
+    browser.i18n.getMessage("PopupNoAssigneesFound") || "No assignees found.";
+  elements.assigneeSelect.innerHTML = `<option>${noAssigneesFoundMessage}</option>`;
   elements.assigneeSelect.disabled = true;
 }
 
@@ -140,7 +141,9 @@ async function createTicketDescription() {
     elements.attachmentsCheckbox.checked &&
     messageData?.attachments?.length
   ) {
-    description += `\n\n**Angehängte Dateien:**\n\n`;
+    const ticketAttachmentsTitle =
+      browser.i18n.getMessage("TicketAttachmentsTitle") || "Attachments";
+    description += `\n\n**${ticketAttachmentsTitle}:**\n\n`;
     description += await generateAttachmentsMarkdown();
   }
 
@@ -175,7 +178,7 @@ async function getAttachmentFileOrNotify(attachment) {
     }
     return file;
   } catch (error) {
-    displayLocalizedNotification("NotificationGenericError")
+    displayLocalizedNotification("NotificationGenericError");
     return null;
   }
 }
@@ -203,12 +206,22 @@ function sendCreateIssueMessage(description) {
 
 function generateBaseDescription() {
   const history = messageData?.conversationHistory ?? [];
-  if (!history.length) return "(Kein Konversationsverlauf verfügbar)";
+  if (!history.length) {
+    return (
+      browser.i18n.getMessage("EmailNoContentMessage") ||
+      "No content available."
+    );
+  }
 
   return history
     .map((entry, index) => {
+      const lang = browser.i18n.getUILanguage();
+
+      const fromText = lang === "de" ? "Von" : "From";
+      const dateText = lang === "de" ? "Datum" : "Date";
+
       const from = entry.from
-        ? `**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}\n\n`
+        ? `**${fromText}**: ${entry.from}\n**${dateText}**: ${entry.date} ${entry.time}\n\n`
         : "";
       const separator = index > 0 ? "\n---\n\n" : "";
       return `${separator}${from}${entry.message}`;
@@ -222,8 +235,11 @@ async function getAttachmentFile(messageId, partName) {
 }
 
 function getAttachmentMarkdownPreview(attachments) {
+  const placeholderTitle =
+    browser.i18n.getMessage("TicketAttachmentsTitle") || "Attachments";
+    const placeholderText = browser.i18n.getMessage("TicketAttachmentPreviewText") || "This attachment will be uploaded when the issue is created."; 
   return attachments
-    .map((a) => `**Anhang:** _${a.name}_ *(Wird beim Erstellen hochgeladen)*`)
+    .map((a) => `**${placeholderTitle}:** _${a.name}_ *${placeholderText}*`)
     .join("\n\n");
 }
 

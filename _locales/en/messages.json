@@ -171,6 +171,22 @@
         "message": "Create Ticket",
         "description": "Title submit Button."
     },
+    "PopupNoAssigneesFound": {
+        "message": "(No assignees found)",
+        "description": "Message when no assignees are found."
+    },
+    "EmailNoContentMessage": {
+        "message": "(No Text available.)",
+        "description": "Message when no content is available in the email."
+    },
+    "TicketAttachmentsTitle": {
+        "message": "Attached Files",
+        "description": "Title for ticket attachments."
+    },
+    "TicketAttachmentPreviewText": {
+        "message": "(Will be uploaded when creating the ticket)*",
+        "description": "Markdown preview for ticket attachments."
+    },
     "NotificationGenericError": {
         "message": "An error occurred. Please try again later.",
         "description": "Generic error notification."

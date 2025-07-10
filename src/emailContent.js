@@ -61,7 +61,7 @@ function findAttachmentParts(parts) {
         name: part.name || "Attachment",
         contentType: part.contentType,
         size: part.size,
-        partName: part.partName
+        partName: part.partName,
       });
     }
     if (part.parts) {
@@ -158,7 +158,9 @@ function extractConversationHistory(body) {
  * @returns {string} The cleaned and relevant message body, or "(Kein Nachrichtentext)" if no relevant text is found.
  */
 function extractRelevantBody(body) {
-  if (!body) return "(Kein Nachrichtentext)";
+  
+  const noContentMessage = browser.i18n.getMessage("EmailNoContentMessage") || "No content available.";
+  if (!body) return noContentMessage;
 
   // Remove leading ">" characters often used for quoting in email replies.
   body = body
@@ -234,7 +236,6 @@ function extractRelevantBody(body) {
 
   // Remove any remaining leading quote characters or asterisks from the beginning of the cleaned text.
   cleanedText = cleanedText.replace(/^[*>]+\s*/, "");
-
   // Return the cleaned text, or the default message if the text is empty after cleaning.
-  return cleanedText || "(Kein Nachrichtentext)";
+  return cleanedText || noContentMessage;
 }

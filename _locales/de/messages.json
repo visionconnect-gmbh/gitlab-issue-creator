@@ -171,6 +171,22 @@
     "message": "Ticket erstellen",
     "description": "Title submit Button."
   },
+  "PopupNoAssigneesFound": {
+    "message": "(Keine Bearbeiter gefunden)",
+    "description": "Message when no assignees are available."
+  },
+  "EmailNoContentMessage": {
+    "message": "(Kein Nachrichtentext)",
+    "description": "Default message when no email content is available."
+  },
+  "TicketAttachmentsTitle": {
+    "message": "Angehängte Dateien",
+    "description": "Title for ticket attachments."
+  },
+  "TicketAttachmentPreviewText": {
+    "message": "Wird beim Erstellen des Tickets hochgeladen.",
+    "description": "Preview text for ticket attachments."
+  },
   "NotificationGenericError": {
     "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
     "description": "Generic error notification."

@@ -19,7 +19,9 @@ export function renderAssignees() {
   elements.assigneeSelect.innerHTML = "";
   if (!currentAssignees.length) {
     elements.assigneeSelect.disabled = true;
-    elements.assigneeSelect.innerHTML = `<option>(Keine Bearbeiter gefunden)</option>`;
+    // Show a message when no assignees are available
+    const noAssigneesFoundMessage = browser.i18n.getMessage("PopupNoAssigneesFound") || "No assignees found.";
+    elements.assigneeSelect.innerHTML = `<option>${noAssigneesFoundMessage}</option>`;
     return;
   }
 
@@ -27,7 +29,7 @@ export function renderAssignees() {
   currentAssignees.forEach((assignee) => {
     const option = document.createElement("option");
     option.value = assignee.id;
-    option.textContent = assignee.name || assignee.username || "(Unbekannt)";
+    option.textContent = assignee.name || assignee.username || "Unknown";
     elements.assigneeSelect.appendChild(option);
   });
   if (selectedAssigneeId) {

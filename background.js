@@ -6,7 +6,10 @@ import {
   getCurrentUser,
 } from "./src/gitlab/gitlab.js";
 import { MessageTypes } from "./src/Enums.js";
-import { displayLocalizedNotification, openOptionsPage } from "./src/utils/utils.js";
+import {
+  displayLocalizedNotification,
+  openOptionsPage,
+} from "./src/utils/utils.js";
 import { getEmailContent } from "./src/emailContent.js";
 
 const POPUP_PATH = "src/popup/ticket_creator.html";
@@ -120,16 +123,8 @@ async function handleRuntimeMessages(msg, sender) {
         const projectId = msg.projectId;
         const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
-        const conversation = emailGlobal.conversationHistory
-          .map((entry) => {
-            const header = entry.from
-              ? `**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}`
-              : "";
-            return `${header}\n\n${entry.message}`;
-          })
-          .join("\n\n---\n\n");
-
-        const description = msg.description?.trim() || conversation;
+        const description =
+          msg.description?.trim() || "No description provided.";
         const issueEnd = msg.endDate;
         try {
           const assignee = msg.assignee || (await getCurrentUser());

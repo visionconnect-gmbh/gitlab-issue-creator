@@ -43,3 +43,17 @@ export function openOptionsPage() {
     displayNotification("GitLab Ticket Addon", "Fehler beim Öffnen der Einstellungen.");
   });
 }
+
+export function getUILanguage() {
+  const lang = browser.i18n.getUILanguage();
+  if (!lang) {
+    console.warn("No UI language set, defaulting to 'en-US'");
+    return "de"; // Default to German if no language is set
+  }
+  return lang;
+}
+
+export function isLanguageGerman() {
+  const lang = getUILanguage();
+  return lang.startsWith("de") || lang.startsWith("de-");
+}

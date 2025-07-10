@@ -9,7 +9,7 @@ import {
 export function renderProjectSuggestions() {
   elements.projectSuggestions.innerHTML = "";
   filteredProjects.forEach((proj) => {
-    const name = proj.name_with_namespace || proj.name || "Unbekannt";
+    const name = proj.name_with_namespace || proj.name || "Unknown Project";
     const option = new Option(name, name);
     elements.projectSuggestions.appendChild(option);
   });

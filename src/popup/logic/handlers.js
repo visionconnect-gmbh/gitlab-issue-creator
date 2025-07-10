@@ -1,6 +1,6 @@
 // popup/handlers.js
 import { MessageTypes } from "../../Enums.js";
-import { displayLocalizedNotification, isLanguageGerman } from "../../utils/utils.js";
+import { displayLocalizedNotification } from "../../utils/utils.js";
 import {
   uploadAttachmentToGitLab,
   getCurrentUser,
@@ -215,10 +215,8 @@ function generateBaseDescription() {
 
   return history
     .map((entry, index) => {
-      const isGerman = isLanguageGerman();
-
-      const fromText = isGerman ? "Von" : "From";
-      const dateText = isGerman? "Datum" : "Date";
+      const fromText = browser.i18n.getMessage("PopupFromAuthor") || "From";
+      const dateText = browser.i18n.getMessage("PopupDateReceived") || "Received on";
 
       const from = entry.from
         ? `**${fromText}**: ${entry.from}\n**${dateText}**: ${entry.date} ${entry.time}\n\n`

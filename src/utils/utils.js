@@ -47,13 +47,8 @@ export function openOptionsPage() {
 export function getUILanguage() {
   const lang = browser.i18n.getUILanguage();
   if (!lang) {
-    console.warn("No UI language set, defaulting to 'en-US'");
+    console.warn("No UI language set, defaulting to 'de'");
     return "de"; // Default to German if no language is set
   }
   return lang;
-}
-
-export function isLanguageGerman() {
-  const lang = getUILanguage();
-  return lang.startsWith("de") || lang.startsWith("de-");
 }

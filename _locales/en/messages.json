@@ -167,6 +167,14 @@
         "message": "Due",
         "description": "Label for issue enddate."
     },
+    "PopupFromAuthor": {
+        "message": "From",
+        "description": "Label for author of the email."
+    },
+    "PopupDateReceived": {
+        "message": "Received on",
+        "description": "Label for date received."
+    },
     "PopupButtonSubmit": {
         "message": "Create Ticket",
         "description": "Title submit Button."

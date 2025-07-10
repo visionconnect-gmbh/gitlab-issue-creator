@@ -167,6 +167,14 @@
     "message": "Fällig",
     "description": "Label for issue enddate."
   },
+  "PopupFromAuthor": {
+    "message": "Von",
+    "description": "Label for author of the email."
+  },
+  "PopupDateReceived": {
+    "message": "Empfangen am",
+    "description": "Label for date received."
+  },
   "PopupButtonSubmit": {
     "message": "Ticket erstellen",
     "description": "Title submit Button."

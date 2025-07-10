@@ -1,0 +1,214 @@
+{
+    "extensionName": {
+        "message": "GitLab Ticket Creator",
+        "description": "Name of the extension."
+    },
+    "extensionDescription": {
+        "message": "Creates GitLab issues from emails.",
+        "description": "Description of the extension."
+    },
+    "BrowserActionTitle": {
+        "message": "Create GitLab Issue",
+        "description": "Description of the extension."
+    },
+    "ButtonSave": {
+        "message": "Save",
+        "description": "Title of save buttons."
+    },
+    "ButtonClearCache": {
+        "message": "Clear Cache",
+        "description": "Title of save buttons."
+    },
+    "OptionsAlertAddGitLabUrl": {
+        "message": "Please enter a valid GitLab URL.",
+        "description": "Alert for missing GitLab url."
+    },
+    "OptionsAlertAddGitLabToken": {
+        "message": "Please enter a valid GitLab token.",
+        "description": "Alert for missing GitLab token."
+    },
+    "OptionsAlertCacheCleared": {
+        "message": "Cache cleared successfully!",
+        "description": "Response for cleared cache."
+    },
+    "OptionsAlertProjectsCleared": {
+        "message": "Projects cleared successfully!",
+        "description": "Response for cleared projects."
+    },
+    "OptionsAlertAssigneesCleared": {
+        "message": "Assignees list cleared successfully!",
+        "description": "Response for cleared assignees."
+    },
+    "OptionsAlertOptionsSaved": {
+        "message": "Options saved successfully!",
+        "description": "Response for saved options."
+    },
+    "OptionsAlertAssigneesEnabled": {
+        "message": "Assignee loading enabled.",
+        "description": "Response for enabled assignee loading."
+    },
+    "OptionsAlertAssigneesDisabled": {
+        "message": "Assignee loading disabled.",
+        "description": "Response for disabled assignee loading."
+    },
+    "OptionsErrorOptionsLoaded": {
+        "message": "Error loading options!",
+        "description": "Error for not loaded options."
+    },
+    "OptionsErrorOptionsSaved": {
+        "message": "Error saving options!",
+        "description": "Error for not saved options."
+    },
+    "OptionsErrorAssigneesSaved": {
+        "message": "Error saving assignee setting!",
+        "description": "Error for not saved assignees."
+    },
+    "OptionsErrorCacheCleared": {
+        "message": "Error clearing cache!",
+        "description": "Error for not cleared cache."
+    },
+    "OptionsErrorProjectsCleared": {
+        "message": "Error clearing projects!",
+        "description": "Error for not cleared projects."
+    },
+    "OptionsErrorAssigneesCleared": {
+        "message": "Error clearing assignees!",
+        "description": "Error for not cleared assignees."
+    },
+    "OptionsTabsTitle": {
+        "message": "Settings - GitLab Ticket Creator",
+        "description": "Title of options tab."
+    },
+    "OptionsTitle": {
+        "message": "GitLab Settings",
+        "description": "Title of options window."
+    },
+    "OptionsLabelGitlabURL": {
+        "message": "GitLab URL",
+        "description": "Label of GitLab url."
+    },
+    "OptionsLabelGitlabToken": {
+        "message": "Private GitLab Access Token",
+        "description": "Label for private GitLab access token."
+    },
+    "OptionsTitleTokenLink": {
+        "message": "Create Access Token",
+        "description": "Title for access token link."
+    },
+    "OptionsTooltipTokenLink": {
+        "message": "Open the personal token page, create a new one with API scope, copy it, and paste it here.",
+        "description": "Tooltip for access token link."
+    },
+    "OptionsTitleAdditionalOptions": {
+        "message": "Additional Options",
+        "description": "Title for additional options."
+    },
+    "OptionsLabelEnableAssigneeLoading": {
+        "message": "Load Assignees",
+        "description": "Label for add loading of assignees."
+    },
+    "OptionsTooltipEnableAssigneeLoading": {
+        "message": "Enabled: Load project assignees. Disabled: Assign only yourself.",
+        "description": "Tooltip for enable assignee loading."
+    },
+    "OptionsTitleCleanup": {
+        "message": "Reset Add-on",
+        "description": "Title for cleanup section."
+    },
+    "OptionsButtonEmptyProjects": {
+        "message": "Clear Projects",
+        "description": "Title for button empty projects."
+    },
+    "OptionsButtonEmptyAsignees": {
+        "message": "Clear Assignees List",
+        "description": "Title for button empty assignees."
+    },
+    "OptionsMadeBy": {
+        "message": "Developed by",
+        "description": "Infotext for made by."
+    },
+    "PopupTabsTitle": {
+        "message": "Popup - GitLab Ticket Creator",
+        "description": "Title of popup tab."
+    },
+    "PopupTitle": {
+        "message": "Create GitLab Ticket",
+        "description": "Title of popup window."
+    },
+    "PopupLabelSelectProject": {
+        "message": "Select Project",
+        "description": "Label for project select."
+    },
+    "PopupPlaceholderSelectProject": {
+        "message": "Search project name...",
+        "description": "Label for project placeholder."
+    },
+    "PopupLabelTitleOfProject": {
+        "message": "Ticket Title",
+        "description": "Label for project title."
+    },
+    "PopupLabelAttachmentsCheckbox": {
+        "message": "Include Email Attachments",
+        "description": "Label for attachment checkbox."
+    },
+    "PopupLabelAssigneeSelect": {
+        "message": "Assignee",
+        "description": "Label for assignee selectbox."
+    },
+    "PopupLabelTicketDescription": {
+        "message": "Description",
+        "description": "Label of project description."
+    },
+    "PopupAssigneeSelectFirstEntry": {
+        "message": "Please select an assignee",
+        "description": "First entry of assignee select box."
+    },
+    "PopupLabelIssueEnd": {
+        "message": "Due",
+        "description": "Label for issue enddate."
+    },
+    "PopupButtonSubmit": {
+        "message": "Create Ticket",
+        "description": "Title submit Button."
+    },
+    "NotificationGenericError": {
+        "message": "An error occurred. Please try again later.",
+        "description": "Generic error notification."
+    },
+    "NotificationNoMessageSelected": {
+        "message": "No email selected. Please open an email.",
+        "description": "Notification when no email is selected."
+    },
+    "NotificationNoEmailContent": {
+        "message": "Could not retrieve email content.",
+        "description": "Notification when email content cannot be retrieved."
+    },
+    "NotificationGitLabUrlNotConfigured": {
+        "message": "GitLab URL is not configured. Please set it in the settings.",
+        "description": "Notification when GitLab URL is not configured."
+    },
+    "NotificationGitLabTokenNotConfigured": {
+        "message": "GitLab token is not configured. Please set it in the settings.",
+        "description": "Notification when GitLab token is not configured."
+    },
+    "NotificationInvalidGitLabToken": {
+        "message": "Invalid GitLab token. Please check your settings.",
+        "description": "Notification when GitLab token is invalid."
+    },
+    "NotificationNoGitlabSettings": {
+        "message": "GitLab settings are not set. Please configure them in the settings.",
+        "description": "Notification when no GitLab settings are set."
+    },
+    "NotificationTicketCreated": {
+        "message": "Ticket created successfully! Click to open.",
+        "description": "Notification when ticket is successfully created."
+    },
+    "NotificationNoProjectSelected": {
+        "message": "Please select a valid project.",
+        "description": "Notification when an invalid project is selected."
+    },
+    "NotificationAttachmentNotFound": {
+        "message": "Attachment not found. Ticket creation aborted.",
+        "description": "Notification when an attachment is not found."
+    }
+}

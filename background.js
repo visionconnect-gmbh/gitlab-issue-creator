@@ -6,7 +6,7 @@ import {
   getCurrentUser,
 } from "./src/gitlab/gitlab.js";
 import { MessageTypes } from "./src/Enums.js";
-import { displayNotification, openOptionsPage } from "./src/utils/utils.js";
+import { displayLocalizedNotification, openOptionsPage } from "./src/utils/utils.js";
 import { getEmailContent } from "./src/emailContent.js";
 
 const POPUP_PATH = "src/popup/ticket_creator.html";
@@ -28,12 +28,16 @@ async function handleBrowserActionClick() {
     // Close existing popup if it exists
     closePopup();
 
-    const emailData = await getEmailContent();
+    const message = await getMessage();
+
+    if (!message) {
+      displayLocalizedNotification("NotificationNoMessageSelected");
+      return;
+    }
+
+    const emailData = await getEmailContent(message);
     if (!emailData) {
-      displayNotification(
-        "GitLab Ticket Addon",
-        "E-Mail-Inhalt konnte nicht abgerufen werden."
-      );
+      displayLocalizedNotification("NotificationNoEmailContent");
       return;
     }
 
@@ -54,17 +58,11 @@ async function handleBrowserActionClick() {
 
       if (popupReady) {
         sendProjectDataToPopup();
-      } else {
-        browser.runtime.onMessage.addListener((msg) => {
-          if (msg.type === MessageTypes.POPUP_READY) {
-            popupReady = true;
-            sendProjectDataToPopup();
-          }
-        });
       }
     });
   } catch (err) {
-    displayNotification("GitLab Ticket Addon", `Error: ${err.message}`);
+    console.error("Error handling browser action click:", err);
+    displayLocalizedNotification("NotificationGenericError");
   }
 }
 
@@ -89,82 +87,105 @@ async function sendProjectDataToPopup() {
 }
 
 async function handleRuntimeMessages(msg, sender) {
-  switch (msg.type) {
-    case MessageTypes.POPUP_READY:
-      popupReady = true;
-      sendProjectDataToPopup();
-      break;
+  try {
+    switch (msg.type) {
+      case MessageTypes.POPUP_READY:
+        popupReady = true;
+        sendProjectDataToPopup();
+        break;
 
-    case MessageTypes.REQUEST_ASSIGNEES: {
-      // Lazy load assignees for a single project on demand from popup
-      const projectId = msg.projectId;
-      if (!projectId) return;
-      if (!assigneesGlobal[projectId]) {
-        try {
-          assigneesGlobal[projectId] = await getAssignees(projectId);
-        } catch {
-          assigneesGlobal[projectId] = [];
+      case MessageTypes.REQUEST_ASSIGNEES: {
+        // Lazy load assignees for a single project on demand from popup
+        const projectId = msg.projectId;
+        if (!projectId) return;
+        if (!assigneesGlobal[projectId]) {
+          try {
+            assigneesGlobal[projectId] = await getAssignees(projectId);
+          } catch {
+            assigneesGlobal[projectId] = [];
+          }
         }
-      }
-      const tabs = await browser.tabs.query({ windowId: popupWindowId });
-      if (tabs.length > 0) {
-        await browser.tabs.sendMessage(tabs[0].id, {
-          type: MessageTypes.ASSIGNEES_RESPONSE,
-          projectId,
-          assignees: assigneesGlobal[projectId],
-        });
-      }
-      break;
-    }
-
-    case MessageTypes.CREATE_GITLAB_ISSUE: {
-      const projectId = msg.projectId;
-      const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
-
-      const conversation = emailGlobal.conversationHistory
-        .map((entry) => {
-          const header = entry.from
-            ? `**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}`
-            : "";
-          return `${header}\n\n${entry.message}`;
-        })
-        .join("\n\n---\n\n");
-
-      const description = msg.description?.trim() || conversation;
-      const issueEnd = msg.endDate;
-      try {
-        const assignee = msg.assignee || (await getCurrentUser());
-        await createGitLabIssue(
-          projectId,
-          assignee,
-          title,
-          description,
-          issueEnd
-        );
-        closePopup();
-      } catch (error) {
-        console.error("Error creating GitLab issue:", error);
-        displayNotification(
-          "GitLab Ticket Addon",
-          "Error creating ticket: " + error.message
-        );
-      }
-      break;
-    }
-
-    case MessageTypes.SETTINGS_UPDATED: {
-      if (popupWindowId) {
         const tabs = await browser.tabs.query({ windowId: popupWindowId });
         if (tabs.length > 0) {
-          await browser.tabs.reload(tabs[0].id);
+          await browser.tabs.sendMessage(tabs[0].id, {
+            type: MessageTypes.ASSIGNEES_RESPONSE,
+            projectId,
+            assignees: assigneesGlobal[projectId],
+          });
         }
+        break;
       }
-      break;
-    }
 
-    default:
-      console.warn("Unknown message type:", msg.type);
+      case MessageTypes.CREATE_GITLAB_ISSUE: {
+        const projectId = msg.projectId;
+        const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
+
+        const conversation = emailGlobal.conversationHistory
+          .map((entry) => {
+            const header = entry.from
+              ? `**Von**: ${entry.from}\n**Datum**: ${entry.date} ${entry.time}`
+              : "";
+            return `${header}\n\n${entry.message}`;
+          })
+          .join("\n\n---\n\n");
+
+        const description = msg.description?.trim() || conversation;
+        const issueEnd = msg.endDate;
+        try {
+          const assignee = msg.assignee || (await getCurrentUser());
+          await createGitLabIssue(
+            projectId,
+            assignee,
+            title,
+            description,
+            issueEnd
+          );
+          closePopup();
+        } catch (error) {
+          console.error("Error creating GitLab issue:", error);
+          displayLocalizedNotification("NotificationGenericError");
+        }
+        break;
+      }
+
+      case MessageTypes.SETTINGS_UPDATED: {
+        if (popupWindowId) {
+          const tabs = await browser.tabs.query({ windowId: popupWindowId });
+          if (tabs.length > 0) {
+            await browser.tabs.reload(tabs[0].id);
+          }
+        }
+        break;
+      }
+
+      default:
+        console.warn("Unknown message type:", msg.type);
+    }
+  } catch (error) {
+    console.error("Error handling runtime message:", error);
+    displayLocalizedNotification("NotificationGenericError");
   }
+}
+
+async function getMessage() {
+  const [activeTab] = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  const message = await browser.messageDisplay.getDisplayedMessage(
+    activeTab.id
+  );
+
+  if (!message) {
+    console.warn("No active message found.");
+    return null;
+  }
+  if (!message.id) {
+    console.warn("Active message has no ID.");
+    return null;
+  }
+  return message;
 }
 
 function closePopup() {

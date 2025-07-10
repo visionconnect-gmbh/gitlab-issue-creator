@@ -1,4 +1,4 @@
-import { displayNotification, openOptionsPage } from "../utils/utils";
+import { displayLocalizedNotification, openOptionsPage } from "../utils/utils";
 
 let API_BASE_URL = null;
 
@@ -20,10 +20,7 @@ export async function doRequest(endpoint, options = {}, addContentType = true) {
     API_BASE_URL = settings.gitlabUrl;
 
     if (!API_BASE_URL) {
-      displayNotification(
-        "GitLab Ticket Addon",
-        "GitLab URL ist nicht konfiguriert. Bitte in den Addon-Einstellungen angeben."
-      );
+      displayLocalizedNotification("NotificationGitLabUrlNotConfigured");
       openOptionsPage();
       return;
     }
@@ -46,10 +43,7 @@ export async function doRequest(endpoint, options = {}, addContentType = true) {
 
   if (!res.ok) {
     if (res.status === 401) {
-      displayNotification(
-        "GitLab Ticket Addon",
-        "Ungültiges Token. Bitte in den Addon-Einstellungen aktualisieren."
-      );
+      displayLocalizedNotification("NotificationGitLabTokenInvalid");
       openOptionsPage();
       return;
     }

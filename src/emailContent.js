@@ -1,20 +1,9 @@
-import { displayNotification } from "./utils/utils.js";
-
 /**
  * Retrieves the currently active email message content and extracts conversation history.
  * @returns {Promise<Object|null>} An object containing subject, author, date, and conversationHistory, or null if no message is found.
  */
-export async function getEmailContent() {
-  const [activeTab] = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-
-  const message = await browser.messageDisplay.getDisplayedMessage(
-    activeTab.id
-  );
+export async function getEmailContent(message) {
   if (!message) {
-    displayNotification("GitLab Ticket Addon", "Keine E-Mail ausgewählt.");
     return null;
   }
 

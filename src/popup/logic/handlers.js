@@ -1,7 +1,10 @@
 // popup/handlers.js
 import { MessageTypes } from "../../Enums.js";
-import { displayNotification } from "../../utils/utils.js";
-import { uploadAttachmentToGitLab, getCurrentUser } from "../../gitlab/gitlab.js";
+import { displayLocalizedNotification } from "../../utils/utils.js";
+import {
+  uploadAttachmentToGitLab,
+  getCurrentUser,
+} from "../../gitlab/gitlab.js";
 import {
   elements,
   easyMDE,
@@ -97,10 +100,7 @@ export function handleAttachmentsCheckboxChange() {
 
 export async function handleCreateButtonClick() {
   if (!selectedProjectId) {
-    return displayNotification(
-      "GitLab Ticket Addon",
-      "Bitte gib ein gültiges Projekt aus der Vorschlagsliste ein."
-    );
+    return displayLocalizedNotification("NotificationNoProjectSelected");
   }
 
   try {
@@ -170,18 +170,12 @@ async function getAttachmentFileOrNotify(attachment) {
       attachment.partName || attachment.name
     );
     if (!(file instanceof File)) {
-      displayNotification(
-        "GitLab Ticket Addon",
-        `Anhang ${attachment.name} konnte nicht gefunden werden. Ticket-Erstellung abgebrochen.`
-      );
+      displayLocalizedNotification("NotificationAttachmentNotFound");
       return null;
     }
     return file;
   } catch (error) {
-    displayNotification(
-      "GitLab Ticket Addon",
-      `Fehler beim Zugriff auf Anhang ${attachment.name}. Ticket-Erstellung abgebrochen.`
-    );
+    displayLocalizedNotification("NotificationGenericError")
     return null;
   }
 }
@@ -190,10 +184,8 @@ async function uploadAttachmentOrNotify(file, attachmentName) {
   try {
     return await uploadAttachmentToGitLab(selectedProjectId, file);
   } catch (error) {
-    displayNotification(
-      "GitLab Ticket Addon",
-      `Fehler beim Hochladen von ${attachmentName}. Ticket-Erstellung abgebrochen.`
-    );
+    console.error(`Error uploading attachment ${attachmentName}:`, error);
+    displayLocalizedNotification("NotificationGenericError");
     throw error;
   }
 }

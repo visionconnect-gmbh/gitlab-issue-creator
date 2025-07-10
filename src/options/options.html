@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Einstellungen - GitLab Ticket Addon</title>
+    <title data-message="localize">__MSG_OptionsTabsTitle__</title>
     <link rel="stylesheet" href="../theme.css" />
     <style>
       body {
@@ -78,16 +78,15 @@
         user-select: none;
       }
 
-      /* Styles for the footer */
       footer {
-        margin-top: 40px; /* Add some space above the footer */
+        margin-top: 40px;
         text-align: center;
         font-size: 0.85rem;
         color: #7f8c8d;
-        display: flex; /* Use flexbox to align text and image */
-        flex-direction: column; /* Stack them vertically */
-        align-items: center; /* Center horizontally */
-        gap: 8px; /* Space between text and image */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
       }
 
       footer a {
@@ -99,11 +98,10 @@
         text-decoration: underline;
       }
 
-      /* Style for the footer icon */
       .footer-icon {
-        height: 24px; /* Adjust size as needed, e.g., 24px or 32px */
-        width: auto; /* Maintain aspect ratio */
-        vertical-align: middle; /* Align with text if on the same line (though flexbox might handle this better) */
+        height: 24px;
+        width: auto;
+        vertical-align: middle;
       }
 
       @media (max-width: 500px) {
@@ -116,7 +114,10 @@
   <body>
     <div class="section">
       <h1 data-message="localize">__MSG_OptionsTitle__</h1>
-      <label for="gitlabUrl" data-message="localize">__MSG_OptionsLabelGitlabURL__:</label>
+
+      <label for="gitlabUrl" data-message="localize"
+        >__MSG_OptionsLabelGitlabURL__:</label
+      >
       <div class="input-wrapper">
         <input
           type="text"
@@ -124,16 +125,16 @@
           placeholder="https://gitlab.example.com"
         />
       </div>
-      <label for="gitlabToken" data-message="localize">__MSG_OptionsLabelGITlabToken__:</label>
+
+      <label for="gitlabToken" data-message="localize"
+        >__MSG_OptionsLabelGITlabToken__:</label
+      >
       <div id="tokenHelpLink" class="token-help" hidden>
-        <a
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Öffnet die Seite für persönliche Zugriffstoken. Erstelle einen neuen Token und wähle 'api' als Berechtigung, kopiere den Token und füge ihn hier ein."
-          >Access Token erstellen</a
+        <a href="#" target="_blank" rel="noopener noreferrer" data-i18n-attr="title:OptionsTooltipTokenLink"
+          >__MSG_OptionsTitleTokenLink__</a
         >
       </div>
+
       <div class="input-wrapper">
         <input
           type="password"
@@ -154,25 +155,35 @@
           />
         </svg>
       </div>
+
       <button id="save" data-message="localize">__MSG_ButtonSave__</button>
     </div>
 
     <div class="section">
       <h2 data-message="localize">__MSG_OptionsTitleAdditionalOptions__</h2>
+
       <div class="input-wrapper">
-        <label for="enableAssigneeLoading" data-message="localize">__MSG_OptionsLabelEnableAssigneeLoading__:</label>
-          <input
-            type="checkbox"
-            id="enableAssigneeLoading"
-            title="Aktiviert: Projekt-Zuständige laden. Deaktiviert: Nur dich setzen."
+        <label for="enableAssigneeLoading" data-message="localize"
+          >__MSG_OptionsLabelEnableAssigneeLoading__:</label
+        >
+        <input
+          type="checkbox"
+          id="enableAssigneeLoading"
+          data-i18n-attr="title:OptionsTooltipEnableAssigneeLoading"
         />
       </div>
 
       <div class="input-wrapper">
         <h2 data-message="localize">__MSG_OptionsTitleCleanup__:</h2>
-        <button id="clearCacheBtn" data-message="localize">__MSG_ButtonClearCache__</button>
-        <button id="clearProjectsBtn" data-message="localize">__MSG_OptionsButtonEmptyProjects__</button>
-        <button id="clearAssigneesBtn" data-message="localize">__MSG_OptionsButtonEmptyAsignees__</button>
+        <button id="clearCacheBtn" data-message="localize">
+          __MSG_ButtonClearCache__
+        </button>
+        <button id="clearProjectsBtn" data-message="localize">
+          __MSG_OptionsButtonEmptyProjects__
+        </button>
+        <button id="clearAssigneesBtn" data-message="localize">
+          __MSG_OptionsButtonEmptyAsignees__
+        </button>
       </div>
     </div>
 
@@ -188,11 +199,12 @@
             src="../../icons/vc-icon-32px.png"
             alt="VisionConnect Logo"
             class="footer-icon"
-        /></a>
+          />
+        </a>
       </p>
     </footer>
 
-    <script src="../../src/popup/logic/localize.js"></script>
+    <script src="../localize.js"></script>
     <script type="module" src="../../dist/bundled-options.js"></script>
   </body>
 </html>

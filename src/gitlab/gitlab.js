@@ -1,4 +1,7 @@
-import { displayNotification } from "../utils/utils.js";
+import {
+  displayLocalizedNotification,
+  openOptionsPage,
+} from "../utils/utils.js";
 import { apiGet, apiPost, doRequest } from "./api.js";
 import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
 import { CacheKeys } from "../Enums.js";
@@ -7,9 +10,13 @@ import { CacheKeys } from "../Enums.js";
  * Shows a standard GitLab settings missing notification.
  */
 function notifyMissingSettings() {
-  displayNotification(
-    "GitLab Ticket Addon",
-    "GitLab-Einstellungen fehlen. Bitte in den Addon-Einstellungen konfigurieren."
+  displayLocalizedNotification(
+    "NotificationGitLabSettingsMissing",
+    "GitLab Ticket Creator"
+  );
+  openOptionsPage();
+  console.warn(
+    "GitLab settings are missing or invalid. Please configure them in the options."
   );
 }
 
@@ -63,10 +70,7 @@ export async function getCurrentUser() {
     return user;
   } catch (error) {
     console.error("Error fetching current user:", error);
-    displayNotification(
-      "GitLab Ticket Addon",
-      "Fehler beim Laden des aktuellen Benutzers: " + error.message
-    );
+    displayLocalizedNotification("NotificationGenericError");
     return null;
   }
 }
@@ -127,10 +131,7 @@ export async function getProjects(onUpdate) {
     if (onUpdate) onUpdate(allProjects);
   } catch (error) {
     console.error("Error fetching projects:", error);
-    displayNotification(
-      "GitLab Ticket Addon",
-      "Fehler beim Laden der Projekte: " + error.message
-    );
+    displayLocalizedNotification("NotificationeGenericError");
   }
 }
 
@@ -167,10 +168,7 @@ async function getNewProjects() {
     return projects || [];
   } catch (error) {
     console.error("Error fetching new projects:", error);
-    displayNotification(
-      "GitLab Ticket Addon",
-      "Fehler beim Laden der neuen Projekte: " + error.message
-    );
+    displayLocalizedNotification("NotificationGenericError");
     return [];
   }
 }
@@ -221,10 +219,7 @@ export async function getAssignees(projectId, onUpdate) {
     return assignees;
   } catch (error) {
     console.error(`Error fetching assignees for project ${projectId}:`, error);
-    displayNotification(
-      "GitLab Ticket Addon",
-      `Fehler beim Laden der Bearbeiter für Projekt ${projectId}: ${error.message}`
-    );
+    displayLocalizedNotification("NotificationGenericError");
     return [];
   }
 }
@@ -302,10 +297,7 @@ export async function createGitLabIssue(
     );
 
     const url = response.web_url || "";
-    const notificationid = await displayNotification(
-      "GitLab Ticket Addon",
-      "Ticket erfolgreich erstellt. Klicke zum Öffnen."
-    );
+    const notificationid = await displayLocalizedNotification("NotificationTicketCreated");
 
     browser.notifications.onClicked.addListener((id) => {
       if (id === notificationid) {
@@ -314,9 +306,6 @@ export async function createGitLabIssue(
     });
   } catch (error) {
     console.error("Error creating issue:", error);
-    displayNotification(
-      "GitLab Ticket Addon",
-      "Fehler beim Erstellen des Tickets:\n" + error.message
-    );
+    displayLocalizedNotification("NotificationGenericError");
   }
 }

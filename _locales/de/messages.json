@@ -27,13 +27,57 @@
     "message": "Bitte geben Sie ein gültiges GitLab-Token ein.",
     "description": "Alert for missing GitLab token."
   },
+  "OptionsAlertCacheCleared": {
+    "message": "Cache erfolgreich geleert!",
+    "description": "Response for cleared cache."
+  },
+  "OptionsAlertProjectsCleared": {
+    "message": "Projekte erfolgreich geleert!",
+    "description": "Response for cleared projects."
+  },
+  "OptionsAlertAssigneesCleared": {
+    "message": "Liste der Beauftragten erfolgreich geleert!",
+    "description": "Response for cleared assignees."
+  },
   "OptionsAlertOptionsSaved": {
     "message": "Einstellungen erfolgreich gespeichert!",
     "description": "Response for saved options."
   },
+  "OptionsAlertAssigneesEnabled": {
+    "message": "Zuständigen-Laden aktiviert.",
+    "description": "Response for enabled assignee loading."
+  },
+  "OptionsAlertAssigneesDisabled": {
+    "message": "Zuständigen-Laden deaktiviert.",
+    "description": "Response for disabled assignee loading."
+  },
+  "OptionsErrorOptionsLoaded": {
+    "message": "Fehler beim Laden der Einstellungen!",
+    "description": "Error for not loaded options."
+  },
   "OptionsErrorOptionsSaved": {
     "message": "Fehler beim Speichern der Einstellungen!",
     "description": "Error for not saved options."
+  },
+  "OptionsErrorAssigneesSaved": {
+    "message": "Fehler beim Speichern der Beauftragten-Einstellung!",
+    "description": "Error for not saved assignees."
+  },
+  "OptionsErrorCacheCleared": {
+    "message": "Fehler beim Leeren des Caches!",
+    "description": "Error for not cleared cache."
+  },
+  "OptionsErrorProjectsCleared": {
+    "message": "Fehler beim Leeren der Projekte!",
+    "description": "Error for not cleared projects."
+  },
+  "OptionsErrorAssigneesCleared": {
+    "message": "Fehler beim Leeren der Beauftragten!",
+    "description": "Error for not cleared assignees."
+  },
+  "OptionsTabsTitle": {
+    "message": "Einstellungen - GitLab Ticket Creator",
+    "description": "Title of options tab."
   },
   "OptionsTitle": {
     "message": "GitLab Einstellungen",
@@ -47,6 +91,14 @@
     "message": "Privater GitLab Access Token",
     "description": "Label for private GitLab access token."
   },
+  "OptionsTitleTokenLink": {
+    "message": "Access Token erstellen",
+    "description": "Title for access token link."
+  },
+  "OptionsTooltipTokenLink": {
+    "message": "Öffne die Seite für persönliche Tokens, erstelle einen neuen mit api-Recht, kopiere ihn und füge ihn hier ein.",
+    "description": "Tooltip for access token link."
+  },
   "OptionsTitleAdditionalOptions": {
     "message": "Weitere Optionen",
     "description": "Title for additional options."
@@ -54,6 +106,10 @@
   "OptionsLabelEnableAssigneeLoading": {
     "message": "Zuständige laden",
     "description": "Label for add loading of assignees."
+  },
+  "OptionsTooltipEnableAssigneeLoading": {
+    "message": "Aktiviert: Projekt-Zuständige laden. Deaktiviert: Nur dich setzen.",
+    "description": "Tooltip for enable assignee loading."
   },
   "OptionsTitleCleanup": {
     "message": "Addon zurücksetzen",
@@ -70,6 +126,10 @@
   "OptionsMadeBy": {
     "message": "Entwickelt von",
     "description": "Infotext for made by."
+  },
+  "PopupTabsTitle": {
+    "message": "Popup - Gitlab Ticket Creator",
+    "description": "Title of popup tab."
   },
   "PopupTitle": {
     "message": "GitLab-Ticket erstellen",
@@ -110,5 +170,45 @@
   "PopupButtonSubmit": {
     "message": "Ticket erstellen",
     "description": "Title submit Button."
+  },
+  "NotificationGenericError": {
+    "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+    "description": "Generic error notification."
+  },
+  "NotificationNoMessageSelected": {
+    "message": "Kein E-Mail ausgewählt. Bitte eine E-Mail öffnen.",
+    "description": "Notification when no email is selected."
+  },
+  "NotificationNoEmailContent": {
+    "message": "E-Mail-Inhalt konnte nicht abgerufen werden.",
+    "description": "Notification when email content cannot be retrieved."
+  },
+  "NotificationGitLabUrlNotConfigured": {
+    "message": "GitLab URL ist nicht konfiguriert. Bitte in den Einstellungen festlegen.",
+    "description": "Notification when GitLab URL is not configured."
+  },
+  "NotificationGitLabTokenNotConfigured": {
+    "message": "GitLab Token ist nicht konfiguriert. Bitte in den Einstellungen festlegen.",
+    "description": "Notification when GitLab token is not configured."
+  },
+  "NotificationInvalidGitLabToken": {
+    "message": "Ungültiger GitLab Token. Bitte überprüfen Sie Ihre Einstellungen.",
+    "description": "Notification when GitLab token is invalid."
+  },
+  "NotificationNoGitlabSettings": {
+    "message": "GitLab-Einstellungen sind nicht gesetzt. Bitte in den Einstellungen konfigurieren.",
+    "description": "Notification when no GitLab settings are set."
+  },
+  "NotificationTicketCreated": {
+    "message": "Ticket erfolgreich erstellt! Klicke zum Öffnen.",
+    "description": "Notification when ticket is successfully created."
+  },
+  "NotificationNoProjectSelected": {
+    "message": "Bitte wählen Sie ein gültiges Projekt aus.",
+    "description": "Notification when an invalid project is selected."
+  },
+  "NotificationAttachmentNotFound": {
+    "message": "Anhang nicht gefunden. Ticket-Erstellung abgebrochen.",
+    "description": "Notification when an attachment is not found."
   }
 }

@@ -17,7 +17,12 @@ let isTokenVisible = false;
  * Displays an alert message to the user.
  * @param {string} message - The message to display.
  */
-function showAlert(message) {
+function showAlert(messageKey) {
+  const message = browser.i18n.getMessage(messageKey);
+  if (!message) {
+    console.warn(`No localized message found for ID: ${messageKey}`);
+    return;
+  }
   alert(message);
 }
 
@@ -26,9 +31,14 @@ function showAlert(message) {
  * @param {string} contextMessage - A message describing where the error occurred.
  * @param {Error} error - The error object.
  */
-function handleError(contextMessage, error) {
-  console.error(contextMessage, error);
-  showAlert(`Fehler: ${contextMessage}. Bitte versuchen Sie es erneut.`);
+function handleError(messageKey, error) {
+  const message = browser.i18n.getMessage(messageKey);
+  if (!message) {
+    console.warn(`No localized message found for ID: ${messageKey}`);
+    return;
+  }
+  console.error(`${message}:`, error);
+  alert(`${message}\n${error.message}`);
 }
 
 /**
@@ -116,12 +126,12 @@ async function saveOptions(data) {
   const trimmedUrl = data.url.trim();
 
   if (!trimmedUrl || !isValidUrl(trimmedUrl)) {
-    showAlert(browser.i18n.getMessage('OptionsAlertAddGitLabUrl'));
+    showAlert("OptionsAlertAddGitLabUrl");
     return;
   }
 
   if (!trimmedToken) {
-    showAlert(browser.i18n.getMessage('OptionsAlertAddGitLabToken'));
+    showAlert("OptionsAlertAddGitLabToken");
     showTokenHelpLink(trimmedUrl, trimmedToken);
     return;
   }
@@ -132,7 +142,7 @@ async function saveOptions(data) {
       gitlabUrl: trimmedUrl,
     });
     showTokenHelpLink(trimmedUrl, trimmedToken);
-    showAlert(browser.i18n.getMessage('OptionsAlertOptionsSaved'));
+    showAlert("OptionsAlertOptionsSaved");
     // Notify background script or other parts of the extension about the update
     browser.runtime.sendMessage({
       type: MessageTypes.SETTINGS_UPDATED,
@@ -140,7 +150,7 @@ async function saveOptions(data) {
     });
     window.close(); // Close the options page
   } catch (error) {
-    handleError(browser.i18n.getMessage('OptionsErrorOptionsSaved'), error);
+    handleError("OptionsErrorOptionsSaved", error);
   }
 }
 
@@ -149,10 +159,10 @@ async function saveOptions(data) {
  */
 async function clearCache() {
   try {
-    clearAllCache(); // Call the utility function to clear cache
-    showAlert("Cache erfolgreich geleert!"); // Add success message for cache clear
+    clearAllCache();
+    showAlert("OptionsAlertCacheCleared");
   } catch (error) {
-    handleError("Fehler beim Löschen des Caches", error);
+    handleError("OptionsErrorCacheCleared", error);
   }
 }
 
@@ -167,13 +177,14 @@ async function loadInitialSettings() {
     const { gitlabUrl } = await browser.storage.local.get("gitlabUrl");
     DOM.urlInput.value = gitlabUrl || "";
 
-    const { enableAssigneeLoading } =
-      await browser.storage.local.get("enableAssigneeLoading");
+    const { enableAssigneeLoading } = await browser.storage.local.get(
+      "enableAssigneeLoading"
+    );
     DOM.assigneesToggleBtn.checked = enableAssigneeLoading || false;
 
     showTokenHelpLink(gitlabUrl, gitlabToken);
   } catch (error) {
-    handleError("Fehler beim Laden der Einstellungen", error);
+    handleError("OptionsErrorOptionsLoaded", error);
   }
 }
 
@@ -189,18 +200,18 @@ function setupEventListeners() {
   DOM.clearProjectsButton.addEventListener("click", async () => {
     try {
       resetCache(CacheKeys.PROJECTS); // Clear the projects cache
-      showAlert("Projekte erfolgreich gelöscht!");
+      showAlert("OptionsAlertProjectsCleared");
     } catch (error) {
-      handleError("Fehler beim Löschen der Projekte", error);
+      handleError("OptionsErrorProjectsCleared", error);
     }
   });
   DOM.clearAssigneesButton.addEventListener("click", async () => {
     try {
       resetCache(CacheKeys.ASSIGNEES); // Clear the assignees cache
 
-      showAlert("Zuständige erfolgreich gelöscht!");
+      showAlert("OptionsAlertAssigneesCleared");
     } catch (error) {
-      handleError("Fehler beim Löschen der Zuständigen", error);
+      handleError("OptionsErrorAssigneesCleared", error);
     }
   });
 
@@ -210,16 +221,21 @@ function setupEventListeners() {
       await browser.storage.local.set({
         enableAssigneeLoading: isChecked,
       });
-      showAlert(
-        `Zuständigen-Laden ${isChecked ? "aktiviert" : "deaktiviert"}.`
-      );
+
+      // Show alert based on the language and state;
+      const messageKey = isChecked
+        ? "OptionsAlertAssigneesEnabled"
+        : "OptionsAlertAssigneesDisabled";
+
+      showAlert(messageKey);
+
       // Notify background script or other parts of the extension about the update
       browser.runtime.sendMessage({
         type: MessageTypes.SETTINGS_UPDATED,
         enableAssigneeLoading: isChecked,
       });
     } catch (error) {
-      handleError("Fehler beim Speichern der Assignee-Einstellung", error);
+      handleError("OptionsErrorAssigneesSaved", error);
     }
   });
 }

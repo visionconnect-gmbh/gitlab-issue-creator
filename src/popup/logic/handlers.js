@@ -226,19 +226,21 @@ function generateBaseDescription() {
       let dateObj;
       if (index === 0 && messageData.date instanceof Date) {
         dateObj = messageData.date;
-      } else if (entry.date) {
-        dateObj = new Date(entry.date);
       }
 
-      const dateFormatted = dateObj
-        ? dateObj.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "Unknown date";
+      // Only use formatted date if dateObj is valid else use entry.date
+      const dateFormatted =
+        dateObj instanceof Date && !isNaN(dateObj.getTime())
+          ? dateObj.toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : entry.date
+          ? `${entry.date} ${entry.time || ""}`.trim()
+          : "(No date available)";
 
       const metaInfo = `**${fromText}**: ${from}\n**${dateText}**: ${dateFormatted}\n\n`;
 

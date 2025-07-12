@@ -228,6 +228,37 @@ function generateBaseDescription() {
         dateObj = messageData.date;
       }
 
+      const is12HourFormat =
+        entry.time?.includes("AM") || entry.time?.includes("PM");
+
+      // Format time to local format
+      let localizedTime = "";
+      if (entry.time) {
+        // Normalize to a Date object
+        let parsedDate;
+
+        // Create a dummy date with the time so we can parse it
+        const dummyDate = "1970-01-01"; // Date part doesn't matter
+
+        // Try parsing depending on format
+        if (is12HourFormat) {
+          parsedDate = new Date(`${dummyDate} ${entry.time}`);
+        } else {
+          // Ensure it's parsed correctly for 24-hour format
+          parsedDate = new Date(`${dummyDate}T${entry.time}`);
+        }
+
+        if (!isNaN(parsedDate)) {
+          localizedTime = parsedDate.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+        } else {
+          console.warn("Invalid time format:", entry.time);
+          localizedTime = entry.time; // Fallback to original
+        }
+      }
+
       // Only use formatted date if dateObj is valid else use entry.date
       const dateFormatted =
         dateObj instanceof Date && !isNaN(dateObj.getTime())
@@ -239,7 +270,11 @@ function generateBaseDescription() {
               minute: "2-digit",
             })
           : entry.date
-          ? `${entry.date} ${entry.time || ""}`.trim()
+          ? `${new Date(entry.date).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })} ${localizedTime || ""}`.trim()
           : "(No date available)";
 
       const metaInfo = `**${fromText}**: ${from}\n**${dateText}**: ${dateFormatted}\n\n`;

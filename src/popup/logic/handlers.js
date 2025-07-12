@@ -216,13 +216,35 @@ function generateBaseDescription() {
   return history
     .map((entry, index) => {
       const fromText = browser.i18n.getMessage("PopupFromAuthor") || "From";
-      const dateText = browser.i18n.getMessage("PopupDateReceived") || "Received on";
+      const dateText =
+        browser.i18n.getMessage("PopupDateReceived") || "Received on";
 
-      const from = entry.from
-        ? `**${fromText}**: ${entry.from}\n**${dateText}**: ${entry.date} ${entry.time}\n\n`
-        : "";
+      const from =
+        index === 0 ? messageData.author : entry.from || "Unknown sender";
+
+      // Handle and format date
+      let dateObj;
+      if (index === 0 && messageData.date instanceof Date) {
+        dateObj = messageData.date;
+      } else if (entry.date) {
+        dateObj = new Date(entry.date);
+      }
+
+      const dateFormatted = dateObj
+        ? dateObj.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Unknown date";
+
+      const metaInfo = `**${fromText}**: ${from}\n**${dateText}**: ${dateFormatted}\n\n`;
+
       const separator = index > 0 ? "\n---\n\n" : "";
-      return `${separator}${from}${entry.message}`;
+      const messageText = entry.message?.trim() || "(No message content)";
+      return `${separator}${metaInfo}${messageText}`;
     })
     .join("\n")
     .trim();
@@ -235,7 +257,9 @@ async function getAttachmentFile(messageId, partName) {
 function getAttachmentMarkdownPreview(attachments) {
   const placeholderTitle =
     browser.i18n.getMessage("TicketAttachmentsTitle") || "Attachments";
-    const placeholderText = browser.i18n.getMessage("TicketAttachmentPreviewText") || "This attachment will be uploaded when the issue is created."; 
+  const placeholderText =
+    browser.i18n.getMessage("TicketAttachmentPreviewText") ||
+    "This attachment will be uploaded when the issue is created.";
   return attachments
     .map((a) => `**${placeholderTitle}:** _${a.name}_ *${placeholderText}*`)
     .join("\n\n");

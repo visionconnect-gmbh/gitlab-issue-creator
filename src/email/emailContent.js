@@ -2,7 +2,7 @@
 import {
   findTextPart,
   findAttachmentParts,
-  extractConversationHistory,
+  emailParser,
 } from "./emailParser.js";
 
 /**
@@ -17,9 +17,8 @@ export async function getEmailContent(message) {
   const rawMessage = await browser.messages.getFull(message.id);
   const textPart = findTextPart(rawMessage.parts);
   const emailBody = textPart ? textPart.body : "";
-  const conversationHistory = extractConversationHistory(emailBody);
+  const conversationHistory = emailParser(emailBody);
   const attachments = findAttachmentParts(rawMessage.parts);
-
   return {
     id: message.id,
     subject: message.subject,

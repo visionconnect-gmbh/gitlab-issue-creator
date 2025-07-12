@@ -46,136 +46,147 @@ export function findAttachmentParts(parts) {
   return attachments;
 }
 
-/**
- * Extracts individual messages from an email conversation thread.
- * @param {string} body - The full plain text body of the email.
- * @returns {Array<Object>} An array of message objects.
- */
-export function extractConversationHistory(body) {
-  if (!body) return [];
+export function emailParser(emailBody) {
+  if (!emailBody || typeof emailBody !== "string") return [];
 
-  const messages = [];
-  const headerRegex =
-    /^(>+\s*)?.*?(\d{1,2}[./]\d{1,2}[./]\d{2,4}).*?(\d{1,2}:\d{2}(?:\s*[APap][Mm])?)\s+(?:schrieb|wrote|a écrit|escribió)?\s*(.+?):\s*$/im;
+  const { latestMessage, quotedLines } = splitQuotedAndLatest(emailBody);
+  const quotedMessages = extractQuotedMessages(quotedLines);
+  const rawMessages = [latestMessage, ...quotedMessages].filter(Boolean);
 
-  const allHeaders = [...body.matchAll(new RegExp(headerRegex.source, "gm"))];
+  const dateAndAuthorLines = rawMessages.map(extractDateAndAuthorLine);
+  const remappedMessages = remapDateAndAuthorLines(
+    rawMessages,
+    dateAndAuthorLines
+  );
 
-  if (allHeaders.length > 0) {
-    const firstHeaderMatch = allHeaders[0];
-    const mainMessageContent = body.substring(0, firstHeaderMatch.index).trim();
-    if (mainMessageContent) {
-      messages.push({
-        from: null,
-        date: null,
-        time: null,
-        message: extractRelevantBody(mainMessageContent),
-      });
-    }
-  } else {
-    messages.push({
-      from: null,
-      date: null,
-      time: null,
-      message: extractRelevantBody(body),
-    });
-    return messages;
-  }
-
-  for (let i = 0; i < allHeaders.length; i++) {
-    const currentHeaderMatch = allHeaders[i];
-    const nextHeaderMatch = allHeaders[i + 1];
-    const messageStart =
-      currentHeaderMatch.index + currentHeaderMatch[0].length;
-    const messageEnd = nextHeaderMatch ? nextHeaderMatch.index : body.length;
-    let messageContent = body.substring(messageStart, messageEnd).trim();
-
-    const quotePrefix = currentHeaderMatch[1] || "";
-    const date = currentHeaderMatch[2];
-    const time = currentHeaderMatch[3];
-    const from = currentHeaderMatch[4].replace(/\s+/g, " ").trim();
-
-    const escapedQuotePrefix = quotePrefix.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      "\\$&"
-    );
-    const lineQuoteStripper = new RegExp(`^${escapedQuotePrefix}(.*)$`, "gm");
-    messageContent = messageContent.replace(lineQuoteStripper, "$1").trim();
-
-    messages.push({
+  return remappedMessages.map((msg) => {
+    const { from, date, time } = parseDateAndAuthorLine(msg.split("\n")[0]);
+    const cleanedMsg = removeEmptyLines(msg);
+    return {
       from,
       date,
       time,
-      message: extractRelevantBody(messageContent),
-    });
+      message: removeSignature(removeDateAndAuthorLines(cleanedMsg)),
+    };
+  });
+}
+
+function splitQuotedAndLatest(emailBody) {
+  const lines = emailBody.split("\n");
+  const latestLines = [];
+  const quotedLines = [];
+
+  for (const line of lines) {
+    if (line.startsWith(">")) {
+      quotedLines.push(line);
+    } else {
+      latestLines.push(line);
+    }
+  }
+
+  const latestMessage = latestLines.join("\n").trim();
+  return { latestMessage, quotedLines };
+}
+
+function extractQuotedMessages(quotedLines) {
+  const messages = [];
+  let buffer = [];
+  let currentMinLevel = -1;
+
+  for (let i = quotedLines.length - 1; i >= 0; i--) {
+    const line = quotedLines[i];
+    const quoteLevel = getQuoteLevel(line);
+    const content = line.slice(quoteLevel).trim();
+
+    if (buffer.length === 0) {
+      buffer.unshift(content);
+      currentMinLevel = quoteLevel;
+    } else if (quoteLevel < currentMinLevel) {
+      messages.unshift(buffer.join("\n").trim());
+      buffer = [content];
+      currentMinLevel = quoteLevel;
+    } else {
+      buffer.unshift(content);
+      currentMinLevel = Math.min(currentMinLevel, quoteLevel);
+    }
+  }
+
+  if (buffer.length > 0) {
+    messages.unshift(buffer.join("\n").trim());
   }
 
   return messages;
 }
 
-/**
- * Cleans up and extracts the relevant message text.
- * @param {string} body - The input email text.
- * @returns {string} The cleaned message text.
- */
-export function extractRelevantBody(body) {
-  const noContentMessage =
-    browser?.i18n?.getMessage("EmailNoContentMessage") ||
-    "No content available.";
-  if (!body) return noContentMessage;
-
-  body = body
-    .split("\n")
-    .map((line) => line.replace(/^>+\s*/, ""))
-    .join("\n");
-
-  let cleanedText = body.split(/\n--\s*\n|__+\n/)[0];
-
-  cleanedText = cleanedText
-    .split("\n")
-    .filter((line) => !/^\s*([*-_=+#~]{3,}\s*)+$/g.test(line.trim()))
-    .join("\n");
-
-  cleanedText = cleanedText.replace(
-    /^([ \t]*[*_=\-#~]{4,}.*\n)([\s\S]*?)(^\1|\n[ \t]*[*_=\-#~]{4,}.*\n)/gm,
-    ""
-  );
-
-  const disclaimerKeywords = [
-    "Datenschutz:",
-    "PGP",
-    "LinkedIn:",
-    "Xing:",
-    "freundliche Grüße",
-    "Geschäftsführer:",
-    "fon:",
-    "fax:",
-    "https://",
-    "Web-Applikationen",
-    "bleiben Sie gesund!",
-    "TYPO3",
-    "Ein erster Blick.",
-    "VisionConnect",
-    "Hohenzollernstr.",
-    "D-30161 Hannover",
-    "________________________________________________",
-    "*************************************************************************************",
-  ];
-
-  for (const kw of disclaimerKeywords) {
-    const idx = cleanedText.indexOf(kw);
-    if (idx !== -1) {
-      cleanedText = cleanedText.substring(0, idx).trim();
-    }
+function getQuoteLevel(line) {
+  let level = 0;
+  while (line.startsWith(">".repeat(level + 1))) {
+    level++;
   }
+  return level;
+}
 
-  cleanedText = cleanedText
+function extractDateAndAuthorLine(message) {
+  const germanRegex =
+    /Am \d{2}\.\d{2}\.\d{4} um \d{2}:\d{2} schrieb [\w\säöüÄÖÜß]+:/;
+  const englishRegex =
+    /On \d{1,2}\/\d{1,2}\/\d{4} \d{1,2}:\d{2} (?:AM|PM), [\w\s]+ wrote:/;
+
+  return (
+    message
+      .split("\n")
+      .find((line) => germanRegex.test(line) || englishRegex.test(line)) || null
+  );
+}
+
+function removeDateAndAuthorLines(message) {
+  const lines = message.split("\n");
+  const filteredLines = lines.filter((line) => !extractDateAndAuthorLine(line));
+  return filteredLines.join("\n").trim();
+}
+
+function remapDateAndAuthorLines(messages, dateLines) {
+  return messages.map((msg, index) => {
+    const prepend = dateLines[index - 1];
+    return prepend ? `${prepend}\n\n${msg}` : msg;
+  });
+}
+
+function removeSignature(message) {
+  const index = message.indexOf("-- ");
+  return index !== -1 ? message.slice(0, index).trim() : message.trim();
+}
+
+function removeEmptyLines(message) {
+  return message
     .split("\n")
-    .map((line) => line.trimEnd())
-    .filter((line, i, arr) => line !== "" || (i > 0 && arr[i - 1] !== ""))
+    .filter((line) => line.trim() !== "")
     .join("\n")
     .trim();
+}
 
-  cleanedText = cleanedText.replace(/^[*>]+\s*/, "");
+function parseDateAndAuthorLine(line) {
+  if (!line) return { from: "", date: "", time: "" };
 
-  return cleanedText || noContentMessage;
+  const germanRegex =
+    /Am (\d{2}\.\d{2}\.\d{4}) um (\d{2}:\d{2}) schrieb ([\w\säöüÄÖÜß]+):/;
+  const englishRegex =
+    /On (\d{1,2}\/\d{1,2}\/\d{4}) (\d{1,2}:\d{2}) (AM|PM), ([\w\s]+) wrote:/;
+
+  let match;
+  if ((match = line.match(germanRegex))) {
+    return {
+      from: match[3].trim(),
+      date: match[1],
+      time: match[2],
+    };
+  } else if ((match = line.match(englishRegex))) {
+    return {
+      from: match[4].trim(),
+      date: match[1],
+      time: `${match[2]} ${match[3]}`,
+    };
+  }
+
+  return { from: "", date: "", time: "" };
 }

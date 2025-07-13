@@ -234,51 +234,48 @@ function generateBaseDescription() {
       // Format time to local format
       let localizedTime = "";
       if (entry.time) {
-        // Normalize to a Date object
-        let parsedDate;
+        const dummyDate = "1970-01-01";
+        const timeString = is12HourFormat
+          ? `${dummyDate} ${entry.time}`
+          : `${dummyDate}T${entry.time}`;
+        const parsedDate = new Date(timeString);
 
-        // Create a dummy date with the time so we can parse it
-        const dummyDate = "1970-01-01"; // Date part doesn't matter
-
-        // Try parsing depending on format
-        if (is12HourFormat) {
-          parsedDate = new Date(`${dummyDate} ${entry.time}`);
-        } else {
-          // Ensure it's parsed correctly for 24-hour format
-          parsedDate = new Date(`${dummyDate}T${entry.time}`);
-        }
-
-        if (!isNaN(parsedDate)) {
+        if (!isNaN(parsedDate.getTime())) {
           localizedTime = parsedDate.toLocaleTimeString([], {
             hour: "numeric",
             minute: "2-digit",
           });
         } else {
           console.warn("Invalid time format:", entry.time);
-          localizedTime = entry.time; // Fallback to original
+          localizedTime = entry.time; // Fallback
         }
       }
 
-      // Only use formatted date if dateObj is valid else use entry.date
-      const dateFormatted =
-        dateObj instanceof Date && !isNaN(dateObj.getTime())
-          ? dateObj.toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : entry.date
-          ? `${new Date(entry.date).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            })} ${localizedTime || ""}`.trim()
-          : "(No date available)";
+      let dateFormatted = "(No date available)";
+
+      if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+        dateFormatted = dateObj.toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } else if (entry.date) {
+        const parsed = new Date(entry.date);
+        if (!isNaN(parsed.getTime())) {
+          dateFormatted = `${parsed.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })} ${localizedTime || ""}`.trim();
+        } else {
+          // entry.date exists but can't be parsed – use raw string
+          dateFormatted = `${entry.date} ${localizedTime || ""}`.trim();
+        }
+      }
 
       const metaInfo = `**${fromText}**: ${from}\n**${dateText}**: ${dateFormatted}\n\n`;
-
       const separator = index > 0 ? "\n---\n\n" : "";
       const messageText = entry.message?.trim() || "(No message content)";
       return `${separator}${metaInfo}${messageText}`;

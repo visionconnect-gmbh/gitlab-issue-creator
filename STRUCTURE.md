@@ -109,7 +109,7 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 
 ---
 
-### 🛠 GitLab-Integration
+### GitLab-Integration
 
 ```text
 ├── src/gitlab/
@@ -172,6 +172,8 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 
 - **utils.js** – Wiederverwendbare Funktionen (String-Formatierung, Validierung etc.)
 - **cache.js** – Einfaches In-Memory-Caching für API-Antworten (z. B. Projektliste, Labels)
+
+---
 
 #### Gesamte Projektstruktur
 

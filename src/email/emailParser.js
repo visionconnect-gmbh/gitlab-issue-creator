@@ -59,14 +59,19 @@ export function emailParser(emailBody) {
     dateAndAuthorLines
   );
 
-  return remappedMessages.map((msg) => {
-    const { from, date, time } = parseDateAndAuthorLine(msg.split("\n")[0]);
-    const cleanedMsg = removeEmptyLines(msg);
+  return remappedMessages.map((rawMessage) => {
+    const headerLine = rawMessage.split("\n")[0];
+    const { from, date, time } = parseDateAndAuthorLine(headerLine);
+
+    const cleanedMessage = removeEmptyLines(rawMessage);
+    const contentWithoutHeader = removeDateAndAuthorLines(cleanedMessage);
+    const finalMessage = removeSignature(contentWithoutHeader);
+
     return {
       from,
       date,
       time,
-      message: removeSignature(removeDateAndAuthorLines(cleanedMsg)),
+      message: finalMessage,
     };
   });
 }
@@ -168,24 +173,46 @@ function removeEmptyLines(message) {
 function parseDateAndAuthorLine(line) {
   if (!line) return { from: "", date: "", time: "" };
 
-  const germanRegex =
-    /Am (\d{2}\.\d{2}\.\d{4}) um (\d{2}:\d{2}) schrieb ([\w\säöüÄÖÜß]+):/;
-  const englishRegex =
-    /On (\d{1,2}\/\d{1,2}\/\d{4}) (\d{1,2}:\d{2}) (AM|PM), ([\w\s]+) wrote:/;
+  const patterns = [
+    {
+      // German: "Am 12.07.2025 um 14:35 schrieb Max Mustermann:"
+      regex: /Am (\d{2}\.\d{2}\.\d{4}) um (\d{2}:\d{2}) schrieb (.+?):/,
+      groups: { date: 1, time: 2, from: 3 },
+    },
+    {
+      // English: "On 7/12/2025 2:35 PM, John Doe wrote:"
+      regex:
+        /On (\d{1,2}\/\d{1,2}\/\d{4}) (\d{1,2}:\d{2})\s?(AM|PM), (.+?) wrote:/i,
+      groups: { date: 1, time: 2, meridiem: 3, from: 4 },
+    },
+    {
+      // French: "Le 12/07/2025 à 14:35, Jean Dupont a écrit :"
+      regex: /Le (\d{2}\/\d{2}\/\d{4}) à (\d{2}:\d{2}), (.+?) a écrit ?:/,
+      groups: { date: 1, time: 2, from: 3 },
+    },
+    {
+      // Spanish: "El 12/07/2025 a las 14:35, Juan Pérez escribió:"
+      regex: /El (\d{2}\/\d{2}\/\d{4}) a las (\d{2}:\d{2}), (.+?) escribió:/,
+      groups: { date: 1, time: 2, from: 3 },
+    },
+    {
+      // Generic fallback: anything like "DATE TIME, NAME wrote:"
+      regex:
+        /(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})[,\s]+(\d{1,2}:\d{2}(?:\s?(?:AM|PM))?),\s+(.+?)\s+wrote:/i,
+      groups: { date: 1, time: 2, from: 3 },
+    },
+  ];
 
-  let match;
-  if ((match = line.match(germanRegex))) {
-    return {
-      from: match[3].trim(),
-      date: match[1],
-      time: match[2],
-    };
-  } else if ((match = line.match(englishRegex))) {
-    return {
-      from: match[4].trim(),
-      date: match[1],
-      time: `${match[2]} ${match[3]}`,
-    };
+  for (const pattern of patterns) {
+    const match = line.match(pattern.regex);
+    if (match) {
+      const { date, time, meridiem, from } = pattern.groups;
+      return {
+        date: match[date],
+        time: meridiem ? `${match[time]} ${match[meridiem]}` : match[time],
+        from: match[from].trim(),
+      };
+    }
   }
 
   return { from: "", date: "", time: "" };

@@ -53,7 +53,7 @@ Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visio
 
 ### Aufbau des Projekts
 
-[Structure](STRUCTURE.md)
+[Struktur](STRUCTURE.md)
 
 ### Build-Befehle
 

@@ -5,7 +5,7 @@ import {
   createGitLabIssue,
   getCurrentUser,
 } from "./src/gitlab/gitlab.js";
-import { MessageTypes } from "./src/Enums.js";
+import { MessageTypes, LocalizeKeys } from "./src/Enums.js";
 import {
   displayLocalizedNotification,
   openOptionsPage,
@@ -34,13 +34,13 @@ async function handleBrowserActionClick() {
     const message = await getMessage();
 
     if (!message) {
-      displayLocalizedNotification("NotificationNoMessageSelected");
+      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.NO_MESSAGE_SELECTED);
       return;
     }
 
     const emailData = await getEmailContent(message);
     if (!emailData) {
-      displayLocalizedNotification("NotificationNoEmailContent");
+      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.NO_EMAIL_CONTENT);
       return;
     }
 
@@ -65,7 +65,7 @@ async function handleBrowserActionClick() {
     });
   } catch (err) {
     console.error("Error handling browser action click:", err);
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
   }
 }
 
@@ -123,8 +123,7 @@ async function handleRuntimeMessages(msg, sender) {
         const projectId = msg.projectId;
         const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
-        const description =
-          msg.description?.trim() || "No description provided.";
+        const description = replaceWithBrTags(msg.description?.trim() || "No description provided.");
         const issueEnd = msg.endDate;
         try {
           const assignee = msg.assignee || (await getCurrentUser());
@@ -138,7 +137,7 @@ async function handleRuntimeMessages(msg, sender) {
           closePopup();
         } catch (error) {
           console.error("Error creating GitLab issue:", error);
-          displayLocalizedNotification("NotificationGenericError");
+          displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
         }
         break;
       }
@@ -158,8 +157,14 @@ async function handleRuntimeMessages(msg, sender) {
     }
   } catch (error) {
     console.error("Error handling runtime message:", error);
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
   }
+}
+
+function replaceWithBrTags(text) {
+  if (!text) return "";
+  // Replace newlines with <br> tags
+  return text.replace(/\n/g, "<br>");
 }
 
 async function getMessage() {

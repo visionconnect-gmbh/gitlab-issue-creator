@@ -59,21 +59,43 @@ export function emailParser(emailBody) {
     dateAndAuthorLines
   );
 
-  return remappedMessages.map((rawMessage) => {
+  const processedMessages = remappedMessages.map((rawMessage) => {
     const headerLine = rawMessage.split("\n")[0];
     const { from, date, time } = parseDateAndAuthorLine(headerLine);
 
-    const cleanedMessage = removeEmptyLines(rawMessage);
-    const contentWithoutHeader = removeDateAndAuthorLines(cleanedMessage);
-    const finalMessage = removeSignature(contentWithoutHeader);
+    const cleanedMessageOuter = removeEmptyLines(rawMessage);
+    const contentWithoutHeader = removeDateAndAuthorLines(cleanedMessageOuter);
+    const forwardedText = extractForwardedMessage(contentWithoutHeader);
+    const finalMessageOuter = removeSignature(contentWithoutHeader);
+    let forwardedMessage = null;
+
+    if (forwardedText) {
+      const { author, date: forwardedDate } =
+        extractForwardedAuthorAndDate(forwardedText);
+      let cleanedForwardedMessage = removeEmptyLines(forwardedText);
+      cleanedForwardedMessage = removeSignature(cleanedForwardedMessage);
+      const finalForwardedMessage = removeForwardedHeader(
+        cleanedForwardedMessage
+      );
+
+      forwardedMessage = {
+        from: author,
+        date: forwardedDate,
+        time: null,
+        message: finalForwardedMessage,
+      };
+    }
 
     return {
       from,
       date,
       time,
-      message: finalMessage,
+      message: finalMessageOuter,
+      forwardedMessage, // Include forwardedMessage in the returned object
     };
   });
+
+  return processedMessages;
 }
 
 function splitQuotedAndLatest(emailBody) {
@@ -131,6 +153,61 @@ function getQuoteLevel(line) {
   return level;
 }
 
+function extractForwardedMessage(message) {
+  const lines = message.split("\n");
+
+  const forwardHeaderRegex = /^-{3,}.*?-{3,}$/;
+
+  const forwardStartIndex = lines.findIndex((line) => {
+    const trimmedLine = line.trim();
+    const match = forwardHeaderRegex.test(trimmedLine);
+    return match;
+  });
+
+  if (forwardStartIndex === -1) {
+    return null;
+  }
+
+  const forwardLines = lines.slice(forwardStartIndex + 1);
+  if (forwardLines.length === 0) {
+    return null;
+  }
+
+  const forwardedText = forwardLines.join("\n").trim();
+  return forwardedText;
+}
+
+function extractForwardedAuthorAndDate(forwardedText) {
+  const lines = forwardedText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  let author = null;
+  let date = null;
+
+  for (const line of lines) {
+    // Try to find a line with an email address — treat as author line
+    const emailMatch = line.match(/<?([\w.-]+@[\w.-]+\.\w+)>?/);
+    if (!author && emailMatch) {
+      author = line;
+    }
+
+    // Try to find a line that looks like a date
+    const dateMatch = line.match(
+      /\b(?:\d{1,2}\.\s*\w+|\w+,\s*\d{1,2}|\d{4}-\d{2}-\d{2}|\d{1,2}[./-]\d{1,2}[./-]\d{2,4})\b.*\d{2}:\d{2}/
+    );
+    if (!date && dateMatch) {
+      date = line;
+    }
+
+    // Break early if both found
+    if (author && date) break;
+  }
+
+  return { author, date };
+}
+
 function extractDateAndAuthorLine(message) {
   const germanRegex =
     /Am \d{2}\.\d{2}\.\d{4} um \d{2}:\d{2} schrieb [\w\säöüÄÖÜß]+:/;
@@ -142,6 +219,17 @@ function extractDateAndAuthorLine(message) {
       .split("\n")
       .find((line) => germanRegex.test(line) || englishRegex.test(line)) || null
   );
+}
+
+function removeForwardedHeader(message) {
+  // TODO: Implement a more robust way to remove forwarded headers
+  // Strip the first 5 lines
+  const lines = message.split("\n");
+  if (lines.length <= 5) {
+    return "";
+  }
+  const cleanedLines = lines.slice(5).join("\n").trim();
+  return cleanedLines;
 }
 
 function removeDateAndAuthorLines(message) {

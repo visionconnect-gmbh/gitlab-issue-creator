@@ -175,6 +175,10 @@
         "message": "Received on",
         "description": "Label for date received."
     },
+    "PopupForwardedMessage": {
+        "message": "Forwarded Message",
+        "description": "Label for forwarded message."
+    },
     "PopupButtonSubmit": {
         "message": "Create Ticket",
         "description": "Title submit Button."

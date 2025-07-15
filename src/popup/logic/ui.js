@@ -6,6 +6,8 @@ import {
   selectedAssigneeId,
 } from "./state.js";
 
+import { LocalizeKeys } from "../../Enums.js";
+
 export function renderProjectSuggestions() {
   elements.projectSuggestions.innerHTML = "";
   filteredProjects.forEach((proj) => {
@@ -20,7 +22,7 @@ export function renderAssignees() {
   if (!currentAssignees.length) {
     elements.assigneeSelect.disabled = true;
     // Show a message when no assignees are available
-    const noAssigneesFoundMessage = browser.i18n.getMessage("PopupNoAssigneesFound") || "No assignees found.";
+    const noAssigneesFoundMessage = browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) || "No assignees found.";
     elements.assigneeSelect.innerHTML = `<option>${noAssigneesFoundMessage}</option>`;
     return;
   }

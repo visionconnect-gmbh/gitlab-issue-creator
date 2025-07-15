@@ -1,4 +1,4 @@
-import { MessageTypes, CacheKeys } from "../Enums.js";
+import { MessageTypes, CacheKeys, LocalizeKeys } from "../Enums.js";
 import { clearAllCache, resetCache } from "../utils/cache.js";
 
 const SVG_PATH = {
@@ -126,12 +126,12 @@ async function saveOptions(data) {
   const trimmedUrl = data.url.trim();
 
   if (!trimmedUrl || !isValidUrl(trimmedUrl)) {
-    showAlert("OptionsAlertAddGitLabUrl");
+    showAlert(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
     return;
   }
 
   if (!trimmedToken) {
-    showAlert("OptionsAlertAddGitLabToken");
+    showAlert(LocalizeKeys.OPTIONS.ALERTS.ADD_GITLAB_TOKEN);
     showTokenHelpLink(trimmedUrl, trimmedToken);
     return;
   }
@@ -142,7 +142,7 @@ async function saveOptions(data) {
       gitlabUrl: trimmedUrl,
     });
     showTokenHelpLink(trimmedUrl, trimmedToken);
-    showAlert("OptionsAlertOptionsSaved");
+    showAlert(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
     // Notify background script or other parts of the extension about the update
     browser.runtime.sendMessage({
       type: MessageTypes.SETTINGS_UPDATED,
@@ -150,7 +150,7 @@ async function saveOptions(data) {
     });
     window.close(); // Close the options page
   } catch (error) {
-    handleError("OptionsErrorOptionsSaved", error);
+    handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_SAVED, error);
   }
 }
 
@@ -160,9 +160,9 @@ async function saveOptions(data) {
 async function clearCache() {
   try {
     clearAllCache();
-    showAlert("OptionsAlertCacheCleared");
+    showAlert(LocalizeKeys.OPTIONS.ALERTS.CACHE_CLEARED);
   } catch (error) {
-    handleError("OptionsErrorCacheCleared", error);
+    handleError(LocalizeKeys.OPTIONS.ERRORS.CACHE_CLEARED, error);
   }
 }
 
@@ -184,7 +184,7 @@ async function loadInitialSettings() {
 
     showTokenHelpLink(gitlabUrl, gitlabToken);
   } catch (error) {
-    handleError("OptionsErrorOptionsLoaded", error);
+    handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_LOADED, error);
   }
 }
 
@@ -200,18 +200,18 @@ function setupEventListeners() {
   DOM.clearProjectsButton.addEventListener("click", async () => {
     try {
       resetCache(CacheKeys.PROJECTS); // Clear the projects cache
-      showAlert("OptionsAlertProjectsCleared");
+      showAlert(LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED);
     } catch (error) {
-      handleError("OptionsErrorProjectsCleared", error);
+      handleError(LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED, error);
     }
   });
   DOM.clearAssigneesButton.addEventListener("click", async () => {
     try {
       resetCache(CacheKeys.ASSIGNEES); // Clear the assignees cache
 
-      showAlert("OptionsAlertAssigneesCleared");
+      showAlert(LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED);
     } catch (error) {
-      handleError("OptionsErrorAssigneesCleared", error);
+      handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED, error);
     }
   });
 
@@ -224,8 +224,8 @@ function setupEventListeners() {
 
       // Show alert based on the language and state;
       const messageKey = isChecked
-        ? "OptionsAlertAssigneesEnabled"
-        : "OptionsAlertAssigneesDisabled";
+        ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
+        : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
 
       showAlert(messageKey);
 
@@ -235,7 +235,7 @@ function setupEventListeners() {
         enableAssigneeLoading: isChecked,
       });
     } catch (error) {
-      handleError("OptionsErrorAssigneesSaved", error);
+      handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_SAVED, error);
     }
   });
 }

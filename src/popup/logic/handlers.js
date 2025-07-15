@@ -1,5 +1,5 @@
 // popup/handlers.js
-import { MessageTypes } from "../../Enums.js";
+import { MessageTypes, LocalizeKeys } from "../../Enums.js";
 import { displayLocalizedNotification } from "../../utils/utils.js";
 import {
   uploadAttachmentToGitLab,
@@ -43,7 +43,7 @@ export async function resetEditor() {
   updateAssigneeSelectVisibility(isAssigneeLoadingEnabled);
 
   const noAssigneesFoundMessage =
-    browser.i18n.getMessage("PopupNoAssigneesFound") || "No assignees found.";
+    browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) || "No assignees found.";
   elements.assigneeSelect.innerHTML = `<option>${noAssigneesFoundMessage}</option>`;
   elements.assigneeSelect.disabled = true;
 }
@@ -101,7 +101,7 @@ export function handleAttachmentsCheckboxChange() {
 
 export async function handleCreateButtonClick() {
   if (!selectedProjectId) {
-    return displayLocalizedNotification("NotificationNoProjectSelected");
+    return displayLocalizedNotification(LocalizeKeys.NOTIFICATION.NO_PROJECT_SELECTED);
   }
 
   try {
@@ -142,7 +142,7 @@ async function createTicketDescription() {
     messageData?.attachments?.length
   ) {
     const ticketAttachmentsTitle =
-      browser.i18n.getMessage("TicketAttachmentsTitle") || "Attachments";
+      browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENTS_TITLE) || "Attachments";
     description += `\n\n**${ticketAttachmentsTitle}:**\n\n`;
     description += await generateAttachmentsMarkdown();
   }
@@ -173,12 +173,12 @@ async function getAttachmentFileOrNotify(attachment) {
       attachment.partName || attachment.name
     );
     if (!(file instanceof File)) {
-      displayLocalizedNotification("NotificationAttachmentNotFound");
+      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.ATTACHMENT_NOT_FOUND);
       return null;
     }
     return file;
   } catch (error) {
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
     return null;
   }
 }
@@ -188,7 +188,7 @@ async function uploadAttachmentOrNotify(file, attachmentName) {
     return await uploadAttachmentToGitLab(selectedProjectId, file);
   } catch (error) {
     console.error(`Error uploading attachment ${attachmentName}:`, error);
-    displayLocalizedNotification("NotificationUploadAttachmentError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.UPLOAD_ATTACHMENT_ERROR);
     throw error;
   }
 }
@@ -206,82 +206,104 @@ function sendCreateIssueMessage(description) {
 
 function generateBaseDescription() {
   const history = messageData?.conversationHistory ?? [];
+
   if (!history.length) {
     return (
-      browser.i18n.getMessage("EmailNoContentMessage") ||
+      browser.i18n.getMessage(LocalizeKeys.EMAIL.NO_CONTENT) ||
       "No content available."
     );
   }
 
   return history
     .map((entry, index) => {
-      const fromText = browser.i18n.getMessage("PopupFromAuthor") || "From";
-      const dateText =
-        browser.i18n.getMessage("PopupDateReceived") || "Received on";
-
-      const from =
-        index === 0 ? messageData.author : entry.from || "Unknown sender";
-
-      // Handle and format date
-      let dateObj;
-      if (index === 0 && messageData.date instanceof Date) {
-        dateObj = messageData.date;
-      }
-
-      const is12HourFormat =
-        entry.time?.includes("AM") || entry.time?.includes("PM");
-
-      // Format time to local format
-      let localizedTime = "";
-      if (entry.time) {
-        const dummyDate = "1970-01-01";
-        const timeString = is12HourFormat
-          ? `${dummyDate} ${entry.time}`
-          : `${dummyDate}T${entry.time}`;
-        const parsedDate = new Date(timeString);
-
-        if (!isNaN(parsedDate.getTime())) {
-          localizedTime = parsedDate.toLocaleTimeString([], {
-            hour: "numeric",
-            minute: "2-digit",
-          });
-        } else {
-          console.warn("Invalid time format:", entry.time);
-          localizedTime = entry.time; // Fallback
-        }
-      }
-
-      let dateFormatted = "(No date available)";
-
-      if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
-        dateFormatted = dateObj.toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-      } else if (entry.date) {
-        const parsed = new Date(entry.date);
-        if (!isNaN(parsed.getTime())) {
-          dateFormatted = `${parsed.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          })} ${localizedTime || ""}`.trim();
-        } else {
-          // entry.date exists but can't be parsed – use raw string
-          dateFormatted = `${entry.date} ${localizedTime || ""}`.trim();
-        }
-      }
-
-      const metaInfo = `**${fromText}**: ${from}\n**${dateText}**: ${dateFormatted}\n\n`;
       const separator = index > 0 ? "\n---\n\n" : "";
-      const messageText = entry.message?.trim() || "(No message content)";
-      return `${separator}${metaInfo}${messageText}`;
+      const main = formatEntry(entry, index);
+      const forwarded = entry.forwardedMessage
+        ? "\n\n" + formatEntry(entry.forwardedMessage, index, true)
+        : "";
+      return `${separator}${main}${forwarded}`;
     })
     .join("\n")
     .trim();
+}
+
+function formatEntry(entry, index, isForwarded = false) {
+  const from = determineSender(entry, index, isForwarded);
+  const dateFormatted = formatDate(entry, index, isForwarded);
+  const fromText =
+    browser.i18n.getMessage(LocalizeKeys.POPUP.LABELS.FROM_AUTHOR) || "From";
+  const dateText =
+    browser.i18n.getMessage(LocalizeKeys.POPUP.LABELS.DATE_RECEIVED) || "Received on";
+  const forwardedPrefix = isForwarded ? `**(${browser.i18n.getMessage(LocalizeKeys.POPUP.LABELS.FORWARDED_MESSAGE) || "Forwarded Message"})**\n` : "\n";
+
+  const metaInfo = `**${fromText}**: ${from}\n**${dateText}**: ${dateFormatted}\n\n`;
+  const messageText = entry.message?.trim() || "(No message content)";
+  return `${forwardedPrefix}${metaInfo}${messageText}`;
+}
+
+function determineSender(entry, index, isForwarded) {
+  if (isForwarded) {
+    return entry.from || "Unknown sender";
+  }
+
+  if (index === 0) {
+    return messageData.author;
+  }
+
+  return entry.from || "Unknown sender";
+}
+
+function formatDate(entry, index, isForwarded) {
+  const messageDate = (!isForwarded && index === 0 && messageData.date instanceof Date)
+    ? messageData.date
+    : null;
+
+  const is12HourFormat = entry.time?.includes("AM") || entry.time?.includes("PM");
+  const localizedTime = formatTime(entry.time, is12HourFormat);
+
+  if (messageDate && !isNaN(messageDate.getTime())) {
+    return messageDate.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  if (entry.date) {
+    const parsed = new Date(entry.date);
+    if (!isNaN(parsed.getTime())) {
+      return `${parsed.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })} ${localizedTime}`.trim();
+    }
+    return `${entry.date} ${localizedTime}`.trim();
+  }
+
+  return "(No date available)";
+}
+
+function formatTime(timeStr, is12HourFormat) {
+  if (!timeStr) return "";
+
+  const dummyDate = "1970-01-01";
+  const timeString = is12HourFormat
+    ? `${dummyDate} ${timeStr}`
+    : `${dummyDate}T${timeStr}`;
+  const parsedDate = new Date(timeString);
+
+  if (!isNaN(parsedDate.getTime())) {
+    return parsedDate.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  console.warn("Invalid time format:", timeStr);
+  return timeStr;
 }
 
 async function getAttachmentFile(messageId, partName) {
@@ -290,9 +312,9 @@ async function getAttachmentFile(messageId, partName) {
 
 function getAttachmentMarkdownPreview(attachments) {
   const placeholderTitle =
-    browser.i18n.getMessage("TicketAttachmentsTitle") || "Attachments";
+    browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENTS_TITLE) || "Attachments";
   const placeholderText =
-    browser.i18n.getMessage("TicketAttachmentPreviewText") ||
+    browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENT_PREVIEW_TEXT) ||
     "This attachment will be uploaded when the issue is created.";
   return attachments
     .map((a) => `**${placeholderTitle}:** _${a.name}_ *${placeholderText}*`)

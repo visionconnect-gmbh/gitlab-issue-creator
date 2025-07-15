@@ -209,15 +209,12 @@ function extractForwardedAuthorAndDate(forwardedText) {
 }
 
 function extractDateAndAuthorLine(message) {
-  const germanRegex =
-    /Am \d{2}\.\d{2}\.\d{4} um \d{2}:\d{2} schrieb [\w\säöüÄÖÜß]+:/;
-  const englishRegex =
-    /On \d{1,2}\/\d{1,2}\/\d{4} \d{1,2}:\d{2} (?:AM|PM), [\w\s]+ wrote:/;
+  const genericRegex = /(?:\d{1,2}[./-]){2}\d{2,4}[\s,]+(?:um\s)?\d{1,2}:\d{2}(?:\s?(?:AM|PM))?[,:\s-]+.+?:/i;
 
   return (
     message
       .split("\n")
-      .find((line) => germanRegex.test(line) || englishRegex.test(line)) || null
+      .find((line) => genericRegex.test(line)) || null
   );
 }
 

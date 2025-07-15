@@ -78,7 +78,17 @@ async function main() {
   console.log(`Commit erstellt: "${commitMessage}"`);
 
   console.log(`Tagging mit "${newVersion}"...`);
-  runCommand(`git tag ${newVersion}`, "Fehler beim Erstellen des Git-Tags");
+  // check if the tag already exists
+  const existingTags = runCommand(
+    "git tag",
+    "Fehler beim Abrufen der Tags"
+  ).split("\n");
+  if (existingTags.includes(newVersion)) {
+    // use existing tag
+    console.log(`Tag "${newVersion}" existiert bereits. Kein neues Tag erstellt.`);
+  } else {
+    runCommand(`git tag ${newVersion}`, "Fehler beim Erstellen des Tags");
+  }
   console.log(`Tag "${newVersion}" erstellt.`);
 
   console.log(`Pushing Commit und Tag "${newVersion}" nach origin...`);

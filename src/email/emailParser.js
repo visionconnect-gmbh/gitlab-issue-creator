@@ -72,11 +72,11 @@ export function emailParser(emailBody) {
     if (forwardedText) {
       const { author, date: forwardedDate } =
         extractForwardedAuthorAndDate(forwardedText);
-      let cleanedForwardedMessage = removeEmptyLines(forwardedText);
-      cleanedForwardedMessage = removeSignature(cleanedForwardedMessage);
-      const finalForwardedMessage = removeForwardedHeader(
+      let cleanedForwardedMessage = removeSignature(forwardedText);
+      cleanedForwardedMessage = removeForwardedHeader(
         cleanedForwardedMessage
       );
+      const finalForwardedMessage = removeEmptyLines(cleanedForwardedMessage);
 
       forwardedMessage = {
         from: author,
@@ -219,13 +219,16 @@ function extractDateAndAuthorLine(message) {
 }
 
 function removeForwardedHeader(message) {
-  // TODO: Implement a more robust way to remove forwarded headers
-  // Strip the first 5 lines
   const lines = message.split("\n");
-  if (lines.length <= 5) {
+  let headerEndIndex = lines.findIndex(line => line.trim() === "");
+
+  if (headerEndIndex === -1) {
+    // No empty line found, assume whole message is header
     return "";
   }
-  const cleanedLines = lines.slice(5).join("\n").trim();
+
+  // Remove everything up to and including the first empty line
+  const cleanedLines = lines.slice(headerEndIndex + 1).join("\n").trim();
   return cleanedLines;
 }
 

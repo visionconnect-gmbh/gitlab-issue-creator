@@ -8,8 +8,7 @@
   "applications": {
     "gecko": {
       "id": "{fd1a5db1-ab67-4b72-9139-dc073a4dac2e}",
-      "strict_min_version": "91.0",
-      "update_url": "https://example.com/update.json"
+      "strict_min_version": "91.0"
     }
   },
   "options_ui": {

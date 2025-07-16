@@ -1,6 +1,6 @@
 {
   "name": "gitlab-ticket-creator",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "main": "background.js",
   "scripts": {

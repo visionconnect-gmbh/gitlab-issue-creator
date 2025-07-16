@@ -199,6 +199,10 @@
     "message": "Wird beim Erstellen des Tickets hochgeladen.",
     "description": "Preview text for ticket attachments."
   },
+  "TicketAttachmentPreviewTextDisclaimer": {
+    "message": "NICHT EDITIEREN!",
+    "description": "Disclaimer for ticket attachment preview text."
+  },
   "NotificationGenericError": {
     "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
     "description": "Generic error notification."

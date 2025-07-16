@@ -135,12 +135,15 @@ async function updateAssigneesForSelectedProject() {
 }
 
 async function createTicketDescription() {
-  let description = generateBaseDescription();
+  let description = easyMDE.value().trim() || generateBaseDescription();
 
   if (
     elements.attachmentsCheckbox.checked &&
     messageData?.attachments?.length
   ) {
+    // Remove placeholder attachments if they exist
+    const placeholderAttachments = getAttachmentMarkdownPreview(messageData.attachments);
+    description = description.replace(placeholderAttachments, "");
     const ticketAttachmentsTitle =
       browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENTS_TITLE) || "Attachments";
     description += `\n\n**${ticketAttachmentsTitle}:**\n\n`;
@@ -316,13 +319,14 @@ function getAttachmentMarkdownPreview(attachments) {
   const placeholderText =
     browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENT_PREVIEW_TEXT) ||
     "This attachment will be uploaded when the issue is created.";
+  const placeholderDisclaimer = browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENT_PREVIEW_TEXT_DISCLAIMER) || "DO NOT EDIT!";
   return attachments
-    .map((a) => `**${placeholderTitle}:** _${a.name}_ *${placeholderText}*`)
+    .map((a) => `**${placeholderTitle}:** _${a.name}_ *(${placeholderText})* **${placeholderDisclaimer}**`)
     .join("\n\n");
 }
 
 function generateFullDescription() {
-  const base = generateBaseDescription();
+  const base = easyMDE.value().trim() || generateBaseDescription();
   const attachments = messageData?.attachments;
   if (elements.attachmentsCheckbox.checked && attachments?.length) {
     return `${base}\n\n${getAttachmentMarkdownPreview(attachments)}`;

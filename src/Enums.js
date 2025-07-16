@@ -94,7 +94,8 @@ export const LocalizeKeys = Object.freeze({
 
   TICKET: {
     ATTACHMENTS_TITLE: 'TicketAttachmentsTitle',
-    ATTACHMENT_PREVIEW_TEXT: 'TicketAttachmentPreviewText'
+    ATTACHMENT_PREVIEW_TEXT: 'TicketAttachmentPreviewText',
+    ATTACHMENT_PREVIEW_TEXT_DISCLAIMER: 'TicketAttachmentPreviewTextDisclaimer',
   },
 
   EMAIL: {

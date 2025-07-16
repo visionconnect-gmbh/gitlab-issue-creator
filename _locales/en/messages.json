@@ -196,8 +196,12 @@
         "description": "Title for ticket attachments."
     },
     "TicketAttachmentPreviewText": {
-        "message": "(Will be uploaded when creating the ticket)*",
+        "message": "Will be uploaded when creating the ticket.",
         "description": "Markdown preview for ticket attachments."
+    },
+    "TicketAttachmentPreviewTextDisclaimer": {
+        "message": "DO NOT EDIT!",
+        "description": "Disclaimer for ticket attachment preview text."
     },
     "NotificationGenericError": {
         "message": "An error occurred. Please try again later.",

@@ -1,6 +1,6 @@
 {
   "name": "gitlab-ticket-creator",
-  "version": "4.3.0",
+  "version": "4.2.1",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "main": "background.js",
   "scripts": {
@@ -9,7 +9,10 @@
     "version:major": "node scripts/bump-version.js major",
     "build:dev": "npm i && rollup -c",
     "build": "npm i && node scripts/build.js",
-    "watch": "npm i && rollup -c -w"
+    "watch": "npm i && rollup -c -w",
+    "build:version:patch": "npm i && node scripts/build-version.js patch",
+    "build:version:minor": "npm i && node scripts/build-version.js minor",
+    "build:version:major": "npm i && node scripts/build-version.js major"
   },
   "keywords": [],
   "author": "kirchner@visionconnect.de",

@@ -1,4 +1,4 @@
-async function localizeHtmlPage() {
+export async function localizeHtmlPage() {
   // Localize inner text
   document.querySelectorAll("[data-message=localize]").forEach((obj) => {
     const valStrH = obj.innerHTML.toString();

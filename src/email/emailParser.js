@@ -1,5 +1,3 @@
-// emailParser.js
-
 const ALLOWED_ATTACHMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
 /**

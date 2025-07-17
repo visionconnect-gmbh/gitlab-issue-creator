@@ -1,4 +1,5 @@
 import { MessageTypes, CacheKeys, LocalizeKeys } from "../Enums.js";
+import { localizeHtmlPage } from "../localize.js";
 import { clearAllCache, resetCache } from "../utils/cache.js";
 
 const SVG_PATH = {
@@ -99,6 +100,7 @@ function showTokenHelpLink(gitlabUrl, gitlabToken) {
     }
     anchor.href = `${gitlabUrl}-/user_settings/personal_access_tokens`;
     DOM.tokenHelpLink.hidden = false;
+    localizeHtmlPage(); // Localize the link text
   } else {
     // hide the token help link if no URL is set
     DOM.tokenHelpLink.hidden = true;

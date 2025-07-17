@@ -43,8 +43,13 @@ export async function resetEditor() {
   updateAssigneeSelectVisibility(isAssigneeLoadingEnabled);
 
   const noAssigneesFoundMessage =
-    browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) || "No assignees found.";
-  elements.assigneeSelect.innerHTML = `<option>${noAssigneesFoundMessage}</option>`;
+    browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) ||
+    "No assignees found.";
+
+  const option = document.createElement("option");
+  option.textContent = noAssigneesFoundMessage;
+
+  elements.assigneeSelect.replaceChildren(option);
   elements.assigneeSelect.disabled = true;
 }
 

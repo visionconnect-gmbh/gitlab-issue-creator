@@ -112,7 +112,7 @@ export function resetState() {
   assigneesCache = {};
   selectedAssigneeId = null;
   elements.projectSearch.value = "";
-  elements.projectSuggestions.innerHTML = "";
+  elements.projectSuggestions.replaceChildren();
   elements.projectSearch.focus();
   elements.projectSearch.select();
 }

@@ -1,4 +1,3 @@
-// emailContent.js
 import {
   findTextPart,
   findAttachmentParts,

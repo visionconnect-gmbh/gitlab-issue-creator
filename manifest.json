@@ -5,7 +5,7 @@
   "default_locale": "de",
   "description": "__MSG_extensionDescription__",
   "author": "kirchner@visionconnect.de",
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "{fd1a5db1-ab67-4b72-9139-dc073a4dac2e}",
       "strict_min_version": "91.0"

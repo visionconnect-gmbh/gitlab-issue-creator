@@ -9,7 +9,8 @@ import {
 import { LocalizeKeys } from "../../Enums.js";
 
 export function renderProjectSuggestions() {
-  elements.projectSuggestions.innerHTML = "";
+  elements.projectSuggestions.replaceChildren();
+
   filteredProjects.forEach((proj) => {
     const name = proj.name_with_namespace || proj.name || "Unknown Project";
     const option = new Option(name, name);
@@ -17,23 +18,33 @@ export function renderProjectSuggestions() {
   });
 }
 
+
 export function renderAssignees() {
-  elements.assigneeSelect.innerHTML = "";
+  elements.assigneeSelect.replaceChildren();
+
   if (!currentAssignees.length) {
     elements.assigneeSelect.disabled = true;
-    // Show a message when no assignees are available
-    const noAssigneesFoundMessage = browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) || "No assignees found.";
-    elements.assigneeSelect.innerHTML = `<option>${noAssigneesFoundMessage}</option>`;
+
+    const noAssigneesFoundMessage =
+      browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) ||
+      "No assignees found.";
+
+    const option = document.createElement("option");
+    option.textContent = noAssigneesFoundMessage;
+    elements.assigneeSelect.appendChild(option);
+
     return;
   }
 
   elements.assigneeSelect.disabled = false;
+
   currentAssignees.forEach((assignee) => {
     const option = document.createElement("option");
     option.value = assignee.id;
     option.textContent = assignee.name || assignee.username || "Unknown";
     elements.assigneeSelect.appendChild(option);
   });
+
   if (selectedAssigneeId) {
     elements.assigneeSelect.value = selectedAssigneeId;
   }

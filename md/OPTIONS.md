@@ -1,4 +1,5 @@
 # Optionen des Add-ons: GitLab Ticket Creator
+**ENGLISH VERSION:** [OPTIONS_en](./OPTIONS_en.md)
 
 Diese Seite beschreibt die Konfigurationsmöglichkeiten des Thunderbird-Add-ons **GitLab Ticket Creator**. Die Einstellungen werden benötigt, damit das Add-on korrekt mit eurer GitLab-Instanz kommunizieren kann. Einige Optionen dienen zusätzlich der Optimierung des Nutzererlebnisses.
 

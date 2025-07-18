@@ -1,4 +1,5 @@
 # Projektstruktur – *GitLab Ticket Creator*
+**ENGLISH VERSION:** [STRUCTURE_en](./STRUCTURE_en.md)
 
 Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issues direkt aus E-Mails zu erstellen. Die folgende Übersicht beschreibt den Aufbau des Projekts.
 

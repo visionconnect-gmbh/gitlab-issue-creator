@@ -1,4 +1,5 @@
 # GitLab Ticket Creator | Thunderbird Add-on
+**ENGLISH VERSION:** [Readnme_en](./README_en.md)
 
 Dieses kleine Thunderbird Add-on ermöglicht, **GitLab-Issues direkt aus E-Mails zu erstellen**.
 

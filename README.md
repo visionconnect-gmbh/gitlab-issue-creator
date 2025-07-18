@@ -1,5 +1,5 @@
 # GitLab Ticket Creator | Thunderbird Add-on
-**ENGLISH VERSION:** [Readnme_en](./README_en.md)
+**ENGLISH VERSION:** [README_en](./README_en.md)
 
 Dieses kleine Thunderbird Add-on ermöglicht, **GitLab-Issues direkt aus E-Mails zu erstellen**.
 
@@ -52,11 +52,11 @@ Vor der ersten Verwendung werdet ihr aufgefordert die Gitlab URL, sowie einen pe
 Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visionconnect.de/-/user_settings/personal_access_tokens)
 - Wichtig: Dieser Token benötigt Rechte für die API
 
-[Mehr Infos zu den Optionen](OPTIONS.md)
+[Mehr Infos zu den Optionen](./md/OPTIONS.md)
 
 ### Aufbau des Projekts
 
-[Struktur](STRUCTURE.md)
+[Struktur](./md/STRUCTURE.md)
 
 ### Build-Befehle
 

@@ -56,7 +56,7 @@ You can create one here: [Generate Access Token](https://gitlab.visionconnect.de
 
 ### Project structure
 
-[Structure](STRUCTURE.md)
+[Structure](./md/STRUCTURE_en.md)
 
 ### Build commands
 

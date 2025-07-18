@@ -1,6 +1,6 @@
-# Projektstruktur – _GitLab Ticket Creator_
+# Projektstruktur – *GitLab Ticket Creator*
 
-Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issues direkt aus E-Mails zu erstellen. Die folgende Strukturübersicht erklärt die wichtigsten Dateien und Verzeichnisse.
+Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issues direkt aus E-Mails zu erstellen. Die folgende Übersicht beschreibt den Aufbau des Projekts.
 
 ---
 
@@ -11,12 +11,16 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ├── package.json
 ├── rollup.config.mjs
 ├── readme.md
+├── OPTIONS.md
+├── STRUCTURE.md
 ```
 
-- **manifest.json** – "Steckbrief" des Add-ons: definiert Name, Version, Icons, Berechtigungen, Hintergrundskripte etc.
-- **package.json** – Konfiguration für Node.js, mit Metadaten, Abhängigkeiten und Scripts.
-- **rollup.config.mjs** – Einstellungen für den Modul-Bundler _Rollup_, der alle Skripte zusammenführt.
-- **readme.md** – Projektbeschreibung, Setup-Anleitung und technische Hinweise.
+* **manifest.json** – Zentrale Metadaten und Konfiguration für das Add-on.
+* **package.json** – Node.js-Projektdefinition mit Abhängigkeiten und Scripts.
+* **rollup.config.mjs** – Konfiguration für den Modul-Bundler Rollup.
+* **readme.md** – Dokumentation und Einstieg in das Projekt.
+* **OPTIONS.md** – Erläuterung aller Benutzeroptionen und Konfigurationsmöglichkeiten.
+* **STRUCTURE.md** – Diese Strukturübersicht.
 
 ---
 
@@ -28,8 +32,8 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 │   └── de/messages.json
 ```
 
-- Enthält mehrsprachige UI-Texte (Englisch & Deutsch) im [WebExtension-Format](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Internationalization).
-- Zugriff auf Texte erfolgt programmatisch via `localize.js`.
+* Übersetzte UI-Texte im WebExtension-Format.
+* Zugriff erfolgt über `localize.js`.
 
 ---
 
@@ -38,20 +42,20 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ```text
 ├── scripts/
 │   ├── build.js
-│   └── bump-version.js
+│   ├── bump-version.js
+│   └── build-version.js
 ├── dist/
-│   └── (generierte Bundle-Dateien)
+│   ├── bundled-background.js
+│   ├── bundled-options.js
+│   ├── bundled-ticket_creator.js
+│   └── *.map
 ├── builds/
 │   └── gitlab-ticket-creator-x.y.z.zip
 ```
 
-- **scripts/** – Hilfsskripte:
-
-  - `build.js` führt den Rollup-Build aus
-  - `bump-version.js` erhöht Versionsnummern automatisch
-
-- **dist/** – vom Build erzeugte, gebündelte JS-Dateien inklusive Source Maps (nicht versioniert)
-- **builds/** – ZIP-Dateien zur Veröffentlichung (z. B. für Thunderbird-Upload)
+* **scripts/** – Automatisierung (Build, Versions-Management)
+* **dist/** – Vom Rollup erzeugte, gebündelte Dateien inkl. Source Maps.
+* **builds/** – Veröffentlichungs-Archive (z. B. für Thunderbird).
 
 ---
 
@@ -65,8 +69,8 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 │   └── vc-icon-32px.png
 ```
 
-- Browser- und Add-on-Icons in verschiedenen Auflösungen
-- `vc-icon-32px.png`: Firmenlogo für die Einstellungsseite (optional)
+* Add-on- und Toolbar-Icons in verschiedenen Auflösungen.
+* `vc-icon-32px.png`: Firmenlogo für die UI.
 
 ---
 
@@ -74,38 +78,16 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 
 ```text
 ├── src/
-│
-│   theme.css
-│   Enums.js
-│   localize.js
+│   ├── theme.css
+│   ├── Enums.js
+│   ├── localize.js
+│   ├── background.js
 ```
 
-- **theme.css** – Zentrales Stylesheet für Add-on-UI (Popup & Optionen)
-- **Enums.js** – Konstante Werte für z. B. Ticketstatus, Prioritäten
-- **localize.js** – Hilfsfunktionen zum Laden übersetzter Texte aus `_locales/`
-
----
-
-### Hintergrund-Logik
-
-```text
-├── background.js
-```
-
-- Zentrale Steuerung im Hintergrundkontext: Listener, Nachrichtenempfang, Init-Logik
-
----
-
-### E-Mail-Verarbeitung
-
-```text
-├── src/email/
-│   ├── emailContent.js
-│   └── emailParser.js
-```
-
-- **emailContent.js** – Extrahiert und formatiert Inhalte aus E-Mails
-- **emailParser.js** – Zerlegt Header, Betreff, Body etc. in strukturierte Daten
+* **theme.css** – Zentrales UI-Styling.
+* **Enums.js** – Konstanten und Aufzählungen für z. B. Prioritäten.
+* **localize.js** – Zugriff auf übersetzte Texte.
+* **background.js** – Hauptlogik des Hintergrundprozesses (Listener, Init etc.)
 
 ---
 
@@ -117,8 +99,21 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 │   └── gitlab.js
 ```
 
-- **api.js** – GitLab-API-Wrapper (Tokens, Requests, Fehlerbehandlung)
-- **gitlab.js** – Business-Logik: Ticketerstellung, Nutzerzuordnung, Labels etc.
+* **api.js** – Kommunikation mit der GitLab-API (Tokens, Requests).
+* **gitlab.js** – Verarbeitung von API-Daten, Ticketerstellung etc.
+
+---
+
+### E-Mail-Verarbeitung
+
+```text
+├── src/email/
+│   ├── emailContent.js
+│   └── emailParser.js
+```
+
+* **emailContent.js** – Extraktion und Formatierung von E-Mail-Daten.
+* **emailParser.js** – Zerlegung von Headern, Absendern etc.
 
 ---
 
@@ -130,8 +125,7 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 │   └── options.js
 ```
 
-- Konfigurationsoberfläche für Benutzer (API-URL, Token, Projekt-ID etc.)
-- Wird in `manifest.json` als `options_ui` eingebunden
+* HTML- und JS-Dateien für die Konfigurationsseite des Add-ons.
 
 ---
 
@@ -145,24 +139,34 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 │   │   ├── handler.js
 │   │   ├── state.js
 │   │   └── ui.js
-│   └── easymde/
-│       ├── easymde.min.js
-│       └── easymde.min.css
 ```
 
-- **ticket_creator.html** – UI, die beim Klick auf das Add-on erscheint
-- **ticket_creator.js** – Einstiegspunkt: Initialisierung & Logikbindung
-- **logic/** – Strukturierte Aufteilung:
+* **ticket\_creator.html** – Die Benutzeroberfläche.
+* **ticket\_creator.js** – Einstiegspunkt und Setup.
+* **logic/** – Modularisierte Logik:
 
-  - `handler.js`: Events, z. B. Buttonklicks
-  - `state.js`: Formularzustand, z. B. eingegebene Daten
-  - `ui.js`: Anzeigen/Verstecken von Elementen, Validierung
-
-- **easymde/** – Eingebundener Markdown-Editor (_EasyMDE_): ermöglicht formatierte Ticketbeschreibung
+  * `handler.js`: Event-Logik.
+  * `state.js`: Zustandsverwaltung.
+  * `ui.js`: Sichtbarkeiten, Fehlermeldungen, Validierungen.
 
 ---
 
-### Utilities
+### Eingebundene Drittanbieter-Bibliotheken
+
+```text
+├── src/libs/
+│   ├── easymde/
+│   │   ├── easymde.min.js
+│   │   └── easymde.min.css
+│   └── VENDORS.md
+```
+
+* **easymde/** – Minifizierte JS- und CSS-Dateien des Markdown-Editors \[*EasyMDE*].
+* **VENDORS.md** – Quelle, Version und Herkunftsnachweis für minifizierte Bibliotheken (zur Prüfung durch Mozilla).
+
+---
+
+### Hilfsfunktionen
 
 ```text
 ├── src/utils/
@@ -170,66 +174,62 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 │   └── cache.js
 ```
 
-- **utils.js** – Wiederverwendbare Funktionen (String-Formatierung, Validierung etc.)
-- **cache.js** – Einfaches In-Memory-Caching für API-Antworten (z. B. Projektliste, Labels)
+* **utils.js** – Allgemeine Hilfsfunktionen (String-Handling, URL-Checks etc.)
+* **cache.js** – Einfaches Caching (z. B. für Projekt- oder Label-Listen)
 
 ---
 
-#### Gesamte Projektstruktur
+## Gesamtstruktur im Überblick
 
 ```text
-├── manifest.json                       # Die "Identitätskarte" des Add-ons: definiert Name, Version, Berechtigungen, Hintergrundskripte, Icons etc.
-├── background.js                       # Einstiegspunkt für den Hintergrundprozess: steuert zentrale Logik wie Listener und Add-on-Ereignisse
-├── package.json                        # Node.js-Konfiguration, enthält Metadaten und Abhängigkeiten (z. B. für Build-Skripte)
-├── rollup.config.mjs                   # Konfiguration für Rollup, den Modul-Bundler für JavaScript-Dateien
-├── readme.md                           # Projektbeschreibung, Installationsanleitung und technische Hinweise
-├── _locales/                           # Lokalisierungsverzeichnis für mehrsprachige Add-on-Texte
-│   ├── de/                             # Deutsche Sprachdateien
-│   │   └── messages.json               # Enthält übersetzte UI-Texte und Nachrichten (Deutsch)
-│   └── en/                             # Englische Sprachdateien
-│       └── messages.json               # Enthält übersetzte UI-Texte und Nachrichten (Englisch)
-├── dist/                               # Ausgabeordner für gebündelte Skripte (wird automatisch generiert und nicht eingecheckt)
-│   ├── bundled-background.js           # Bündel des Hintergrundskripts
-│   ├── bundled-background.js.map       # Source Map für Debugging des Hintergrundskripts
-│   ├── bundled-options.js              # Gebündeltes JavaScript für die Optionen-Seite
-│   ├── bundled-options.js.map          # Source Map für die Optionen-Seite
-│   ├── bundled-ticket_creator.js       # Gebündeltes JavaScript für das Ticket-Popup
-│   └── bundled-ticket_creator.js.map   # Source Map für das Ticket-Popup
-├── builds/                             # Manuell oder automatisch erzeugte ZIP-Pakete für Release/Distribution
-│   └── gitlab-ticket-creator-x.y.z.zip # Gebündeltes Add-on zur Veröffentlichung oder Installation
-├── icons/                              # Icons für Browser-UI und Add-on-Repräsentation
-│   ├── icon-16x.png                    # Icon in 16×16 für Toolbar etc.
-│   ├── [...]                           # Weitere Icons in unterschiedlichen Größen
-│   ├── icon-64x.png                    # Hochauflösendes Icon für Add-on-Seite
-│   ├── Icon.svg                        # Vektorversion des Icons
-│   └── vc-icon-32px.png                # Firmenlogo für den Footer in der Einstellungsseite
-├── scripts/                            # Build- und Hilfsskripte für die Entwicklung
-│   ├── build.js                        # Führt den Build-Prozess mit Rollup aus
-│   └── bump-version.js                 # Erhöht Versionsnummern in manifest.json und package.json
-└── src/                                # Quellverzeichnis mit modularer Struktur
-    ├── theme.css                       # Globale CSS-Definitionen für Popup und Optionen
-    ├── Enums.js                        # Vordefinierte Konstanten und Enumerationen für Status, Priorität etc.
-    ├── localize.js                     # Hilfsfunktionen zur Handhabung von Lokalisierung via messages.json
-    ├── gitlab/                         # GitLab-bezogene Module
-    │   ├── api.js                      # API-Wrapper für REST-Kommunikation mit GitLab
-    │   └── gitlab.js                   # Verbindet E-Mail-Inhalte mit der GitLab-API (z. B. Erstellung von Issues)
-    ├── options/                        # Quellcode für die Einstellungsseite des Add-ons
-    │   ├── options.html                # HTML-Oberfläche für benutzerdefinierte Einstellungen
-    │   └── options.js                  # Logik zur Initialisierung und Speicherung von Optionen
-    ├── email/                          # Verarbeitung von E-Mail-Inhalten
-    │   ├── emailContent.js             # Extraktion und Aufbereitung von Inhalten aus E-Mails
-    │   └── emailParser.js              # Zerlegt E-Mail-Header und -Body, z. B. Betreff, Absender, Textkörper
-    ├── popup/                          # Ticketerstellungs-Popup (erscheint bei Klick aufs Add-on)
-    │   ├── ticket_creator.html         # UI zur Eingabe von Ticketdetails
-    │   ├── ticket_creator.js           # Einstiegspunkt und zentrale Steuerung für das Ticket-Popup
-    │   ├── logic/                      # Modular organisierte Logik fürs Popup
-    │   │   ├── handler.js              # Event-Handler z. B. für Button-Klicks oder Eingaben
-    │   │   ├── state.js                # Zustandsverwaltung für das Formular (z. B. gespeicherte Inhalte)
-    │   │   └── ui.js                   # UI-Logik wie Anzeigen, Ausblenden, Validieren von Elementen
-    │   └── easymde/                    # Eingebundener Markdown-Editor als Drittanbieter-Bibliothek
-    │       ├── easymde.min.css         # CSS-Datei des Editors
-    │       └── easymde.min.js          # JS-Datei des Editors
-    └── utils/                          # Hilfsfunktionen, die mehrfach verwendet werden
-        ├── utils.js                    # Allgemeine Utility-Funktionen (z. B. String-Formatierung, Validierungen)
-        └── cache.js                    # Einfacher Caching-Mechanismus für API-Antworten zur Reduzierung von Requests
+├── manifest.json
+├── background.js
+├── package.json
+├── rollup.config.mjs
+├── README.md
+├── STRUCTURE.md
+├── OPTIONS.md
+├── _locales/
+│   ├── de/messages.json
+│   └── en/messages.json
+├── dist/
+│   └── *.js + *.map
+├── builds/
+│   └── gitlab-ticket-creator-x.y.z.zip
+├── icons/
+│   ├── *.png
+│   └── Icon.svg
+├── scripts/
+│   ├── build.js
+│   ├── bump-version.js
+│   └── build-version.js
+└── src/
+    ├── theme.css
+    ├── Enums.js
+    ├── localize.js
+    ├── background.js
+    ├── gitlab/
+    │   ├── api.js
+    │   └── gitlab.js
+    ├── email/
+    │   ├── emailContent.js
+    │   └── emailParser.js
+    ├── options/
+    │   ├── options.html
+    │   └── options.js
+    ├── popup/
+    │   ├── ticket_creator.html
+    │   ├── ticket_creator.js
+    │   └── logic/
+    │       ├── handler.js
+    │       ├── state.js
+    │       └── ui.js
+    ├── libs/
+    │   ├── easymde/
+    │   │   ├── easymde.min.js
+    │   │   └── easymde.min.css
+    │   └── VENDORS.md
+    └── utils/
+        ├── utils.js
+        └── cache.js
 ```

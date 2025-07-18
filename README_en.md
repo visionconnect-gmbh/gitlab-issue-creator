@@ -48,9 +48,7 @@ If you're working on the add-on or testing it:
 ## Configuration
 
 The first time you use it, you'll be asked to provide the GitLab URL and a personal access token.
-You can create one here: [Generate Access Token](https://gitlab.visionconnect.de/-/user_settings/personal_access_tokens)
-
-* Important: This token needs API access rights.
+- **Important:** This token needs API access rights.
 
 [More information on options](./md/OPTIONS_en.md)
 

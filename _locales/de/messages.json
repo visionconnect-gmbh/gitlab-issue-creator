@@ -55,6 +55,14 @@
     "message": "Fehler beim Laden der Einstellungen!",
     "description": "Error for not loaded options."
   },
+  "OptionsErrorInvalidUrl": {
+    "message": "Ungültige GitLab URL!",
+    "description": "Error for invalid GitLab URL."
+  },
+  "OptionsErrorUnreachableUrl": {
+    "message": "GitLab URL nicht erreichbar!",
+    "description": "Error for unreachable GitLab URL."
+  },
   "OptionsErrorOptionsSaved": {
     "message": "Fehler beim Speichern der Einstellungen!",
     "description": "Error for not saved options."

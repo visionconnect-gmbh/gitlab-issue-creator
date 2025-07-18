@@ -55,6 +55,8 @@ export const LocalizeKeys = Object.freeze({
       ASSIGNEES_DISABLED: 'OptionsAlertAssigneesDisabled'
     },
     ERRORS: {
+      INVALID_URL: 'OptionsErrorInvalidUrl',
+      UNREACHABLE_URL: 'OptionsErrorUnreachableUrl',
       OPTIONS_LOADED: 'OptionsErrorOptionsLoaded',
       OPTIONS_SAVED: 'OptionsErrorOptionsSaved',
       ASSIGNEES_SAVED: 'OptionsErrorAssigneesSaved',

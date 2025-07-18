@@ -19,7 +19,9 @@ let isTokenVisible = false;
  * @param {string} message - The message to display.
  */
 function showAlert(messageKey) {
-  const message = browser.i18n.getMessage(messageKey);
+  const message = browser.i18n.getMessage(
+    messageKey || LocalizeKeys.NOTIFICATION.GENERIC_ERROR
+  );
   if (!message) {
     console.warn(`No localized message found for ID: ${messageKey}`);
     return;
@@ -85,6 +87,34 @@ function isValidUrl(url) {
   }
 }
 
+/**
+ * Checks if a domain is reachable by trying to load a non-CORS resource.
+ * Treats both success and failure of the image load as a sign of reachability.
+ * @param {string} url - A fully qualified URL with protocol.
+ * @returns {Promise<boolean>} - Resolves true if domain responds at all.
+ */
+function isUrlReachable(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const timeout = setTimeout(() => {
+      img.src = ""; // cancel the request
+      resolve(false); // Timed out = unreachable
+    }, 3000);
+
+    img.onload = img.onerror = () => {
+      clearTimeout(timeout);
+      resolve(true); // Any response = reachable
+    };
+
+    try {
+      const urlObj = new URL(url);
+      img.src = `${urlObj.origin}/favicon.ico`; // or /robots.txt or /
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
 function showTokenHelpLink(gitlabUrl, gitlabToken) {
   if (gitlabUrl && !gitlabToken) {
     // show the token help link if a URL is set
@@ -129,6 +159,11 @@ async function saveOptions(data) {
 
   if (!trimmedUrl || !isValidUrl(trimmedUrl)) {
     showAlert(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
+    return;
+  }
+
+  if (!(await isUrlReachable(trimmedUrl))) {
+    showAlert(LocalizeKeys.OPTIONS.ERRORS.UNREACHABLE_URL);
     return;
   }
 
@@ -195,8 +230,13 @@ async function loadInitialSettings() {
  */
 function setupEventListeners() {
   DOM.toggleBtn.addEventListener("click", toggleTokenVisibility);
-  DOM.saveButton.addEventListener("click", () =>
-    saveOptions({ token: DOM.tokenInput.value, url: DOM.urlInput.value })
+  DOM.saveButton.addEventListener(
+    "click",
+    async () =>
+      await saveOptions({
+        token: DOM.tokenInput.value,
+        url: DOM.urlInput.value,
+      })
   );
   DOM.cacheClearButton.addEventListener("click", clearCache);
   DOM.clearProjectsButton.addEventListener("click", async () => {

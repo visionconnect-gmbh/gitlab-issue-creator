@@ -12,7 +12,7 @@ Dieses kleine Thunderbird Add-on ermöglicht, **GitLab-Issues direkt aus E-Mails
 
 ## Installation
 
-### Für alle Kollegen:
+### Für Alle:
 
 **(Offizielle Ankündigung folgt noch)**
 Bis dahin bitte so vorgehen:
@@ -62,3 +62,7 @@ Diesen könnt ihr hier erstellen: [Access Token generieren](https://gitlab.visio
   * **Abhängigkeiten installieren:** `npm install`
   * **Projekt bauen:** `npm run build`
   * **Automatisch bauen bei Änderungen:** `npm run watch`
+
+#### Extras
+
+[VENDORS](./src/libs/VENDORS.md)

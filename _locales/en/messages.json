@@ -55,6 +55,14 @@
         "message": "Error loading options!",
         "description": "Error for not loaded options."
     },
+    "OptionsErrorInvalidUrl": {
+        "message": "Invalid GitLab URL!",
+        "description": "Error for invalid GitLab URL."
+    },
+    "OptionsErrorUnreachableUrl": {
+        "message": "GitLab URL is unreachable!",
+        "description": "Error for unreachable GitLab URL."
+    },
     "OptionsErrorOptionsSaved": {
         "message": "Error saving options!",
         "description": "Error for not saved options."

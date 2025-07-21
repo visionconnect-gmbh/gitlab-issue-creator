@@ -208,6 +208,7 @@ async function clearCache() {
  */
 async function loadInitialSettings() {
   try {
+    await localizeHtmlPage();
     const { gitlabToken } = await browser.storage.local.get("gitlabToken");
     DOM.tokenInput.value = gitlabToken || "";
 

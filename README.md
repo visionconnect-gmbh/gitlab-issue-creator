@@ -32,7 +32,7 @@ Wenn ihr am Add-on schraubt oder es testen wollt:
 1.  Klonen des Repos: `git clone https://gitlab.visionconnect.de/kirchner/thunderbird-gitlab-issue.git`
 2.  In den Ordner wechseln: `cd thunderbird-gitlab-issue` (oder wie immer der Ordner bei euch heißt)
 3.  Abhängigkeiten installieren: `npm install`
-4.  Build starten: `npm run build` (das erzeugt den `dist/` Ordner mit dem gebündelten Code)
+4.  Build starten: `npm run build:dev` (das erzeugt den `dist/` Ordner mit dem gebündelten Code)
 5.  Thunderbird öffnen.
 6.  Geht zu `Extras` \> `Add-ons und Themes`.
 7.  Klickt auf das Zahnrad-Symbol (⚙️) und wählt `Temporäres Add-on laden...`.

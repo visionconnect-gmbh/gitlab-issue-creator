@@ -1,5 +1,5 @@
-// popup/main.js
 import { MessageTypes } from "../Enums.js";
+import { localizeHtmlPage } from "../localize.js";
 import { getCurrentUser } from "../gitlab/gitlab.js";
 import {
   elements,
@@ -17,40 +17,50 @@ import {
   handleCreateButtonClick,
 } from "./logic/handlers.js";
 
-document.addEventListener("DOMContentLoaded", async () => {
-  console.log("GitLab Ticket Addon: Projekt-Auswahl Popup geladen");
+const CACHE_KEY = "ticket_creator";
 
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
   await resetEditor();
+  await localizeHtmlPage(CACHE_KEY);
 
   browser.runtime.sendMessage({ type: MessageTypes.POPUP_READY });
-
   browser.runtime.onMessage.addListener(handleIncomingMessage);
 
-  elements.projectSearch.addEventListener("input", handleProjectSearchInput);
-  elements.projectSearch.addEventListener("change", handleProjectSearchChange);
+  const {
+    projectSearch,
+    assigneeSelect,
+    issueEnd,
+    attachmentsCheckbox,
+    createBtn,
+  } = elements;
 
-  // Initialize the assignee select with the current user
-  elements.assigneeSelect.addEventListener("change", async (e) => {
-    setSelectedAssigneeId(e.target.value || (await getCurrentUser()).id);
+  // Input listeners
+  projectSearch.addEventListener("input", handleProjectSearchInput);
+  projectSearch.addEventListener("change", handleProjectSearchChange);
+
+  // Assignee setup
+  assigneeSelect.addEventListener("change", async (e) => {
+    const selectedId = e.target.value || (await getCurrentUser()).id;
+    setSelectedAssigneeId(selectedId);
   });
 
-  getCurrentUser().then((user) => {
-    if (user) {
-      setSelectedAssigneeId(user.id);
-      setCurrentAssignees([user]); // Initialize currentAssignees with current user
-      renderAssignees();
-      elements.assigneeSelect.value = user.id;
-    }
+  const user = await getCurrentUser();
+  if (user) {
+    setSelectedAssigneeId(user.id);
+    setCurrentAssignees([user]);
+    renderAssignees();
+    assigneeSelect.value = user.id;
+  }
+
+  // End date
+  issueEnd.addEventListener("change", (e) => {
+    const date = e.target.value;
+    setIssueEndDate(date ? new Date(date) : null);
   });
 
-  elements.issueEnd.addEventListener("change", (e) => {
-    const endDate = e.target.value;
-    setIssueEndDate(endDate ? new Date(endDate) : null);
-  });
-
-  elements.attachmentsCheckbox.addEventListener(
-    "change",
-    handleAttachmentsCheckboxChange
-  );
-  elements.createBtn.addEventListener("click", handleCreateButtonClick);
-});
+  // Other handlers
+  attachmentsCheckbox.addEventListener("change", handleAttachmentsCheckboxChange);
+  createBtn.addEventListener("click", handleCreateButtonClick);
+}

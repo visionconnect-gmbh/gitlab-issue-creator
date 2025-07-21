@@ -34,7 +34,9 @@ async function handleBrowserActionClick() {
     const message = await getMessage();
 
     if (!message) {
-      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.NO_MESSAGE_SELECTED);
+      displayLocalizedNotification(
+        LocalizeKeys.NOTIFICATION.NO_MESSAGE_SELECTED
+      );
       return;
     }
 
@@ -55,6 +57,8 @@ async function handleBrowserActionClick() {
 
     popupWindowId = popupWindow.id;
 
+    setupPopupCloseListener();
+
     // Load projects and send to popup
     getProjects(async (projects) => {
       projectsGlobal = projects;
@@ -67,6 +71,19 @@ async function handleBrowserActionClick() {
     console.error("Error handling browser action click:", err);
     displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
   }
+}
+
+function setupPopupCloseListener() {
+  function onWindowRemoved(windowId) {
+    if (windowId === popupWindowId) {
+      // The popup window was closed by the user or programmatically
+      reset();
+      // Optionally remove listener if popup can only open once
+      browser.windows.onRemoved.removeListener(onWindowRemoved);
+    }
+  }
+
+  browser.windows.onRemoved.addListener(onWindowRemoved);
 }
 
 async function sendProjectDataToPopup() {
@@ -123,7 +140,9 @@ async function handleRuntimeMessages(msg, sender) {
         const projectId = msg.projectId;
         const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
-        const description = replaceWithBrTags(msg.description?.trim() || "No description provided.");
+        const description = replaceWithBrTags(
+          msg.description?.trim() || "No description provided."
+        );
         const issueEnd = msg.endDate;
         try {
           const assignee = msg.assignee || (await getCurrentUser());
@@ -195,14 +214,13 @@ function closePopup() {
     });
     reset();
   }
-
-  function reset() {
-    projectsGlobal = [];
-    assigneesGlobal = {};
-    emailGlobal = null;
-    popupWindowId = null;
-    popupReady = false;
-  }
+}
+function reset() {
+  projectsGlobal = [];
+  assigneesGlobal = {};
+  emailGlobal = null;
+  popupWindowId = null;
+  popupReady = false;
 }
 
 browser.browserAction.onClicked.addListener(handleBrowserActionClick);

@@ -20,7 +20,7 @@ let emailGlobal = null;
 let popupWindowId = null;
 let popupReady = false;
 
-async function handleBrowserActionClick() {
+async function handleBrowserActionClick(messageId = null) {
   try {
     if (!(await requireValidSettings())) {
       console.warn("GitLab settings are not valid.");
@@ -31,7 +31,9 @@ async function handleBrowserActionClick() {
     // Close existing popup if it exists
     closePopup();
 
-    const message = await getMessage();
+    const message = messageId
+      ? await browser.messages.get(messageId)
+      : await getMessage();
 
     if (!message) {
       displayLocalizedNotification(
@@ -59,10 +61,8 @@ async function handleBrowserActionClick() {
 
     setupPopupCloseListener();
 
-    // Load projects and send to popup
     getProjects(async (projects) => {
       projectsGlobal = projects;
-
       if (popupReady) {
         sendProjectDataToPopup();
       }
@@ -222,6 +222,18 @@ function reset() {
   popupWindowId = null;
   popupReady = false;
 }
+
+browser.menus.create({
+  id: "create-gitlab-issue",
+  title: browser.i18n.getMessage(LocalizeKeys.BROWSER.ACTION_TITLE),
+  contexts: ["message_list"],
+});
+
+browser.menus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === "create-gitlab-issue") {
+    await handleBrowserActionClick(info.selectedMessages.messages[0]?.id || null);
+  }
+});
 
 browser.browserAction.onClicked.addListener(handleBrowserActionClick);
 browser.runtime.onMessage.addListener(handleRuntimeMessages);

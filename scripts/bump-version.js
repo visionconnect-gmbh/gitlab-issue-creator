@@ -1,5 +1,5 @@
 const { execSync } = require("child_process");
-const fs = require("fs"); // Import fs module at the top
+const fs = require("fs");
 
 // --- Configuration ---
 const VERSION_TYPES = ["patch", "minor", "major"];

@@ -1,8 +1,26 @@
-// rollup.config.mjs
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import copy from "rollup-plugin-copy";
 
-const plugins = [resolve(), commonjs()];
+const plugins = [
+  resolve({ preferBuiltins: false }),
+  commonjs(),
+  copy({
+    targets: [
+      {
+        src: "node_modules/easymde/dist/easymde.min.css",
+        dest: "dist/libs"
+      },
+      {
+        src: "node_modules/easymde/dist/easymde.min.js",
+        dest: "dist/libs"
+      }
+    ],
+    verbose: true,
+    copyOnce: true,
+    hook: "writeBundle"
+  }),
+];
 
 export default [
   {

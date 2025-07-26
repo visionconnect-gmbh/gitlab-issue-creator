@@ -223,6 +223,10 @@
         "message": "Could not retrieve email content.",
         "description": "Notification when email content cannot be retrieved."
     },
+    "NotificationGitlabSettingsMissing": {
+        "message": "GitLab settings are missing. Please configure them in the settings.",
+        "description": "Notification when GitLab settings are missing."
+    },
     "NotificationGitLabUrlNotConfigured": {
         "message": "GitLab URL is not configured. Please set it in the settings.",
         "description": "Notification when GitLab URL is not configured."

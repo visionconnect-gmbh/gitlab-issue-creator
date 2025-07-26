@@ -108,6 +108,7 @@ export const LocalizeKeys = Object.freeze({
     GENERIC_ERROR: 'NotificationGenericError',
     NO_MESSAGE_SELECTED: 'NotificationNoMessageSelected',
     NO_EMAIL_CONTENT: 'NotificationNoEmailContent',
+    GITLAB_SETTINGS_MISSING: 'NotificationGitlabSettingsMissing',
     GITLAB_URL_NOT_CONFIGURED: 'NotificationGitLabUrlNotConfigured',
     GITLAB_TOKEN_NOT_CONFIGURED: 'NotificationGitLabTokenNotConfigured',
     INVALID_GITLAB_TOKEN: 'NotificationInvalidGitLabToken',

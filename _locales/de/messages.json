@@ -227,6 +227,10 @@
     "message": "E-Mail-Inhalt konnte nicht abgerufen werden.",
     "description": "Notification when email content cannot be retrieved."
   },
+  "NotificationGitLabSettingsMissing": {
+    "message": "GitLab-Einstellungen fehlen. Bitte in den Einstellungen konfigurieren.",
+    "description": "Notification when GitLab settings are missing."
+  },
   "NotificationGitLabUrlNotConfigured": {
     "message": "GitLab URL ist nicht konfiguriert. Bitte in den Einstellungen festlegen.",
     "description": "Notification when GitLab URL is not configured."

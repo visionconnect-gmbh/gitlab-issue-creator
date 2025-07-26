@@ -30,7 +30,6 @@ async function handleBrowserActionClick(messageId = null) {
 
     // Close existing popup if it exists
     closePopup();
-
     const message = messageId
       ? await browser.messages.get(messageId)
       : await getMessage();
@@ -235,5 +234,7 @@ browser.menus.onClicked.addListener(async (info, tab) => {
   }
 });
 
-browser.browserAction.onClicked.addListener(handleBrowserActionClick);
+browser.browserAction.onClicked.addListener((tab) => {
+  handleBrowserActionClick(null);
+});
 browser.runtime.onMessage.addListener(handleRuntimeMessages);

@@ -4,15 +4,14 @@ import {
 } from "../utils/utils.js";
 import { apiGet, apiPost, doRequest } from "./api.js";
 import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
-import { CacheKeys } from "../Enums.js";
+import { CacheKeys, LocalizeKeys } from "../Enums.js";
 
 /**
  * Shows a standard GitLab settings missing notification.
  */
 function notifyMissingSettings() {
   displayLocalizedNotification(
-    "NotificationGitLabSettingsMissing",
-    "GitLab Ticket Creator"
+    LocalizeKeys.NOTIFICATION.GITLAB_SETTINGS_MISSING
   );
   openOptionsPage();
   console.warn(
@@ -70,7 +69,7 @@ export async function getCurrentUser() {
     return user;
   } catch (error) {
     console.error("Error fetching current user:", error);
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
     return null;
   }
 }
@@ -131,7 +130,7 @@ export async function getProjects(onUpdate) {
     if (onUpdate) onUpdate(allProjects);
   } catch (error) {
     console.error("Error fetching projects:", error);
-    displayLocalizedNotification("NotificationeGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
   }
 }
 
@@ -168,7 +167,7 @@ async function getNewProjects() {
     return projects || [];
   } catch (error) {
     console.error("Error fetching new projects:", error);
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
     return [];
   }
 }
@@ -219,7 +218,7 @@ export async function getAssignees(projectId, onUpdate) {
     return assignees;
   } catch (error) {
     console.error(`Error fetching assignees for project ${projectId}:`, error);
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
     return [];
   }
 }
@@ -297,7 +296,7 @@ export async function createGitLabIssue(
     );
 
     const url = response.web_url || "";
-    const notificationid = await displayLocalizedNotification("NotificationTicketCreated");
+    const notificationid = await displayLocalizedNotification(LocalizeKeys.NOTIFICATION.ISSUE_CREATED);
 
     browser.notifications.onClicked.addListener((id) => {
       if (id === notificationid) {
@@ -306,6 +305,6 @@ export async function createGitLabIssue(
     });
   } catch (error) {
     console.error("Error creating issue:", error);
-    displayLocalizedNotification("NotificationGenericError");
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
   }
 }

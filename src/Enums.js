@@ -77,7 +77,7 @@ export const LocalizeKeys = Object.freeze({
       TITLE: 'PopupLabelTitleOfProject',
       ATTACHMENTS_CHECKBOX: 'PopupLabelAttachmentsCheckbox',
       ASSIGNEE_SELECT: 'PopupLabelAssigneeSelect',
-      TICKET_DESCRIPTION: 'PopupLabelTicketDescription',
+      ISSUE_DESCRIPTION: 'PopupLabelIssueDescription',
       ISSUE_END: 'PopupLabelIssueEnd',
       FROM_AUTHOR: 'PopupFromAuthor',
       DATE_RECEIVED: 'PopupDateReceived',
@@ -94,10 +94,10 @@ export const LocalizeKeys = Object.freeze({
     }
   },
 
-  TICKET: {
-    ATTACHMENTS_TITLE: 'TicketAttachmentsTitle',
-    ATTACHMENT_PREVIEW_TEXT: 'TicketAttachmentPreviewText',
-    ATTACHMENT_PREVIEW_TEXT_DISCLAIMER: 'TicketAttachmentPreviewTextDisclaimer',
+  Issue: {
+    ATTACHMENTS_TITLE: 'IssueAttachmentsTitle',
+    ATTACHMENT_PREVIEW_TEXT: 'IssueAttachmentPreviewText',
+    ATTACHMENT_PREVIEW_TEXT_DISCLAIMER: 'IssueAttachmentPreviewTextDisclaimer',
   },
 
   EMAIL: {
@@ -113,7 +113,7 @@ export const LocalizeKeys = Object.freeze({
     GITLAB_TOKEN_NOT_CONFIGURED: 'NotificationGitLabTokenNotConfigured',
     INVALID_GITLAB_TOKEN: 'NotificationInvalidGitLabToken',
     NO_GITLAB_SETTINGS: 'NotificationNoGitlabSettings',
-    TICKET_CREATED: 'NotificationTicketCreated',
+    ISSUE_CREATED: 'NotificationIssueCreated',
     NO_PROJECT_SELECTED: 'NotificationNoProjectSelected',
     ATTACHMENT_NOT_FOUND: 'NotificationAttachmentNotFound',
     UPLOAD_ATTACHMENT_ERROR: 'NotificationUploadAttachmentError',

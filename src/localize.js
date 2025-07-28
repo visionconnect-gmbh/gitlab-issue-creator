@@ -1,23 +1,47 @@
-export async function localizeHtmlPage() {
-  const i18n = browser.i18n;
-
-  // Localize inner text
-  const messageElements = document.querySelectorAll("[data-message=localize]");
-  for (const el of messageElements) {
-    const original = el.innerHTML;
-    const localized = original.replace(/__MSG_(\w+)__/g, (_, key) => i18n.getMessage(key) || "");
-    if (localized !== original) el.innerHTML = localized; // use innerHTML here if replacement includes markup
+/**
+ * Replaces all text nodes within elements matching a selector using a replacer function.
+ * Efficiently traverses using TreeWalker to avoid recursive overhead.
+ */
+function localizeTextContent(selector, replacer) {
+  const elements = document.querySelectorAll(selector);
+  for (const el of elements) {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while ((node = walker.nextNode())) {
+      const original = node.nodeValue;
+      const replaced = replacer(original);
+      if (replaced !== original) {
+        node.nodeValue = replaced;
+      }
+    }
   }
+}
 
-  // Localize attributes
-  const attrElements = document.querySelectorAll("[data-i18n-attr]");
-  for (const el of attrElements) {
-    const mappings = el.getAttribute("data-i18n-attr")?.split(";") || [];
+/**
+ * Applies localization to attributes based on a "data-i18n-attr" attribute format: "attr1:key1; attr2:key2"
+ */
+function localizeAttributes(selector, i18n) {
+  const elements = document.querySelectorAll(selector);
+  for (const el of elements) {
+    const mappings = el.getAttribute("data-i18n-attr")?.split(";") ?? [];
     for (const mapping of mappings) {
       const [attr, key] = mapping.split(":").map((s) => s.trim());
       if (!attr || !key) continue;
-      const msg = i18n.getMessage(key);
-      if (msg !== undefined) el.setAttribute(attr, msg);
+      const message = i18n.getMessage(key);
+      if (message != null) el.setAttribute(attr, message);
     }
   }
+}
+
+/**
+ * Localizes the HTML page by replacing placeholder text and attributes using browser.i18n.
+ */
+export async function localizeHtmlPage() {
+  const i18n = browser.i18n;
+
+  const replacer = (text) =>
+    text.replace(/__MSG_(\w+)__/g, (_, key) => i18n.getMessage(key) || "");
+
+  localizeTextContent("[data-message=localize]", replacer);
+  localizeAttributes("[data-i18n-attr]", i18n);
 }

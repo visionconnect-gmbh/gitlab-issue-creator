@@ -3,7 +3,7 @@
  * @param {string} title The title of the notification.
  * @param {string} message The message content of the notification.
  */
-async function displayNotification(message, title = "GitLab Ticket Creator") {
+async function displayNotification(message, title = "GitLab Issue Creator") {
   const notificationId = await browser.notifications.create({
     type: "basic",
     iconUrl: browser.runtime.getURL("icons/icon-48px.png"),
@@ -15,7 +15,7 @@ async function displayNotification(message, title = "GitLab Ticket Creator") {
 
 export async function displayLocalizedNotification(
   messageKey,
-  title = "GitLab Ticket Creator"
+  title = "GitLab Issue Creator"
 ) {
   try {
     const message = browser.i18n.getMessage(messageKey);

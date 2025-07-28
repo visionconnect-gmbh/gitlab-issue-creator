@@ -1,14 +1,14 @@
 {
   "extensionName": {
-    "message": "GitLab Ticket Creator",
+    "message": "GitLab Issue Creator",
     "description": "Name of the extension."
   },
   "extensionDescription": {
-    "message": "Erstellt GitLab-Issues aus E-Mails.",
+    "message": "Erstellt GitLab-Ticketss aus E-Mails.",
     "description": "Description of the extension."
   },
   "BrowserActionTitle": {
-    "message": "GitLab Issue erzeugen",
+    "message": "GitLab Ticket erzeugen",
     "description": "Description of the extension."
   },
   "ButtonSave": {
@@ -84,7 +84,7 @@
     "description": "Error for not cleared assignees."
   },
   "OptionsTabsTitle": {
-    "message": "Einstellungen - GitLab Ticket Creator",
+    "message": "Einstellungen",
     "description": "Title of options tab."
   },
   "OptionsTitle": {
@@ -136,7 +136,7 @@
     "description": "Infotext for made by."
   },
   "PopupTabsTitle": {
-    "message": "Popup - Gitlab Ticket Creator",
+    "message": "Popup",
     "description": "Title of popup tab."
   },
   "PopupTitle": {
@@ -163,7 +163,7 @@
     "message": "Beauftragte(r)",
     "description": "Label for assignee selectbox."
   },
-  "PopupLabelTicketDescription": {
+  "PopupLabelIssueDescription": {
     "message": "Beschreibung",
     "description": "Label of project description."
   },
@@ -199,17 +199,17 @@
     "message": "(Kein Nachrichtentext)",
     "description": "Default message when no email content is available."
   },
-  "TicketAttachmentsTitle": {
+  "IssueAttachmentsTitle": {
     "message": "Angehängte Dateien",
-    "description": "Title for ticket attachments."
+    "description": "Title for issue attachments."
   },
-  "TicketAttachmentPreviewText": {
+  "IssueAttachmentPreviewText": {
     "message": "Wird beim Erstellen des Tickets hochgeladen.",
-    "description": "Preview text for ticket attachments."
+    "description": "Preview text for issue attachments."
   },
-  "TicketAttachmentPreviewTextDisclaimer": {
+  "IssueAttachmentPreviewTextDisclaimer": {
     "message": "NICHT EDITIEREN!",
-    "description": "Disclaimer for ticket attachment preview text."
+    "description": "Disclaimer for issue attachment preview text."
   },
   "NotificationGenericError": {
     "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
@@ -247,9 +247,9 @@
     "message": "GitLab-Einstellungen sind nicht gesetzt. Bitte in den Einstellungen konfigurieren.",
     "description": "Notification when no GitLab settings are set."
   },
-  "NotificationTicketCreated": {
+  "NotificationIssueCreated": {
     "message": "Ticket erfolgreich erstellt! Klicke zum Öffnen.",
-    "description": "Notification when ticket is successfully created."
+    "description": "Notification when issue is successfully created."
   },
   "NotificationNoProjectSelected": {
     "message": "Bitte wählen Sie ein gültiges Projekt aus.",

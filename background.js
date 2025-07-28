@@ -12,7 +12,7 @@ import {
 } from "./src/utils/utils.js";
 import { getEmailContent } from "./src/email/emailContent.js";
 
-const POPUP_PATH = "src/popup/ticket_creator.html";
+const POPUP_PATH = "src/popup/issue_creator.html";
 
 let projectsGlobal = [];
 let assigneesGlobal = {}; // key: projectId, value: assignees array

@@ -1,11 +1,11 @@
-# GitLab Ticket Creator | Thunderbird Add-on
+# GitLab Issue Creator | Thunderbird Add-on
 
 This small Thunderbird add-on allows you to **create GitLab issues directly from emails**.
 
 ## What does it do?
 
 * **Directly from the email:** Create GitLab issues while you're still viewing the email.
-* **Automatic title:** The email subject becomes the ticket title automatically!
+* **Automatic title:** The email subject becomes the issue title automatically!
 * **Full context:** The entire email thread is added to the issue description, so everything is crystal clear.
 * **Quick project search:** A simple search helps you find the right GitLab project quickly.
 * **Customizable:** You can edit the title and description before submitting or add any extra information you need.
@@ -39,11 +39,11 @@ If you're working on the add-on or testing it:
 
 ## How it works
 
-1. **Open an email:** Find the email you want to turn into a ticket.
+1. **Open an email:** Find the email you want to turn into an issue.
 2. **Click the add-on button:** In the Thunderbird toolbar (usually top right), click the add-on button to open the small window.
 3. **Select a project:** Start typing in the search field to find your GitLab project and select it from the list.
 4. **Review title & description:** The title comes from the email subject, and the description is the full email thread. Adjust as needed.
-5. **Create the ticket:** Click "Create Ticket". The add-on sends everything to GitLab, and boom — the issue is created!
+5. **Create the issue:** Click "Create Issue". The add-on sends everything to GitLab, and boom — the issue is created!
 
 ## Configuration
 

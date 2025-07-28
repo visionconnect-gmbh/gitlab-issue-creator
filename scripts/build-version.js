@@ -76,7 +76,7 @@ function main() {
   // Delete old zip in root of project
   const oldZipPath = path.join(
     ROOT_DIR,
-    `gitlab-ticket-creator-${currentVersion}.zip`
+    `gitlab-issue-creator-${currentVersion}.zip`
   );
   if (fs.existsSync(oldZipPath)) {
     fs.unlinkSync(oldZipPath);
@@ -85,12 +85,12 @@ function main() {
   // Move the new zip to the root of the project
   const newZipPath = path.join(
     ROOT_DIR,
-    `gitlab-ticket-creator-${newVersion}.zip`
+    `gitlab-issue-creator-${newVersion}.zip`
   );
   const buildZipPath = path.join(
     ROOT_DIR,
     "builds",
-    `gitlab-ticket-creator-${newVersion}.zip`
+    `gitlab-issue-creator-${newVersion}.zip`
   );
   if (fs.existsSync(buildZipPath)) {
     fs.renameSync(buildZipPath, newZipPath);

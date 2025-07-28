@@ -1,6 +1,6 @@
-# Add-on Options: GitLab Ticket Creator
+# Add-on Options: GitLab Issue Creator
 
-This page outlines the configuration options for the Thunderbird add-on **GitLab Ticket Creator**. These settings are required for the add-on to communicate properly with your GitLab instance. Some options are also aimed at improving the user experience.
+This page outlines the configuration options for the Thunderbird add-on **GitLab Issue Creator**. These settings are required for the add-on to communicate properly with your GitLab instance. Some options are also aimed at improving the user experience.
 
 ---
 

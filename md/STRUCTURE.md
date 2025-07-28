@@ -1,4 +1,4 @@
-# Projektstruktur – *GitLab Ticket Creator*
+# Projektstruktur – *GitLab Issue Creator*
 **ENGLISH VERSION:** [STRUCTURE_en](./STRUCTURE_en.md)
 
 Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issues direkt aus E-Mails zu erstellen. Die folgende Übersicht beschreibt den Aufbau des Projekts.
@@ -48,10 +48,10 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ├── dist/
 │   ├── bundled-background.js
 │   ├── bundled-options.js
-│   ├── bundled-ticket_creator.js
+│   ├── bundled-issue_creator.js
 │   └── *.map
 ├── builds/
-│   └── gitlab-ticket-creator-x.y.z.zip
+│   └── gitlab-issue-creator-x.y.z.zip
 ```
 
 * **scripts/** – Automatisierung (Build, Versions-Management)
@@ -134,16 +134,16 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 
 ```text
 ├── src/popup/
-│   ├── ticket_creator.html
-│   ├── ticket_creator.js
+│   ├── issue_creator.html
+│   ├── issue_creator.js
 │   ├── logic/
 │   │   ├── handler.js
 │   │   ├── state.js
 │   │   └── ui.js
 ```
 
-* **ticket\_creator.html** – Die Benutzeroberfläche.
-* **ticket\_creator.js** – Einstiegspunkt und Setup.
+* **issue\_creator.html** – Die Benutzeroberfläche.
+* **issue\_creator.js** – Einstiegspunkt und Setup.
 * **logic/** – Modularisierte Logik:
 
   * `handler.js`: Event-Logik.
@@ -163,7 +163,6 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ```
 
 * **easymde/** – Minifizierte JS- und CSS-Dateien des Markdown-Editors \[*EasyMDE*].
-* **VENDORS.md** – Quelle, Version und Herkunftsnachweis für minifizierte Bibliotheken (zur Prüfung durch Mozilla).
 
 ---
 
@@ -196,7 +195,7 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ├── dist/
 │   └── *.js + *.map
 ├── builds/
-│   └── gitlab-ticket-creator-x.y.z.zip
+│   └── gitlab-issue-creator-x.y.z.zip
 ├── icons/
 │   ├── *.png
 │   └── Icon.svg
@@ -219,17 +218,12 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
     │   ├── options.html
     │   └── options.js
     ├── popup/
-    │   ├── ticket_creator.html
-    │   ├── ticket_creator.js
+    │   ├── issue_creator.html
+    │   ├── issue_creator.js
     │   └── logic/
     │       ├── handler.js
     │       ├── state.js
     │       └── ui.js
-    ├── libs/
-    │   ├── easymde/
-    │   │   ├── easymde.min.js
-    │   │   └── easymde.min.css
-    │   └── VENDORS.md
     └── utils/
         ├── utils.js
         └── cache.js

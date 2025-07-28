@@ -150,7 +150,8 @@ async function createTicketDescription() {
     const placeholderAttachments = getAttachmentMarkdownPreview(messageData.attachments);
     description = description.replace(placeholderAttachments, "");
     const ticketAttachmentsTitle =
-      browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENTS_TITLE) || "Attachments";
+      browser.i18n.getMessage(LocalizeKeys.Issue.ATTACHMENTS_TITLE) ||
+      "Attachments";
     description += `\n\n**${ticketAttachmentsTitle}:**\n\n`;
     description += await generateAttachmentsMarkdown();
   }
@@ -320,11 +321,15 @@ async function getAttachmentFile(messageId, partName) {
 
 function getAttachmentMarkdownPreview(attachments) {
   const placeholderTitle =
-    browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENTS_TITLE) || "Attachments";
+    browser.i18n.getMessage(LocalizeKeys.Issue.ATTACHMENTS_TITLE) ||
+    "Attachments";
   const placeholderText =
-    browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENT_PREVIEW_TEXT) ||
+    browser.i18n.getMessage(LocalizeKeys.Issue.ATTACHMENT_PREVIEW_TEXT) ||
     "This attachment will be uploaded when the issue is created.";
-  const placeholderDisclaimer = browser.i18n.getMessage(LocalizeKeys.TICKET.ATTACHMENT_PREVIEW_TEXT_DISCLAIMER) || "DO NOT EDIT!";
+  const placeholderDisclaimer =
+    browser.i18n.getMessage(
+      LocalizeKeys.Issue.ATTACHMENT_PREVIEW_TEXT_DISCLAIMER
+    ) || "DO NOT EDIT!";
   return attachments
     .map((a) => `**${placeholderTitle}:** _${a.name}_ *(${placeholderText})* **${placeholderDisclaimer}**`)
     .join("\n\n");

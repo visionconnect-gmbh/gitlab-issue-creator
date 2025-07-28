@@ -19,12 +19,12 @@ const elements = {
 };
 
 const easyMDE = new EasyMDE({
-  element: document.getElementById("ticketDescription"),
+  element: document.getElementById("issueDescription"),
   spellChecker: false,
   autosave: {
     enabled: true,
     delay: 1000,
-    uniqueId: "gitlab-ticket-creator-description-popup",
+    uniqueId: "gitlab-issue-creator-description-popup",
   },
   status: false,
   forceSync: true,

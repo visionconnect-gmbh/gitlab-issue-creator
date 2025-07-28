@@ -6,7 +6,7 @@ const { execSync } = require("child_process");
 
 const BUILD_DIR = "temp_build"; // Temporary directory for staging files
 const DEST_DIR = "builds"; // Directory for the final .zip file
-const ADDON_NAME = "gitlab-ticket-creator"; // Name of addon for the zip file
+const ADDON_NAME = "gitlab-issue-creator"; // Name of addon for the zip file
 
 // Files/folders to exclude from the final .zip package
 const EXCLUDE_PATTERNS = [

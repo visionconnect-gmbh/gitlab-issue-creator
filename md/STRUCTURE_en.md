@@ -1,4 +1,4 @@
-# Project Structure – *GitLab Ticket Creator*
+# Project Structure – *GitLab Issue Creator*
 
 This project is a Thunderbird extension that allows creating GitLab issues directly from emails. The following overview describes the structure of the project.
 
@@ -47,10 +47,10 @@ This project is a Thunderbird extension that allows creating GitLab issues direc
 ├── dist/
 │   ├── bundled-background.js
 │   ├── bundled-options.js
-│   ├── bundled-ticket_creator.js
+│   ├── bundled-issue_creator.js
 │   └── *.map
 ├── builds/
-│   └── gitlab-ticket-creator-x.y.z.zip
+│   └── gitlab-issue-creator-x.y.z.zip
 ```
 
 * **scripts/** – Automation scripts (build process, version management).
@@ -129,20 +129,20 @@ This project is a Thunderbird extension that allows creating GitLab issues direc
 
 ---
 
-### Ticket Creation Popup
+### Issue Creation Popup
 
 ```text
 ├── src/popup/
-│   ├── ticket_creator.html
-│   ├── ticket_creator.js
+│   ├── issue_creator.html
+│   ├── issue_creator.js
 │   ├── logic/
 │   │   ├── handler.js
 │   │   ├── state.js
 │   │   └── ui.js
 ```
 
-* **ticket\_creator.html** – The user interface.
-* **ticket\_creator.js** – Entry point and setup.
+* **issue\_creator.html** – The user interface.
+* **issue\_creator.js** – Entry point and setup.
 * **logic/** – Modularized logic:
 
   * `handler.js`: Event logic.
@@ -195,7 +195,7 @@ This project is a Thunderbird extension that allows creating GitLab issues direc
 ├── dist/
 │   └── *.js + *.map
 ├── builds/
-│   └── gitlab-ticket-creator-x.y.z.zip
+│   └── gitlab-issue-creator-x.y.z.zip
 ├── icons/
 │   ├── *.png
 │   └── Icon.svg
@@ -218,17 +218,12 @@ This project is a Thunderbird extension that allows creating GitLab issues direc
     │   ├── options.html
     │   └── options.js
     ├── popup/
-    │   ├── ticket_creator.html
-    │   ├── ticket_creator.js
+    │   ├── issue_creator.html
+    │   ├── issue_creator.js
     │   └── logic/
     │       ├── handler.js
     │       ├── state.js
     │       └── ui.js
-    ├── libs/
-    │   ├── easymde/
-    │   │   ├── easymde.min.js
-    │   │   └── easymde.min.css
-    │   └── VENDORS.md
     └── utils/
         ├── utils.js
         └── cache.js

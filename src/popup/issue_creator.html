@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title data-message="localize">__MSG_PopupTabsTitle__</title>
+    <title data-message="localize">__MSG_PopupTabsTitle__ - __MSG_extensionName__</title>
     <link rel="stylesheet" href="../theme.css" />
     <link rel="stylesheet" href="../../dist/libs/easymde.min.css" />
     <style>
@@ -120,7 +120,7 @@
   </head>
 
   <body>
-    <h2 data-message="localize">__MSG_PopupTitle__</h2>
+    <h2 data-message="localize"><span>__MSG_PopupTitle__</span></h2>
     <div class="grid">
       <div class="grid-item">
         <div class="section">
@@ -178,16 +178,16 @@
       </div>
     </div>
     <div class="section">
-      <label for="ticketDescription" data-message="localize">
-        __MSG_PopupLabelTicketDescription__:
+      <label for="issueDescription" data-message="localize">
+        __MSG_PopupLabelIssueDescription__:
       </label>
-      <textarea id="ticketDescription"></textarea>
+      <textarea id="issueDescription"></textarea>
     </div>
     <button id="create" data-message="localize">
       __MSG_PopupButtonSubmit__
     </button>
 
     <script src="../../dist/libs/easymde.min.js"></script>
-    <script type="module" src="../../dist/bundled-ticket_creator.js"></script>
+    <script type="module" src="../../dist/bundled-issue_creator.js"></script>
   </body>
 </html>

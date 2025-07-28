@@ -33,9 +33,9 @@ export default [
     plugins,
   },
   {
-    input: "src/popup/ticket_creator.js",
+    input: "src/popup/issue_creator.js",
     output: {
-      file: "dist/bundled-ticket_creator.js",
+      file: "dist/bundled-issue_creator.js",
       format: "iife",
       sourcemap: true,
     },

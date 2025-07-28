@@ -1,6 +1,6 @@
 {
     "extensionName": {
-        "message": "GitLab Ticket Creator",
+        "message": "GitLab Issue Creator",
         "description": "Name of the extension."
     },
     "extensionDescription": {
@@ -84,7 +84,7 @@
         "description": "Error for not cleared assignees."
     },
     "OptionsTabsTitle": {
-        "message": "Settings - GitLab Ticket Creator",
+        "message": "Settings",
         "description": "Title of options tab."
     },
     "OptionsTitle": {
@@ -136,11 +136,11 @@
         "description": "Infotext for made by."
     },
     "PopupTabsTitle": {
-        "message": "Popup - GitLab Ticket Creator",
+        "message": "Popup",
         "description": "Title of popup tab."
     },
     "PopupTitle": {
-        "message": "Create GitLab Ticket",
+        "message": "Create GitLab Issue",
         "description": "Title of popup window."
     },
     "PopupLabelSelectProject": {
@@ -152,7 +152,7 @@
         "description": "Label for project placeholder."
     },
     "PopupLabelTitleOfProject": {
-        "message": "Ticket Title",
+        "message": "Issue Title",
         "description": "Label for project title."
     },
     "PopupLabelAttachmentsCheckbox": {
@@ -163,7 +163,7 @@
         "message": "Assignee",
         "description": "Label for assignee selectbox."
     },
-    "PopupLabelTicketDescription": {
+    "PopupLabelIssueDescription": {
         "message": "Description",
         "description": "Label of project description."
     },
@@ -188,7 +188,7 @@
         "description": "Label for forwarded message."
     },
     "PopupButtonSubmit": {
-        "message": "Create Ticket",
+        "message": "Create Issue",
         "description": "Title submit Button."
     },
     "PopupNoAssigneesFound": {
@@ -199,21 +199,25 @@
         "message": "(No Text available.)",
         "description": "Message when no content is available in the email."
     },
-    "TicketAttachmentsTitle": {
+    "IssueAttachmentsTitle": {
         "message": "Attached Files",
-        "description": "Title for ticket attachments."
+        "description": "Title for issue attachments."
     },
-    "TicketAttachmentPreviewText": {
-        "message": "Will be uploaded when creating the ticket.",
-        "description": "Markdown preview for ticket attachments."
+    "IssueAttachmentPreviewText": {
+        "message": "Will be uploaded when creating the issue.",
+        "description": "Markdown preview for issue attachments."
     },
-    "TicketAttachmentPreviewTextDisclaimer": {
+    "IssueAttachmentPreviewTextDisclaimer": {
         "message": "DO NOT EDIT!",
-        "description": "Disclaimer for ticket attachment preview text."
+        "description": "Disclaimer for issue attachment preview text."
     },
     "NotificationGenericError": {
         "message": "An error occurred. Please try again later.",
         "description": "Generic error notification."
+    },
+    "NotificationUploadAttachmentError": {
+        "message": "Error uploading attachment. Please check your internet connection.",
+        "description": "Notification when there is an error uploading an attachment."
     },
     "NotificationNoMessageSelected": {
         "message": "No email selected. Please open an email.",
@@ -243,16 +247,16 @@
         "message": "GitLab settings are not set. Please configure them in the settings.",
         "description": "Notification when no GitLab settings are set."
     },
-    "NotificationTicketCreated": {
-        "message": "Ticket created successfully! Click to open.",
-        "description": "Notification when ticket is successfully created."
+    "NotificationIssueCreated": {
+        "message": "Issue created successfully! Click to open.",
+        "description": "Notification when issue is successfully created."
     },
     "NotificationNoProjectSelected": {
         "message": "Please select a valid project.",
         "description": "Notification when an invalid project is selected."
     },
     "NotificationAttachmentNotFound": {
-        "message": "Attachment not found. Ticket creation aborted.",
+        "message": "Attachment not found. Issue creation aborted.",
         "description": "Notification when an attachment is not found."
     }
 }

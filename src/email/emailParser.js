@@ -60,20 +60,19 @@ export function emailParser(emailBody) {
   const processedMessages = remappedMessages.map((rawMessage) => {
     const headerLine = rawMessage.split("\n")[0];
     const { from, date, time } = parseDateAndAuthorLine(headerLine);
+    const forwardedText = extractForwardedMessage(rawMessage);
 
-    const cleanedMessageOuter = removeEmptyLines(rawMessage);
-    const contentWithoutHeader = removeDateAndAuthorLines(cleanedMessageOuter);
-    const forwardedText = extractForwardedMessage(contentWithoutHeader);
-    const finalMessageOuter = removeSignature(contentWithoutHeader);
+    const contentWithoutHeader = removeDateAndAuthorLines(rawMessage);
+
+    const cleanedMessageOuter = removeEmptyLines(contentWithoutHeader);
+    const finalMessageOuter = removeSignature(cleanedMessageOuter);
+
     let forwardedMessage = null;
-
     if (forwardedText) {
       const { author, date: forwardedDate } =
         extractForwardedAuthorAndDate(forwardedText);
-      let cleanedForwardedMessage = removeSignature(forwardedText);
-      cleanedForwardedMessage = removeForwardedHeader(
-        cleanedForwardedMessage
-      );
+      let cleanedForwardedMessage = removeForwardedHeader(forwardedText);
+      cleanedForwardedMessage = removeSignature(cleanedForwardedMessage);
       const finalForwardedMessage = removeEmptyLines(cleanedForwardedMessage);
 
       forwardedMessage = {
@@ -152,27 +151,20 @@ function getQuoteLevel(line) {
 }
 
 function extractForwardedMessage(message) {
-  const lines = message.split("\n");
+  const forwardHeaderRegex = /^-{3,}.*?-{3,}$/m;
 
-  const forwardHeaderRegex = /^-{3,}.*?-{3,}$/;
-
-  const forwardStartIndex = lines.findIndex((line) => {
-    const trimmedLine = line.trim();
-    const match = forwardHeaderRegex.test(trimmedLine);
-    return match;
-  });
-
-  if (forwardStartIndex === -1) {
+  const match = message.match(forwardHeaderRegex);
+  if (!match) {
     return null;
   }
+  
+  const startIndex = message.indexOf(match[0]) + match[0].length;
+  let forwardedText = message.slice(startIndex);
 
-  const forwardLines = lines.slice(forwardStartIndex + 1);
-  if (forwardLines.length === 0) {
-    return null;
-  }
-
-  const forwardedText = forwardLines.join("\n").trim();
-  return forwardedText;
+  const endIndex = getSignatureIndex(forwardedText);
+  const cleanText =
+    endIndex === -1 ? forwardedText : forwardedText.slice(0, endIndex);
+  return cleanText || null;
 }
 
 function extractForwardedAuthorAndDate(forwardedText) {
@@ -207,33 +199,47 @@ function extractForwardedAuthorAndDate(forwardedText) {
 }
 
 function extractDateAndAuthorLine(message) {
-  const genericRegex = /(?:\d{1,2}[./-]){2}\d{2,4}[\s,]+(?:um\s)?\d{1,2}:\d{2}(?:\s?(?:AM|PM))?[,:\s-]+.+?:/i;
+  const genericRegex =
+    /(?:\d{1,2}[./-]){2}\d{2,4}[\s,]+(?:um\s)?\d{1,2}:\d{2}(?:\s?(?:AM|PM))?[,:\s-]+.+?:/i;
 
-  return (
-    message
-      .split("\n")
-      .find((line) => genericRegex.test(line)) || null
-  );
+  return message.split("\n").find((line) => genericRegex.test(line)) || null;
 }
 
 function removeForwardedHeader(message) {
   const lines = message.split("\n");
-  let headerEndIndex = lines.findIndex(line => line.trim() === "");
 
-  if (headerEndIndex === -1) {
-    // No empty line found, assume whole message is header
-    return "";
+  let headerEndIndex = -1;
+  let headerCandidate = true;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    // Detect the empty line that separates header from body
+    if (line === "" && i > 0) {
+      headerEndIndex = i;
+      break;
+    }
+
+    // If any line in the header candidate block does NOT contain a colon and isn't empty, abort
+    if (line !== "" && !line.includes(":")) {
+      headerCandidate = false;
+      break;
+    }
   }
 
-  // Remove everything up to and including the first empty line
-  const cleanedLines = lines.slice(headerEndIndex + 1).join("\n").trim();
-  return cleanedLines;
+  if (headerEndIndex === -1 || !headerCandidate) {
+    // No reliable header pattern found — return original
+    return message;
+  }
+
+  // Return message content after the header block
+  return lines.slice(headerEndIndex + 1).join("\n");
 }
 
 function removeDateAndAuthorLines(message) {
   const lines = message.split("\n");
   const filteredLines = lines.filter((line) => !extractDateAndAuthorLine(line));
-  return filteredLines.join("\n").trim();
+  return filteredLines.join("\n");
 }
 
 function remapDateAndAuthorLines(messages, dateLines) {
@@ -243,9 +249,15 @@ function remapDateAndAuthorLines(messages, dateLines) {
   });
 }
 
+function getSignatureIndex(message) {
+  const signatureRegex = /^--\s*$/m;
+  const match = message.match(signatureRegex);
+  return match ? message.indexOf(match[0]) : -1;
+}
+
 function removeSignature(message) {
-  const index = message.indexOf("-- ");
-  return index !== -1 ? message.slice(0, index).trim() : message.trim();
+  const index = getSignatureIndex(message);
+  return index !== -1 ? message.slice(0, index) : message;
 }
 
 function removeEmptyLines(message) {

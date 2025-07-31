@@ -61,7 +61,3 @@ The first time you use it, you'll be asked to provide the GitLab URL and a perso
 * **Install dependencies:** `npm install`
 * **Build the project:** `npm run build`
 * **Auto-build on changes:** `npm run watch`
-
-#### Extras
-
-[VENDORS](./src/libs/VENDORS.md)

@@ -63,7 +63,3 @@ Vor der ersten Verwendung werdet ihr aufgefordert die Gitlab URL, sowie einen pe
   * **Abhängigkeiten installieren:** `npm install`
   * **Projekt bauen:** `npm run build`
   * **Automatisch bauen bei Änderungen:** `npm run watch`
-
-#### Extras
-
-[VENDORS](./src/libs/VENDORS.md)

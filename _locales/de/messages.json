@@ -4,7 +4,7 @@
     "description": "Name of the extension."
   },
   "extensionDescription": {
-    "message": "Erstellt GitLab-Ticketss aus E-Mails.",
+    "message": "Erstellt GitLab-Tickets aus E-Mails.",
     "description": "Description of the extension."
   },
   "BrowserActionTitle": {

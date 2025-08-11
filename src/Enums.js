@@ -6,6 +6,7 @@ export const MessageTypes = Object.freeze({
   SETTINGS_UPDATED: "settings-updated",
   REQUEST_ASSIGNEES: "request-assignees",
   ASSIGNEES_LIST: "assignees-list",
+  CLOSE_POPUP: "close-popup",
 });
 
 export const CacheKeys = Object.freeze({
@@ -117,5 +118,15 @@ export const LocalizeKeys = Object.freeze({
     NO_PROJECT_SELECTED: 'NotificationNoProjectSelected',
     ATTACHMENT_NOT_FOUND: 'NotificationAttachmentNotFound',
     UPLOAD_ATTACHMENT_ERROR: 'NotificationUploadAttachmentError',
+  },
+
+  FALLBACK: {
+    NO_DESCRIPTION: 'FallbackNoDescription',
+    NO_EMAIL_CONTENT: 'FallbackNoEmailContent',
+    NO_DATE_AVAILABLE: 'FallbackNoDateAvailable',
+    NO_PROJECT_NAME: 'FallbackNoProjectName',
+    UNKNOWN_ASSIGNEE: 'FallbackUnknownAssignee',
+    UNKNOWN_SENDER: 'FallbackUnknownSender',
+    NO_TRANSLATION: 'FallbackNoTranslation',
   }
 });

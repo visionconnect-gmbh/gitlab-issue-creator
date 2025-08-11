@@ -1,4 +1,3 @@
-// popup/ui.js
 import {
   elements,
   filteredProjects,
@@ -12,7 +11,7 @@ export function renderProjectSuggestions() {
   elements.projectSuggestions.replaceChildren();
 
   filteredProjects.forEach((proj) => {
-    const name = proj.name_with_namespace || proj.name || "Unknown Project";
+    const name = proj.name_with_namespace || proj.name || browser.i18n.getMessage(LocalizeKeys.FALLBACK.NO_PROJECT_NAME) || "No project name";
     const option = new Option(name, name);
     elements.projectSuggestions.appendChild(option);
   });
@@ -41,7 +40,7 @@ export function renderAssignees() {
   currentAssignees.forEach((assignee) => {
     const option = document.createElement("option");
     option.value = assignee.id;
-    option.textContent = assignee.name || assignee.username || "Unknown";
+    option.textContent = assignee.name || assignee.username || browser.i18n.getMessage(LocalizeKeys.FALLBACK.UNKNOWN_ASSIGNEE) || "Unknown assignee";
     elements.assigneeSelect.appendChild(option);
   });
 

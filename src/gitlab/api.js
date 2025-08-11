@@ -1,5 +1,9 @@
 import { LocalizeKeys } from "../Enums";
-import { displayLocalizedNotification, openOptionsPage } from "../utils/utils";
+import {
+  closePopup,
+  displayLocalizedNotification,
+  openOptionsPage,
+} from "../utils/utils";
 
 let API_BASE_URL = null;
 
@@ -21,8 +25,11 @@ export async function doRequest(endpoint, options = {}, addContentType = true) {
     API_BASE_URL = settings.gitlabUrl;
 
     if (!API_BASE_URL) {
-      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GITLAB_URL_NOT_CONFIGURED);
+      displayLocalizedNotification(
+        LocalizeKeys.NOTIFICATION.GITLAB_URL_NOT_CONFIGURED
+      );
       openOptionsPage();
+      closePopup();
       return;
     }
   }
@@ -44,8 +51,11 @@ export async function doRequest(endpoint, options = {}, addContentType = true) {
 
   if (!res.ok) {
     if (res.status === 401) {
-      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.INVALID_GITLAB_TOKEN);
+      displayLocalizedNotification(
+        LocalizeKeys.NOTIFICATION.INVALID_GITLAB_TOKEN
+      );
       openOptionsPage();
+      closePopup();
       return;
     }
     const error = await res.text();

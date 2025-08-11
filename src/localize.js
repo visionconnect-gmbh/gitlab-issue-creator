@@ -1,3 +1,5 @@
+import { LocalizeKeys } from "./Enums";
+
 /**
  * Replaces all text nodes within elements matching a selector using a replacer function.
  * Efficiently traverses using TreeWalker to avoid recursive overhead.
@@ -9,6 +11,7 @@ function localizeTextContent(selector, replacer) {
     let node;
     while ((node = walker.nextNode())) {
       const original = node.nodeValue;
+      if (!original || !original.trim()) continue;
       const replaced = replacer(original);
       if (replaced !== original) {
         node.nodeValue = replaced;
@@ -28,7 +31,8 @@ function localizeAttributes(selector, i18n) {
       const [attr, key] = mapping.split(":").map((s) => s.trim());
       if (!attr || !key) continue;
       const message = i18n.getMessage(key);
-      if (message != null) el.setAttribute(attr, message);
+      // Only set attribute if translation is non-empty string
+      if (message) el.setAttribute(attr, message);
     }
   }
 }
@@ -36,11 +40,15 @@ function localizeAttributes(selector, i18n) {
 /**
  * Localizes the HTML page by replacing placeholder text and attributes using browser.i18n.
  */
-export async function localizeHtmlPage() {
+export function localizeHtmlPage() {
   const i18n = browser.i18n;
 
   const replacer = (text) =>
-    text.replace(/__MSG_(\w+)__/g, (_, key) => i18n.getMessage(key) || "");
+    text.replace(/__MSG_(\w+)__/g, (_, key) =>
+      i18n.getMessage(key) ||
+      i18n.getMessage(LocalizeKeys.FALLBACK.NO_TRANSLATION) ||
+      ""
+    );
 
   localizeTextContent("[data-message=localize]", replacer);
   localizeAttributes("[data-i18n-attr]", i18n);

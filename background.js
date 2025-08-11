@@ -140,7 +140,7 @@ async function handleRuntimeMessages(msg, sender) {
         const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
         const description = replaceWithBrTags(
-          msg.description?.trim() || "No description provided."
+          msg.description?.trim() || browser.i18n.getMessage(LocalizeKeys.FALLBACK.NO_DESCRIPTION)
         );
         const issueEnd = msg.endDate;
         try {
@@ -167,6 +167,11 @@ async function handleRuntimeMessages(msg, sender) {
             await browser.tabs.reload(tabs[0].id);
           }
         }
+        break;
+      }
+
+      case MessageTypes.CLOSE_POPUP: {
+        closePopup();
         break;
       }
 
@@ -207,6 +212,7 @@ async function getMessage() {
 }
 
 function closePopup() {
+  console.log("Closing popup window:", popupWindowId);
   if (popupWindowId) {
     browser.windows.remove(popupWindowId).catch((err) => {
       console.warn("Error closing popup:", err);

@@ -1,3 +1,5 @@
+import { MessageTypes } from "../Enums";
+
 /**
  * Displays a browser notification.
  * @param {string} title The title of the notification.
@@ -44,11 +46,21 @@ export function openOptionsPage() {
   });
 }
 
+export function closePopup() {
+  // Close the popup by sending a message to the background script
+  browser.runtime.sendMessage({ type: MessageTypes.CLOSE_POPUP }).catch((error) => {
+    console.error("Error closing popup:", error);
+    displayNotification("Error closing popup: " + error.message);
+  });
+}
+
 export function getUILanguage() {
   const lang = browser.i18n.getUILanguage();
   if (!lang) {
-    console.warn("No UI language set, defaulting to 'de'");
-    return "de"; // Default to German if no language is set
+    console.warn("No UI language set, defaulting");
+    // Default to default language in manifest.json
+    const defaultLang = browser.runtime.getManifest().default_locale || "en";
+    return defaultLang;
   }
   return lang;
 }

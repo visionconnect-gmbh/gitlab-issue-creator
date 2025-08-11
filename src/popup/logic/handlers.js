@@ -43,8 +43,7 @@ export async function resetEditor() {
   updateAssigneeSelectVisibility(isAssigneeLoadingEnabled);
 
   const noAssigneesFoundMessage =
-    browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) ||
-    "No assignees found.";
+    browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.NO_ASSIGNEES_FOUND) || "No assignees found.";
 
   const option = document.createElement("option");
   option.textContent = noAssigneesFoundMessage;
@@ -246,20 +245,16 @@ function formatEntry(entry, index, isForwarded = false) {
   const forwardedPrefix = isForwarded ? `**(${browser.i18n.getMessage(LocalizeKeys.POPUP.LABELS.FORWARDED_MESSAGE) || "Forwarded Message"})**\n` : "\n";
 
   const metaInfo = `**${fromText}**: ${from}\n**${dateText}**: ${dateFormatted}\n\n`;
-  const messageText = entry.message?.trim() || "(No message content)";
+  const messageText = entry.message?.trim() || browser.i18n.getMessage(LocalizeKeys.FALLBACK.NO_EMAIL_CONTENT) || "No email content available.";
   return `${forwardedPrefix}${metaInfo}${messageText}`;
 }
 
 function determineSender(entry, index, isForwarded) {
-  if (isForwarded) {
-    return entry.from || "Unknown sender";
-  }
-
-  if (index === 0) {
+  if (index === 0 && !isForwarded) {
     return messageData.author;
   }
-
-  return entry.from || "Unknown sender";
+  
+  return entry.from || browser.i18n.getMessage(LocalizeKeys.FALLBACK.UNKNOWN_SENDER) || "Unknown sender";
 }
 
 function formatDate(entry, index, isForwarded) {
@@ -292,7 +287,7 @@ function formatDate(entry, index, isForwarded) {
     return `${entry.date} ${localizedTime}`.trim();
   }
 
-  return "(No date available)";
+  return browser.i18n.getMessage(LocalizeKeys.FALLBACK.NO_DATE_AVAILABLE) || "No date available.";
 }
 
 function formatTime(timeStr, is12HourFormat) {

@@ -250,7 +250,7 @@ function remapDateAndAuthorLines(messages, dateLines) {
 }
 
 function getSignatureIndex(message) {
-  const signatureRegex = /^--\s*$/m;
+  const signatureRegex = /^(?:--\s*$|^\s*__\s*$)/m;
   const match = message.match(signatureRegex);
   return match ? message.indexOf(match[0]) : -1;
 }

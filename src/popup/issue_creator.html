@@ -2,7 +2,9 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title data-message="localize">__MSG_PopupTabsTitle__ - __MSG_ExtensionName__</title>
+    <title data-message="localize">
+      __MSG_PopupTabsTitle__ - __MSG_ExtensionName__
+    </title>
     <link rel="stylesheet" href="../theme.css" />
     <link rel="stylesheet" href="../../dist/libs/easymde.min.css" />
     <style>
@@ -15,45 +17,8 @@
         font-size: 1rem;
       }
 
-      h2 {
-        margin-top: 0;
-        font-size: 1.2rem;
-        margin-left: 20px;
-      }
-
       label {
-        display: block;
-        margin-top: 15px;
-        font-weight: bold;
-      }
-
-      select,
-      input,
-      button {
-        width: 100%;
-        margin-top: 5px;
-        font-size: 14px;
-        padding: 8px;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-
-      select {
-        height: 50px;
-        overflow-y: auto;
-      }
-
-      button {
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
-        margin-top: 20px;
-        transition: background-color 0.2s ease;
-      }
-
-      input[type="checkbox"] {
-        width: auto;
-        margin-right: 10px;
+        display: block !important;
       }
 
       .date-range {
@@ -115,6 +80,49 @@
         right: 20px;
         z-index: 99;
         width: auto;
+      }
+
+      /* Date input styling */
+      input[type="date"] {
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        margin-bottom: 12px;
+        font-size: 1rem;
+        font-family: var(--font-family);
+        color: var(--color-text);
+        background-color: transparent;
+        border: 1.5px solid var(--color-border);
+        border-radius: 6px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        outline-offset: 2px;
+      }
+
+      /* Hover & focus */
+      input[type="date"]:hover,
+      input[type="date"]:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 6px var(--color-shadow);
+        outline: none;
+      }
+
+      /* Hide default icon in Chrome/Edge/Safari */
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        filter: invert(40%) sepia(60%) saturate(500%) hue-rotate(180deg);
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+      }
+
+      input[type="date"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+      }
+
+      /* Firefox calendar icon adjustments */
+      input[type="date"]::-moz-focus-inner {
+        border: 0;
+      }
+      input[type="date"]::-moz-calendar-picker-indicator {
+        cursor: pointer;
       }
     </style>
   </head>

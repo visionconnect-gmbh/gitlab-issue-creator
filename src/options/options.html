@@ -2,7 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title data-message="localize">__MSG_OptionsTabsTitle__ - __MSG_ExtensionName__</title>
+    <title data-message="localize">
+      __MSG_OptionsTabsTitle__ - __MSG_ExtensionName__
+    </title>
     <link rel="stylesheet" href="../theme.css" />
     <style>
       body {
@@ -85,7 +87,11 @@
         >__MSG_OptionsLabelGITlabToken__:</label
       >
       <div id="tokenHelpLink" class="token-help" hidden>
-        <a href="#" target="_blank" rel="noopener noreferrer" data-i18n-attr="title:OptionsTooltipTokenLink"
+        <a
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-i18n-attr="title:OptionsTooltipTokenLink"
           >__MSG_OptionsTitleTokenLink__</a
         >
       </div>
@@ -125,6 +131,16 @@
           type="checkbox"
           id="enableAssigneeLoading"
           data-i18n-attr="title:OptionsTooltipEnableAssigneeLoading"
+        />
+      </div>
+      <div class="input-wrapper">
+        <label for="disableCache" data-message="localize">
+          __MSG_OptionsLabelDisableCache__:
+        </label>
+        <input
+          type="checkbox"
+          id="disableCache"
+          data-i18n-attr="title:OptionsTooltipDisableCache"
         />
       </div>
 

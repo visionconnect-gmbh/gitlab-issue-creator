@@ -2,6 +2,11 @@ import { MessageTypes, CacheKeys, LocalizeKeys } from "../Enums.js";
 import { localizeHtmlPage } from "../localize.js";
 import { clearAllCache, resetCache } from "../utils/cache.js";
 
+/**
+ * SVG path data for eye icons.
+ * @readonly
+ * @enum {string}
+ */
 const SVG_PATH = {
   EYE_OPEN:
     "M2.1 3.51L1 4.62l4.02 4.02C3.43 10.18 2.07 11.96 1 14c2.73 3.89 7 7.5 11 7.5 2.13 0 4.25-.7 6.09-1.9l3.29 3.29 1.11-1.11L2.1 3.51zM12 18c-3.03 0-5.5-2.47-5.5-5.5 0-.72.14-1.41.39-2.04l1.52 1.52a3.5 3.5 0 004.62 4.62l1.51 1.51A5.49 5.49 0 0112 18zm6.3-2.3l-2.17-2.17a5.5 5.5 0 00-6.66-6.66L7.3 5.7A13.9 13.9 0 0112 4.5c5 0 9.27 3.61 11 7.5-1.03 2.3-2.61 4.27-4.7 5.7z",
@@ -9,308 +14,258 @@ const SVG_PATH = {
     "M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5c-1.73-3.89-6-7.5-11-7.5zm0 3a4.5 4.5 0 110 9 4.5 4.5 0 010-9z",
 };
 
-const DOM = {}; // Object to hold references to DOM elements
-
-// --- State Variables ---
-let isTokenVisible = false;
-
 /**
- * Displays an alert message to the user.
- * @param {string} message - The message to display.
+ * Object storing DOM element references.
+ * @type {Object<string, HTMLElement>}
  */
-function showAlert(messageKey) {
-  const message = browser.i18n.getMessage(
-    messageKey || LocalizeKeys.NOTIFICATION.GENERIC_ERROR
-  );
-  if (!message) {
-    console.warn(`No localized message found for ID: ${messageKey}`);
-    return;
-  }
-  alert(message);
-}
+const DOM = {};
 
 /**
- * Handles errors gracefully, logging to console and alerting the user.
- * @param {string} contextMessage - A message describing where the error occurred.
+ * State variables for the options page.
+ * @type {Object<string, boolean>}
+ */
+const state = {
+  isTokenVisible: false,
+};
+
+/**
+ * Shows an alert message with localization support.
+ * @param {string} [messageKey] - Localization key for the message.
+ */
+const alertMessage = (messageKey) => {
+  const message = browser.i18n.getMessage(messageKey || LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
+  if (!message) console.warn(`No localized message found for ID: ${messageKey}`);
+  else alert(message);
+};
+
+/**
+ * Logs an error to console and shows a user alert.
+ * @param {string} messageKey - Localization key for the error message.
  * @param {Error} error - The error object.
  */
-function handleError(messageKey, error) {
+const handleError = (messageKey, error) => {
   const message = browser.i18n.getMessage(messageKey);
-  if (!message) {
-    console.warn(`No localized message found for ID: ${messageKey}`);
-    return;
-  }
-  console.error(`${message}:`, error);
-  alert(`${message}\n${error.message}`);
-}
+  console.error(message || "Error:", error);
+  alert(`${message || "Error"}\n${error?.message || ""}`);
+};
 
 /**
- * Validates a given URL string.
- * @param {string} url - The URL string to validate.
- * @returns {boolean} True if the URL is valid, false otherwise.
+ * Validates a URL string.
+ * @param {string} url - The URL to validate.
+ * @returns {boolean} True if valid URL, false otherwise.
  */
-function isValidUrl(url) {
-  const trimmedUrl = url.trim();
-
-  // Regex: (optional protocol) (hostname with at least one dot) (optional port) (optional path)
-  // The hostname regex `([\w-]+(\.[\w-]+)+)` ensures at least two parts separated by a dot.
-  const urlPattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/;
-
-  if (!urlPattern.test(trimmedUrl)) {
-    return false;
-  }
-
-  let urlToParse = trimmedUrl;
-  // Prepend a default protocol if missing to ensure proper URL object parsing.
-  if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
-    urlToParse = `https://${trimmedUrl}`;
-  }
-
+const isValidUrl = (url) => {
+  const trimmed = url.trim();
+  const pattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/;
+  if (!pattern.test(trimmed)) return false;
   try {
-    const urlObj = new URL(urlToParse);
-
-    // Ensure the protocol is explicitly http or https
-    if (urlObj.protocol !== "http:" && urlObj.protocol !== "https:") {
-      return false;
-    }
-
-    // Ensure a hostname exists
-    if (!urlObj.hostname) {
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    // The URL constructor throws an error for malformed URLs
-    console.error("URL parsing error:", error);
+    const parsed = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+    return ["http:", "https:"].includes(parsed.protocol) && !!parsed.hostname;
+  } catch {
     return false;
   }
-}
+};
 
 /**
- * Checks if a domain is reachable by trying to load a non-CORS resource.
- * Treats both success and failure of the image load as a sign of reachability.
- * @param {string} url - A fully qualified URL with protocol.
- * @returns {Promise<boolean>} - Resolves true if domain responds at all.
+ * Checks if a URL's origin is reachable by loading its favicon.
+ * @param {string} url - The URL to check.
+ * @returns {Promise<boolean>} Resolves true if reachable, false otherwise.
  */
-function isUrlReachable(url) {
-  return new Promise((resolve) => {
+const isUrlReachable = (url) =>
+  new Promise((resolve) => {
     const img = new Image();
     const timeout = setTimeout(() => {
-      img.src = ""; // cancel the request
-      resolve(false); // Timed out = unreachable
+      img.src = "";
+      resolve(false);
     }, 3000);
-
     img.onload = img.onerror = () => {
       clearTimeout(timeout);
-      resolve(true); // Any response = reachable
+      resolve(true);
     };
-
     try {
-      const urlObj = new URL(url);
-      img.src = `${urlObj.origin}/favicon.ico`; // or /robots.txt or /
+      const origin = new URL(url).origin;
+      img.src = `${origin}/favicon.ico`;
     } catch {
       resolve(false);
     }
   });
-}
 
-function showTokenHelpLink(gitlabUrl, gitlabToken) {
+/**
+ * Shows or hides the token help link based on URL and token.
+ * @param {string} gitlabUrl
+ * @param {string} gitlabToken
+ */
+const showTokenHelpLink = (gitlabUrl, gitlabToken) => {
+  const anchor = DOM.tokenHelpLink.querySelector("a");
+  if (!anchor) return console.error("Token help link anchor missing.");
   if (gitlabUrl && !gitlabToken) {
-    // show the token help link if a URL is set
-
-    // Access anchoer element and set its href attribute
-    const anchor = DOM.tokenHelpLink.querySelector("a");
-    if (!anchor) {
-      console.error("Token help link anchor element not found.");
-      return;
-    }
-    if (!gitlabUrl.endsWith("/")) {
-      gitlabUrl += "/";
-    }
+    if (!gitlabUrl.endsWith("/")) gitlabUrl += "/";
     anchor.href = `${gitlabUrl}-/user_settings/personal_access_tokens`;
     DOM.tokenHelpLink.hidden = false;
-    localizeHtmlPage(); // Localize the link text
+    localizeHtmlPage();
   } else {
-    // hide the token help link if no URL is set
     DOM.tokenHelpLink.hidden = true;
   }
-}
+};
 
 /**
- * Toggles the visibility of the GitLab token input field.
+ * Toggles GitLab token input visibility and updates the eye icon.
  */
-function toggleTokenVisibility() {
-  isTokenVisible = !isTokenVisible;
-  DOM.tokenInput.type = isTokenVisible ? "text" : "password";
-  DOM.eyeIcon.setAttribute(
-    "d",
-    isTokenVisible ? SVG_PATH.EYE_OPEN : SVG_PATH.EYE_CLOSED
-  );
-}
+const toggleTokenVisibility = () => {
+  state.isTokenVisible = !state.isTokenVisible;
+  DOM.tokenInput.type = state.isTokenVisible ? "text" : "password";
+  DOM.eyeIcon.setAttribute("d", state.isTokenVisible ? SVG_PATH.EYE_OPEN : SVG_PATH.EYE_CLOSED);
+};
 
 /**
- * Saves the GitLab token and URL to local storage.
- * @param {Object} data - An object containing 'token' and 'url'.
+ * Saves GitLab URL and token to local storage.
  */
-async function saveOptions(data) {
-  const trimmedToken = data.token.trim();
-  const trimmedUrl = data.url.trim();
-
-  if (!trimmedUrl || !isValidUrl(trimmedUrl)) {
-    showAlert(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
-    return;
+const saveGitlabOptions = async () => {
+  const token = DOM.tokenInput.value.trim();
+  const url = DOM.urlInput.value.trim();
+  if (!url || !isValidUrl(url)) return alertMessage(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
+  if (!(await isUrlReachable(url))) return alertMessage(LocalizeKeys.OPTIONS.ERRORS.UNREACHABLE_URL);
+  if (!token) {
+    showTokenHelpLink(url, token);
+    return alertMessage(LocalizeKeys.OPTIONS.ALERTS.ADD_GITLAB_TOKEN);
   }
-
-  if (!(await isUrlReachable(trimmedUrl))) {
-    showAlert(LocalizeKeys.OPTIONS.ERRORS.UNREACHABLE_URL);
-    return;
-  }
-
-  if (!trimmedToken) {
-    showAlert(LocalizeKeys.OPTIONS.ALERTS.ADD_GITLAB_TOKEN);
-    showTokenHelpLink(trimmedUrl, trimmedToken);
-    return;
-  }
-
   try {
-    const fixedUrl = trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : trimmedUrl;
-
-    await browser.storage.local.set({
-      gitlabToken: trimmedToken,
-      gitlabUrl: fixedUrl,
-    });
-    showTokenHelpLink(trimmedUrl, trimmedToken);
-    showAlert(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
-    // Notify background script or other parts of the extension about the update
-    browser.runtime.sendMessage({
-      type: MessageTypes.SETTINGS_UPDATED,
-      url: trimmedUrl,
-    });
-    window.close(); // Close the options page
+    const fixedUrl = url.endsWith("/") ? url.slice(0, -1) : url;
+    await browser.storage.local.set({ gitlabToken: token, gitlabUrl: fixedUrl });
+    showTokenHelpLink(url, token);
+    alertMessage(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
+    browser.runtime.sendMessage({ type: MessageTypes.SETTINGS_UPDATED, url: fixedUrl });
+    window.close();
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_SAVED, error);
   }
-}
+};
 
 /**
- * Clears the extension's cache by sending a message to the background script.
+ * Clears all extension cache.
  */
-async function clearCache() {
+const clearCache = async () => {
   try {
     clearAllCache();
-    showAlert(LocalizeKeys.OPTIONS.ALERTS.CACHE_CLEARED);
+    alertMessage(LocalizeKeys.OPTIONS.ALERTS.CACHE_CLEARED);
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.CACHE_CLEARED, error);
   }
-}
+};
 
 /**
- * Fetches initial settings from browser storage and populates the UI.
+ * Clears specific cache key.
+ * @param {string} key - Cache key.
+ * @param {string} successMsg - Localization key for success alert.
+ * @param {string} errorMsg - Localization key for error alert.
  */
-async function loadInitialSettings() {
+const resetSpecificCache = async (key, successMsg, errorMsg) => {
+  try {
+    resetCache(key);
+    alertMessage(successMsg);
+  } catch (error) {
+    handleError(errorMsg, error);
+  }
+};
+
+/**
+ * Saves disable cache setting to storage.
+ * @param {boolean} isDisabled
+ */
+const saveDisableCacheSetting = async (isDisabled) => {
+  if (isDisabled) {
+    const message = browser.i18n.getMessage(LocalizeKeys.OPTIONS.ALERTS.DISABLE_CACHE);
+    const confirmed = confirm(message);
+    if (!confirmed) {
+      DOM.cachingToggleBtn.checked = false;
+      return;
+    }
+  }
+  try {
+    await browser.storage.local.set({ disableCache: isDisabled });
+    alertMessage(
+      isDisabled
+        ? LocalizeKeys.OPTIONS.ALERTS.CACHE_DISABLED
+        : LocalizeKeys.OPTIONS.ALERTS.CACHE_ENABLED
+    );
+    browser.runtime.sendMessage({ type: MessageTypes.SETTINGS_UPDATED, disableCache: isDisabled });
+  } catch (error) {
+    handleError(LocalizeKeys.OPTIONS.ERRORS.CACHE_UPDATE, error);
+  }
+};
+
+/**
+ * Saves the assignee toggle setting.
+ * @param {boolean} isChecked
+ */
+const saveAssigneeToggle = async (isChecked) => {
+  try {
+    await browser.storage.local.set({ enableAssigneeLoading: isChecked });
+    const msgKey = isChecked
+      ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
+      : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
+    alertMessage(msgKey);
+    browser.runtime.sendMessage({ type: MessageTypes.SETTINGS_UPDATED, enableAssigneeLoading: isChecked });
+  } catch (error) {
+    handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_SAVED, error);
+  }
+};
+
+/**
+ * Loads initial values from storage and updates the UI.
+ */
+const loadInitialSettings = async () => {
   try {
     localizeHtmlPage();
-    const { gitlabToken } = await browser.storage.local.get("gitlabToken");
-    DOM.tokenInput.value = gitlabToken || "";
-
-    const { gitlabUrl } = await browser.storage.local.get("gitlabUrl");
-    DOM.urlInput.value = gitlabUrl || "";
-
-    const { enableAssigneeLoading } = await browser.storage.local.get(
-      "enableAssigneeLoading"
-    );
-    DOM.assigneesToggleBtn.checked = enableAssigneeLoading || false;
-
-    showTokenHelpLink(gitlabUrl, gitlabToken);
+    const keys = ["gitlabToken", "gitlabUrl", "enableAssigneeLoading", "disableCache"];
+    const data = await browser.storage.local.get(keys);
+    DOM.tokenInput.value = data.gitlabToken || "";
+    DOM.urlInput.value = data.gitlabUrl || "";
+    DOM.assigneesToggleBtn.checked = data.enableAssigneeLoading || false;
+    DOM.cachingToggleBtn.checked = data.disableCache || false;
+    showTokenHelpLink(data.gitlabUrl, data.gitlabToken);
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_LOADED, error);
   }
-}
+};
 
 /**
- * Binds event listeners to UI elements.
+ * Attaches all event listeners to the DOM elements.
  */
-function setupEventListeners() {
+const setupEventListeners = () => {
   DOM.toggleBtn.addEventListener("click", toggleTokenVisibility);
-  DOM.saveButton.addEventListener(
-    "click",
-    async () =>
-      await saveOptions({
-        token: DOM.tokenInput.value,
-        url: DOM.urlInput.value,
-      })
-  );
+  DOM.saveButton.addEventListener("click", saveGitlabOptions);
   DOM.cacheClearButton.addEventListener("click", clearCache);
-  DOM.clearProjectsButton.addEventListener("click", async () => {
-    try {
-      resetCache(CacheKeys.PROJECTS); // Clear the projects cache
-      showAlert(LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED);
-    } catch (error) {
-      handleError(LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED, error);
-    }
-  });
-  DOM.clearAssigneesButton.addEventListener("click", async () => {
-    try {
-      resetCache(CacheKeys.ASSIGNEES); // Clear the assignees cache
-
-      showAlert(LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED);
-    } catch (error) {
-      handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED, error);
-    }
-  });
-
-  DOM.assigneesToggleBtn.addEventListener("change", async (event) => {
-    const isChecked = event.target.checked;
-    try {
-      await browser.storage.local.set({
-        enableAssigneeLoading: isChecked,
-      });
-
-      // Show alert based on the language and state;
-      const messageKey = isChecked
-        ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
-        : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
-
-      showAlert(messageKey);
-
-      // Notify background script or other parts of the extension about the update
-      browser.runtime.sendMessage({
-        type: MessageTypes.SETTINGS_UPDATED,
-        enableAssigneeLoading: isChecked,
-      });
-    } catch (error) {
-      handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_SAVED, error);
-    }
-  });
-}
+  DOM.clearProjectsButton.addEventListener("click", () =>
+    resetSpecificCache(CacheKeys.PROJECTS, LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED, LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED)
+  );
+  DOM.clearAssigneesButton.addEventListener("click", () =>
+    resetSpecificCache(CacheKeys.ASSIGNEES, LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED, LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED)
+  );
+  DOM.assigneesToggleBtn.addEventListener("change", (e) => saveAssigneeToggle(e.target.checked));
+  DOM.cachingToggleBtn.addEventListener("change", (e) => saveDisableCacheSetting(e.target.checked));
+};
 
 /**
- * Initializes the settings user interface.
- * - Gets references to DOM elements.
- * - Loads existing settings.
- * - Sets up event listeners.
+ * Initializes the options UI by mapping DOM elements, loading settings, and attaching listeners.
  */
-async function initSettingsUI() {
-  // Get DOM references once
-  DOM.urlInput = document.getElementById("gitlabUrl");
-  DOM.tokenInput = document.getElementById("gitlabToken");
-  DOM.eyeIcon = document.getElementById("eyeIcon");
-  DOM.toggleBtn = document.getElementById("toggleVisibility");
-  DOM.saveButton = document.getElementById("save");
-
-  DOM.assigneesToggleBtn = document.getElementById("enableAssigneeLoading"); // Checkbox to enable/disable assignee loading
-
-  // Cache clear buttons
-  DOM.cacheClearButton = document.getElementById("clearCacheBtn");
-  DOM.clearProjectsButton = document.getElementById("clearProjectsBtn");
-  DOM.clearAssigneesButton = document.getElementById("clearAssigneesBtn");
-
-  DOM.tokenHelpLink = document.getElementById("tokenHelpLink");
-
+const initSettingsUI = async () => {
+  const map = [
+    ["urlInput", "gitlabUrl"],
+    ["tokenInput", "gitlabToken"],
+    ["eyeIcon", "eyeIcon"],
+    ["toggleBtn", "toggleVisibility"],
+    ["saveButton", "save"],
+    ["assigneesToggleBtn", "enableAssigneeLoading"],
+    ["cachingToggleBtn", "disableCache"],
+    ["cacheClearButton", "clearCacheBtn"],
+    ["clearProjectsButton", "clearProjectsBtn"],
+    ["clearAssigneesButton", "clearAssigneesBtn"],
+    ["tokenHelpLink", "tokenHelpLink"],
+  ];
+  map.forEach(([key, id]) => (DOM[key] = document.getElementById(id)));
   await loadInitialSettings();
   setupEventListeners();
-}
+};
 
-// Ensure the DOM is fully loaded before initializing the UI
 document.addEventListener("DOMContentLoaded", initSettingsUI);

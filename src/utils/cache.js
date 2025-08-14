@@ -1,11 +1,16 @@
 const cachePrefix = "cache_";
 
+function isCachingDisabled() {
+  return browser.storage.local.get("disableCache") || false;
+}
+
 /**
  * Sets or updates a cache entry.
  * @param {string} key
  * @param {*} data
  */
 export function setCache(key, data) {
+  if (isCachingDisabled()) return;
   localStorage.setItem(
     `${cachePrefix}${key}`,
     JSON.stringify({ data, timestamp: Date.now() })

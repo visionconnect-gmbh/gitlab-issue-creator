@@ -51,6 +51,18 @@
     "message": "Zuständigen-Laden deaktiviert.",
     "description": "Response for disabled assignee loading."
   },
+  "OptionsAlertDisableCache": {
+    "message": "Möchten Sie den Cache deaktivieren? Dies kann die Erweiterung verlangsamen und die Anzahl der Netzwerkanfragen erhöhen.",
+    "description": "Response for disabled cache."
+  },
+  "OptionsAlertCacheDisabled": {
+    "message": "Cache ist nun deaktiviert.",
+    "description": "Response for disabled cache."
+  },
+  "OptionsAlertCacheEnabled": {
+    "message": "Cache ist nun aktiviert.",
+    "description": "Response for enabled cache."
+  },
   "OptionsErrorOptionsLoaded": {
     "message": "Fehler beim Laden der Einstellungen!",
     "description": "Error for not loaded options."
@@ -99,6 +111,14 @@
     "message": "Privater GitLab Access Token",
     "description": "Label for private GitLab access token."
   },
+  "OptionsLabelEnableAssigneeLoading": {
+    "message": "Zuständige laden",
+    "description": "Label for add loading of assignees."
+  },
+  "OptionsLabelDisableCache": {
+    "message": "Cache deaktivieren",
+    "description": "Label for disable caching."
+  },
   "OptionsTitleTokenLink": {
     "message": "Access Token erstellen",
     "description": "Title for access token link."
@@ -107,13 +127,13 @@
     "message": "Öffne die Seite für persönliche Tokens, erstelle einen neuen mit api-Recht, kopiere ihn und füge ihn hier ein.",
     "description": "Tooltip for access token link."
   },
+  "OptionsTooltipDisableCache": {
+    "message": "Aktiviert: Cache deaktivieren. Deaktiviert: Cache aktivieren.",
+    "description": "Tooltip for disable caching."
+  },
   "OptionsTitleAdditionalOptions": {
     "message": "Weitere Optionen",
     "description": "Title for additional options."
-  },
-  "OptionsLabelEnableAssigneeLoading": {
-    "message": "Zuständige laden",
-    "description": "Label for add loading of assignees."
   },
   "OptionsTooltipEnableAssigneeLoading": {
     "message": "Aktiviert: Projekt-Zuständige laden. Deaktiviert: Nur dich setzen.",

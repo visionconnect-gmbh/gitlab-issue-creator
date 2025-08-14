@@ -51,6 +51,18 @@
         "message": "Assignee loading disabled.",
         "description": "Response for disabled assignee loading."
     },
+    "OptionsAlertDisableCache": {
+        "message": "Do you want to disable the cache? This may slow down the extension and increase network requests.",
+        "description": "Response for disabled cache."
+    },
+    "OptionsAlertCacheDisabled": {
+        "message": "Cache is now disabled.",
+        "description": "Response for disabled cache."
+    },
+    "OptionsAlertCacheEnabled": {
+        "message": "Cache is now enabled.",
+        "description": "Response for enabled cache."
+    },
     "OptionsErrorOptionsLoaded": {
         "message": "Error loading options!",
         "description": "Error for not loaded options."
@@ -99,6 +111,14 @@
         "message": "Private GitLab Access Token",
         "description": "Label for private GitLab access token."
     },
+    "OptionsLabelEnableAssigneeLoading": {
+        "message": "Load Assignees",
+        "description": "Label for add loading of assignees."
+    },
+    "OptionsLabelDisableCache": {
+        "message": "Disable Caching",
+        "description": "Label for disable caching."
+    },
     "OptionsTitleTokenLink": {
         "message": "Create Access Token",
         "description": "Title for access token link."
@@ -107,13 +127,13 @@
         "message": "Open the personal token page, create a new one with API scope, copy it, and paste it here.",
         "description": "Tooltip for access token link."
     },
+    "OptionsTooltipDisableCache": {
+        "message": "Enabled: Disable caching. Disabled: Enable caching.",
+        "description": "Tooltip for disable caching."
+    },
     "OptionsTitleAdditionalOptions": {
         "message": "Additional Options",
         "description": "Title for additional options."
-    },
-    "OptionsLabelEnableAssigneeLoading": {
-        "message": "Load Assignees",
-        "description": "Label for add loading of assignees."
     },
     "OptionsTooltipEnableAssigneeLoading": {
         "message": "Enabled: Load project assignees. Disabled: Assign only yourself.",

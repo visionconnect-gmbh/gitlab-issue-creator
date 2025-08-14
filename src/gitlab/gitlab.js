@@ -64,6 +64,12 @@ export async function getCurrentUser() {
     const user = await apiGet("/api/v4/user", {
       headers: { "PRIVATE-TOKEN": settings.gitlabToken },
     });
+
+    if (!user) {
+      console.warn("No user found, or error with API");
+      return null;
+    }
+
     // cache user
     setCache(CacheKeys.CURRENT_USER, user, USER_CACHE_TTL);
     return user;
@@ -111,12 +117,12 @@ export async function getProjects(onUpdate) {
       );
 
       if (!fetched) {
-        console.warn("Keine Projekte gefunden oder API-Fehler.");
+        console.warn("No Projects found, or error with API");
         break;
       }
 
       if (!Array.isArray(fetched)) {
-        console.warn("Unerwartete Antwort:", fetched);
+        console.warn("Unexpected response:", fetched);
         break;
       }
 

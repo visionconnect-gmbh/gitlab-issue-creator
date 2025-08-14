@@ -34,11 +34,6 @@ export async function doRequest(endpoint, options = {}, addContentType = true) {
     }
   }
 
-  // Remove trailing slash from API_BASE_URL if it exists
-  if (API_BASE_URL.endsWith("/")) {
-    API_BASE_URL = API_BASE_URL.slice(0, -1);
-  }
-
   const headers = {
     ...(addContentType ? { "Content-Type": "application/json" } : {}),
     ...(options.headers || {}),

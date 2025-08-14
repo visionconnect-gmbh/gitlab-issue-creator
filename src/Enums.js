@@ -16,6 +16,11 @@ export const CacheKeys = Object.freeze({
 });
 
 export const LocalizeKeys = Object.freeze({
+  EXTENSION: {
+    NAME: 'ExtensionName',
+    DESCRIPTION: 'ExtensionDescription'
+  },
+
   BROWSER: {
     ACTION_TITLE: 'BrowserActionTitle'
   },

@@ -174,9 +174,11 @@ async function saveOptions(data) {
   }
 
   try {
+    const fixedUrl = trimmedUrl.endsWith("/") ? trimmedUrl.slice(0, -1) : trimmedUrl;
+
     await browser.storage.local.set({
       gitlabToken: trimmedToken,
-      gitlabUrl: trimmedUrl,
+      gitlabUrl: fixedUrl,
     });
     showTokenHelpLink(trimmedUrl, trimmedToken);
     showAlert(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
@@ -208,7 +210,7 @@ async function clearCache() {
  */
 async function loadInitialSettings() {
   try {
-    await localizeHtmlPage();
+    localizeHtmlPage();
     const { gitlabToken } = await browser.storage.local.get("gitlabToken");
     DOM.tokenInput.value = gitlabToken || "";
 

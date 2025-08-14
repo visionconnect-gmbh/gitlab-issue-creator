@@ -250,9 +250,30 @@ function remapDateAndAuthorLines(messages, dateLines) {
 }
 
 function getSignatureIndex(message) {
-  const signatureRegex = /^(?:--\s*$|^\s*__\s*$)/m;
-  const match = message.match(signatureRegex);
-  return match ? message.indexOf(match[0]) : -1;
+  // Normalize line endings
+  const normalized = message.replace(/\r\n/g, "\n");
+
+  // Thunderbird default plain text separator
+  const tbPlainSeparator = /^-- $/m;
+
+  // Thunderbird default in HTML (allowing <br>, <div>, <pre>)
+  const tbHtmlSeparator = /(?:<br\s*\/?>|<\/div>|<\/pre>)?\s*--\s*(?:<br\s*\/?>|<\/div>|<\/pre>)/i;
+
+  // Fallback generic separators: __, ==, or repeated punctuation lines
+  const genericSeparator = /^(?:--\s*$|__\s*$|([^\w\s])\1{2,}\s*)$/m;
+
+  let match;
+  if ((match = normalized.match(tbPlainSeparator))) {
+    return normalized.indexOf(match[0]);
+  }
+  if ((match = normalized.match(tbHtmlSeparator))) {
+    return normalized.indexOf(match[0]);
+  }
+  if ((match = normalized.match(genericSeparator))) {
+    return normalized.indexOf(match[0]);
+  }
+
+  return -1;
 }
 
 function removeSignature(message) {

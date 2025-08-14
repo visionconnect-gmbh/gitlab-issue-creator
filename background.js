@@ -212,7 +212,6 @@ async function getMessage() {
 }
 
 function closePopup() {
-  console.log("Closing popup window:", popupWindowId);
   if (popupWindowId) {
     browser.windows.remove(popupWindowId).catch((err) => {
       console.warn("Error closing popup:", err);

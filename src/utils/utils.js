@@ -1,11 +1,14 @@
-import { MessageTypes } from "../Enums";
+import { LocalizeKeys, MessageTypes } from "../Enums";
 
 /**
  * Displays a browser notification.
  * @param {string} title The title of the notification.
  * @param {string} message The message content of the notification.
  */
-async function displayNotification(message, title = "GitLab Issue Creator") {
+async function displayNotification(message, title = null) {
+  if (!title) {
+    title = browser.i18n.getMessage(LocalizeKeys.EXTENSION.NAME) || "GitLab Issue Creator";
+  }
   const notificationId = await browser.notifications.create({
     type: "basic",
     iconUrl: browser.runtime.getURL("icons/icon-48px.png"),
@@ -42,16 +45,20 @@ export async function displayLocalizedNotification(
 export function openOptionsPage() {
   browser.runtime.openOptionsPage().catch((error) => {
     console.error("Error opening options page:", error);
-    displayNotification("GitLab Ticket Addon", "Fehler beim Öffnen der Einstellungen.");
+    displayNotification("Error opening options page: " + error.message);
   });
 }
 
 export function closePopup() {
   // Close the popup by sending a message to the background script
-  browser.runtime.sendMessage({ type: MessageTypes.CLOSE_POPUP }).catch((error) => {
-    console.error("Error closing popup:", error);
-    displayNotification("Error closing popup: " + error.message);
-  });
+  browser.runtime
+    .sendMessage({ type: MessageTypes.CLOSE_POPUP })
+    .catch((err) => {
+      if (!/Receiving end does not exist/i.test(err.message)) {
+        console.error("Error closing popup:", err);
+        displayNotification("Error closing popup: " + err.message);
+      }
+    });
 }
 
 export function getUILanguage() {

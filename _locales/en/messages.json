@@ -1,9 +1,9 @@
 {
-    "extensionName": {
+    "ExtensionName": {
         "message": "GitLab Issue Creator",
         "description": "Name of the extension."
     },
-    "extensionDescription": {
+    "ExtensionDescription": {
         "message": "Creates GitLab Issues from emails.",
         "description": "Description of the extension."
     },

@@ -18,9 +18,6 @@ const EXCLUDE_PATTERNS = [
   "src_zips",
   ".git",
   "*.zip",
-  "package-lock.json",
-  "rollup.config.mjs",
-  "build.js",
 ];
 
 /**

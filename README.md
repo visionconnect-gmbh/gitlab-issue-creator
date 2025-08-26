@@ -13,17 +13,26 @@ Dieses kleine Thunderbird Add-on ermöglicht, **GitLab-Issues direkt aus E-Mails
 
 ## Installation
 
-### Für Alle:
+### Hauptweg: Direkt in Thunderbird
 
-**(Offizielle Ankündigung folgt noch)**
-Bis dahin bitte so vorgehen:
-
-1. Die aktuellste ZIP-Datei aus dem Repository herunterladen.
-2. In Thunderbird oben rechts auf das Hamburger-Menü klicken.
+1. Thunderbird öffnen.
+2. Oben rechts das Hamburger-Menü öffnen.
 3. „Add-ons und Themes“ auswählen.
-4. Das Zahnrad-Symbol (⚙️) anklicken.
-5. „Add-on aus Datei installieren“ auswählen.
-6. Die zuvor heruntergeladene ZIP-Datei auswählen und installieren.
+4. Im Suchfeld **GitLab Issue Creator** eingeben.
+5. Den Treffer **GitLab Issue Creator** öffnen.
+6. Auf **Zu Thunderbird hinzufügen** klicken.
+7. Hinzufügen bestätigen
+
+### Alternative: Installation aus Datei
+
+1. Add-on-Seite öffnen: [GitLab Issue Creator](https://addons.thunderbird.net/de/thunderbird/addon/gitlab-issue-creator)
+2. Die Datei herunterladen.
+3. In Thunderbird oben rechts das Hamburger-Menü öffnen.
+4. „Add-ons und Themes“ auswählen.
+5. Das Zahnrad-Symbol (⚙️) anklicken.
+6. **Add-on aus Datei installieren** wählen.
+7. Die heruntergeladene Datei auswählen und installieren.
+8. Thunderbird neu starten, falls danach gefragt wird.
 
 ### Für die Entwickler (zum Testen)
 
@@ -62,4 +71,3 @@ Vor der ersten Verwendung werdet ihr aufgefordert die Gitlab URL, sowie einen pe
 
   * **Abhängigkeiten installieren:** `npm install`
   * **Projekt bauen:** `npm run build`
-  * **Automatisch bauen bei Änderungen:** `npm run watch`

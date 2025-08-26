@@ -12,17 +12,26 @@ This small Thunderbird add-on allows you to **create GitLab issues directly from
 
 ## Installation
 
-### For everyone:
+### Main Method: Install directly in Thunderbird
 
-**(Official announcement coming soon)**
-Until then, please follow these steps:
+1. Open Thunderbird.
+2. Click the hamburger menu in the top right.
+3. Select **Add-ons and Themes**.
+4. Enter **GitLab Issue Creator** in the search bar.
+5. Open the **GitLab Issue Creator** entry.
+6. Click **Add to Thunderbird**.
+7. Confirm addition
 
-1. Download the latest ZIP file from the repository.
-2. Click the hamburger menu in the top-right corner of Thunderbird.
-3. Choose “Add-ons and Themes”.
-4. Click the gear icon (⚙️).
-5. Select “Install Add-on From File”.
-6. Choose and install the previously downloaded ZIP file.
+### Alternative: Install from file
+
+1. Open the add-on page: [GitLab Issue Creator](https://addons.thunderbird.net/en-US/thunderbird/addon/gitlab-issue-creator)
+2. Download the file.
+3. In Thunderbird, click the hamburger menu in the top right.
+4. Select **Add-ons and Themes**.
+5. Click the gear icon (⚙️).
+6. Choose **Install Add-on From File**.
+7. Select the downloaded file and install it.
+8. Restart Thunderbird if prompted.
 
 ### For developers (testing)
 
@@ -60,4 +69,3 @@ The first time you use it, you'll be asked to provide the GitLab URL and a perso
 
 * **Install dependencies:** `npm install`
 * **Build the project:** `npm run build`
-* **Auto-build on changes:** `npm run watch`

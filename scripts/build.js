@@ -15,6 +15,7 @@ const EXCLUDE_PATTERNS = [
   "*.zip", // Exclude any existing zip files
   "temp_build", // Exclude the temporary build directory
   "builds", // Exclude the builds directory
+  "src_zips",
   ".git",
   ".gitignore",
   "package.json",

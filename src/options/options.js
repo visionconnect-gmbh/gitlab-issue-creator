@@ -33,8 +33,11 @@ const state = {
  * @param {string} [messageKey] - Localization key for the message.
  */
 const alertMessage = (messageKey) => {
-  const message = browser.i18n.getMessage(messageKey || LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
-  if (!message) console.warn(`No localized message found for ID: ${messageKey}`);
+  const message = browser.i18n.getMessage(
+    messageKey || LocalizeKeys.NOTIFICATION.GENERIC_ERROR
+  );
+  if (!message)
+    console.warn(`No localized message found for ID: ${messageKey}`);
   else alert(message);
 };
 
@@ -59,7 +62,9 @@ const isValidUrl = (url) => {
   const pattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/;
   if (!pattern.test(trimmed)) return false;
   try {
-    const parsed = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+    const parsed = new URL(
+      trimmed.startsWith("http") ? trimmed : `https://${trimmed}`
+    );
     return ["http:", "https:"].includes(parsed.protocol) && !!parsed.hostname;
   } catch {
     return false;
@@ -114,7 +119,10 @@ const showTokenHelpLink = (gitlabUrl, gitlabToken) => {
 const toggleTokenVisibility = () => {
   state.isTokenVisible = !state.isTokenVisible;
   DOM.tokenInput.type = state.isTokenVisible ? "text" : "password";
-  DOM.eyeIcon.setAttribute("d", state.isTokenVisible ? SVG_PATH.EYE_OPEN : SVG_PATH.EYE_CLOSED);
+  DOM.eyeIcon.setAttribute(
+    "d",
+    state.isTokenVisible ? SVG_PATH.EYE_OPEN : SVG_PATH.EYE_CLOSED
+  );
 };
 
 /**
@@ -123,18 +131,26 @@ const toggleTokenVisibility = () => {
 const saveGitlabOptions = async () => {
   const token = DOM.tokenInput.value.trim();
   const url = DOM.urlInput.value.trim();
-  if (!url || !isValidUrl(url)) return alertMessage(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
-  if (!(await isUrlReachable(url))) return alertMessage(LocalizeKeys.OPTIONS.ERRORS.UNREACHABLE_URL);
+  if (!url || !isValidUrl(url))
+    return alertMessage(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
+  if (!(await isUrlReachable(url)))
+    return alertMessage(LocalizeKeys.OPTIONS.ERRORS.UNREACHABLE_URL);
   if (!token) {
     showTokenHelpLink(url, token);
     return alertMessage(LocalizeKeys.OPTIONS.ALERTS.ADD_GITLAB_TOKEN);
   }
   try {
     const fixedUrl = url.endsWith("/") ? url.slice(0, -1) : url;
-    await browser.storage.local.set({ gitlabToken: token, gitlabUrl: fixedUrl });
+    await browser.storage.local.set({
+      gitlabToken: token,
+      gitlabUrl: fixedUrl,
+    });
     showTokenHelpLink(url, token);
     alertMessage(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
-    browser.runtime.sendMessage({ type: MessageTypes.SETTINGS_UPDATED, url: fixedUrl });
+    browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      url: fixedUrl,
+    });
     window.close();
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_SAVED, error);
@@ -174,7 +190,9 @@ const resetSpecificCache = async (key, successMsg, errorMsg) => {
  */
 const saveDisableCacheSetting = async (isDisabled) => {
   if (isDisabled) {
-    const message = browser.i18n.getMessage(LocalizeKeys.OPTIONS.ALERTS.DISABLE_CACHE);
+    const message = browser.i18n.getMessage(
+      LocalizeKeys.OPTIONS.ALERTS.DISABLE_CACHE
+    );
     const confirmed = confirm(message);
     if (!confirmed) {
       DOM.cachingToggleBtn.checked = false;
@@ -188,7 +206,10 @@ const saveDisableCacheSetting = async (isDisabled) => {
         ? LocalizeKeys.OPTIONS.ALERTS.CACHE_DISABLED
         : LocalizeKeys.OPTIONS.ALERTS.CACHE_ENABLED
     );
-    browser.runtime.sendMessage({ type: MessageTypes.SETTINGS_UPDATED, disableCache: isDisabled });
+    browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      disableCache: isDisabled,
+    });
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.CACHE_UPDATE, error);
   }
@@ -205,7 +226,10 @@ const saveAssigneeToggle = async (isChecked) => {
       ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
       : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
     alertMessage(msgKey);
-    browser.runtime.sendMessage({ type: MessageTypes.SETTINGS_UPDATED, enableAssigneeLoading: isChecked });
+    browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      enableAssigneeLoading: isChecked,
+    });
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_SAVED, error);
   }
@@ -217,7 +241,12 @@ const saveAssigneeToggle = async (isChecked) => {
 const loadInitialSettings = async () => {
   try {
     localizeHtmlPage();
-    const keys = ["gitlabToken", "gitlabUrl", "enableAssigneeLoading", "disableCache"];
+    const keys = [
+      "gitlabToken",
+      "gitlabUrl",
+      "enableAssigneeLoading",
+      "disableCache",
+    ];
     const data = await browser.storage.local.get(keys);
     DOM.tokenInput.value = data.gitlabToken || "";
     DOM.urlInput.value = data.gitlabUrl || "";
@@ -237,13 +266,25 @@ const setupEventListeners = () => {
   DOM.saveButton.addEventListener("click", saveGitlabOptions);
   DOM.cacheClearButton.addEventListener("click", clearCache);
   DOM.clearProjectsButton.addEventListener("click", () =>
-    resetSpecificCache(CacheKeys.PROJECTS, LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED, LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED)
+    resetSpecificCache(
+      CacheKeys.PROJECTS,
+      LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED,
+      LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED
+    )
   );
   DOM.clearAssigneesButton.addEventListener("click", () =>
-    resetSpecificCache(CacheKeys.ASSIGNEES, LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED, LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED)
+    resetSpecificCache(
+      CacheKeys.ASSIGNEES,
+      LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED,
+      LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED
+    )
   );
-  DOM.assigneesToggleBtn.addEventListener("change", (e) => saveAssigneeToggle(e.target.checked));
-  DOM.cachingToggleBtn.addEventListener("change", (e) => saveDisableCacheSetting(e.target.checked));
+  DOM.assigneesToggleBtn.addEventListener("change", (e) =>
+    saveAssigneeToggle(e.target.checked)
+  );
+  DOM.cachingToggleBtn.addEventListener("change", (e) =>
+    saveDisableCacheSetting(e.target.checked)
+  );
 };
 
 /**

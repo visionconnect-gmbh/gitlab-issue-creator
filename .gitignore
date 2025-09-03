@@ -4,3 +4,4 @@ builds/
 *_prototype.js
 src_temp/
 src_zips/
+*.zip

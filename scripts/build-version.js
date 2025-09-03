@@ -2,8 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
-// rest of your code unchanged
-
 const ROOT_DIR = process.cwd();
 const MANIFEST_PATH = path.join(ROOT_DIR, "manifest.json");
 const BUILD_SCRIPT = path.join(ROOT_DIR, "scripts", "build.js");
@@ -26,16 +24,13 @@ function bumpVersion(version, level) {
       minor = 0;
       patch = 0;
       break;
-
     case "minor":
       minor++;
       patch = 0;
       break;
-
     case "patch":
       patch++;
       break;
-
     default:
       throw new Error(
         `Invalid version level: ${level}. Use major, minor, or patch.`
@@ -73,28 +68,28 @@ function main() {
 
   runScript(BUILD_SCRIPT, "build script");
 
-  // Delete old zip in root of project
+  // Clean up old zip in builds folder
   const oldZipPath = path.join(
     ROOT_DIR,
+    "builds",
     `gitlab-issue-creator-${currentVersion}.zip`
   );
   if (fs.existsSync(oldZipPath)) {
     fs.unlinkSync(oldZipPath);
     console.log(`Deleted old zip file: ${oldZipPath}`);
   }
-  // Move the new zip to the root of the project
-  const newZipPath = path.join(
-    ROOT_DIR,
-    `gitlab-issue-creator-${newVersion}.zip`
-  );
+
+  // Just ensure new zip exists in builds folder
   const buildZipPath = path.join(
     ROOT_DIR,
     "builds",
     `gitlab-issue-creator-${newVersion}.zip`
   );
   if (fs.existsSync(buildZipPath)) {
-    fs.renameSync(buildZipPath, newZipPath);
-    console.log(`Moved new zip file: → ${newZipPath}`);
+    console.log(`New zip file ready: ${buildZipPath}`);
+  } else {
+    console.error(`Expected zip not found: ${buildZipPath}`);
+    process.exit(1);
   }
 
   runScript(BUMP_VERSION_SCRIPT, "bump-version script", [level]);

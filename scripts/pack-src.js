@@ -96,7 +96,7 @@ async function packSource() {
     const manifest = JSON.parse(fs.readFileSync(path.join(SRC_TEMP_DIR, "manifest.json")));
     if (manifest.version) version = `v${manifest.version}`;
   } catch {
-    console.warn("⚠️  No valid manifest.json found – using 'src' as version label.");
+    console.warn("! No valid manifest.json found - using 'src' as version label.");
   }
 
   const zipName = `${ADDON_NAME}-source-${version}.zip`;

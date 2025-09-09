@@ -6,3 +6,4 @@ src_temp/
 src_zips/
 *.zip
 package-lock.json
+.env

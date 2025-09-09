@@ -9,9 +9,6 @@
     "version:major": "node scripts/bump-version.js major",
     "build:dev": "npm i && rollup -c",
     "build": "npm i && node scripts/build.js",
-    "build:version:patch": "npm i && node scripts/build-version.js patch",
-    "build:version:minor": "npm i && node scripts/build-version.js minor",
-    "build:version:major": "npm i && node scripts/build-version.js major",
     "packSrc": "node scripts/pack-src.js"
   },
   "keywords": [],
@@ -26,6 +23,7 @@
   "dependencies": {
     "archiver": "^7.0.1",
     "easymde": "^2.20.0",
+    "jsonwebtoken": "^9.0.2",
     "rimraf": "^6.0.1"
   }
 }

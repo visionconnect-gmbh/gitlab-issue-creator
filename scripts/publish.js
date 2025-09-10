@@ -8,7 +8,9 @@ const API_BASE = "https://addons.thunderbird.net/api/v5/addons";
 // --- Command line test mode ---
 const TEST_MODE = process.argv[2] === "test";
 
-// --- JWT helper ---
+/**
+ * Creates a JWT for AMO authentication
+ */
 function createJWT() {
   const issuedAt = Math.floor(Date.now() / 1000);
   return jwt.sign(
@@ -16,14 +18,16 @@ function createJWT() {
       iss: process.env.AMO_ISSUER,
       jti: Math.random().toString(),
       iat: issuedAt,
-      exp: issuedAt + 60,
+      exp: issuedAt + 60, // valid 1 minute
     },
     process.env.AMO_SECRET,
     { algorithm: "HS256" }
   );
 }
 
-// --- Upload build (.xpi/.zip) and get UUID ---
+/**
+ * Uploads a build file and returns the UUID
+ */
 async function uploadBuild(buildPath) {
   const jwtToken = createJWT();
   const form = new FormData();
@@ -45,10 +49,11 @@ async function uploadBuild(buildPath) {
   return data.uuid;
 }
 
-// --- Wait for build validation ---
+/**
+ * Waits until the uploaded build is validated
+ */
 async function waitForValidation(uuid) {
   const jwtToken = createJWT();
-
   while (true) {
     await new Promise((r) => setTimeout(r, 3000));
     const res = await fetch(`${API_BASE}/upload/${uuid}/`, {
@@ -60,7 +65,6 @@ async function waitForValidation(uuid) {
       console.log("Validation passed.");
       return;
     }
-
     if (data.processed && !data.valid) {
       console.error("Validation failed:", data);
       process.exit(1);
@@ -70,7 +74,9 @@ async function waitForValidation(uuid) {
   }
 }
 
-// --- Create version (JSON) ---
+/**
+ * Creates a new version in AMO
+ */
 async function createVersion(uuid, changelog) {
   const jwtToken = createJWT();
 
@@ -105,7 +111,9 @@ async function createVersion(uuid, changelog) {
   return data.version;
 }
 
-// --- Upload source ZIP (optional) ---
+/**
+ * Uploads the source zip file
+ */
 async function uploadSource(versionNumber, sourcePath) {
   if (!sourcePath) return;
 
@@ -130,7 +138,9 @@ async function uploadSource(versionNumber, sourcePath) {
   console.log("Source uploaded successfully.");
 }
 
-// --- Main orchestration ---
+/**
+ * Main orchestration
+ */
 (async () => {
   const buildsDir = path.join(process.cwd(), "builds");
   const srcDir = path.join(process.cwd(), "src_zips");
@@ -149,12 +159,12 @@ async function uploadSource(versionNumber, sourcePath) {
     .sort()
     .pop();
 
-  const changelog = fs.readFileSync("CHANGELOG.md", "utf8");
-
   if (!buildZip) {
-    console.error("Build file not found!");
+    console.error("No build file found!");
     process.exit(1);
   }
+
+  const changelog = fs.readFileSync("CHANGELOG.md", "utf8");
 
   console.log("Uploading build...");
   const uploadUuid = await uploadBuild(buildZip);
@@ -166,9 +176,9 @@ async function uploadSource(versionNumber, sourcePath) {
   const versionNumber = await createVersion(uploadUuid, changelog);
 
   if (sourceZip) {
-    console.log("Uploading source...");
+    console.log("Uploading source zip...");
     await uploadSource(versionNumber, sourceZip);
   }
 
-  console.log("Publish script completed successfully.");
+  console.log("Publish completed successfully!");
 })();

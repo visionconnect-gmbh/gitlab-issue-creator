@@ -1,5 +1,5 @@
 // popup/handlers.js
-import { MessageTypes, LocalizeKeys } from "../../Enums.js";
+import { MessageTypes, LocalizeKeys } from "../../utils/Enums.js";
 import { displayLocalizedNotification } from "../../utils/utils.js";
 import {
   uploadAttachmentToGitLab,

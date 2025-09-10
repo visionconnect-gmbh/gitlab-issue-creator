@@ -5,7 +5,7 @@ import {
   selectedAssigneeId,
 } from "./state.js";
 
-import { LocalizeKeys } from "../../Enums.js";
+import { LocalizeKeys } from "../../utils/Enums.js";
 
 export function renderProjectSuggestions() {
   elements.projectSuggestions.replaceChildren();

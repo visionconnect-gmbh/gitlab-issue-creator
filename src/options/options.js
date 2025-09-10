@@ -1,5 +1,5 @@
-import { MessageTypes, CacheKeys, LocalizeKeys } from "../Enums.js";
-import { localizeHtmlPage } from "../localize.js";
+import { MessageTypes, CacheKeys, LocalizeKeys } from "../utils/Enums.js";
+import { localizeHtmlPage } from "../utils/localize.js";
 import { clearAllCache, resetCache } from "../utils/cache.js";
 
 /**
@@ -53,19 +53,25 @@ const handleError = (messageKey, error) => {
 };
 
 /**
- * Validates a URL string.
- * @param {string} url - The URL to validate.
- * @returns {boolean} True if valid URL, false otherwise.
+ * Validates and normalizes a URL string.
+ * If no protocol is given, defaults to https://
+ * @param {string} url
+ * @returns {string|false} Normalized URL if valid, false otherwise.
  */
-const isValidUrl = (url) => {
+const normalizeUrl = (url) => {
   const trimmed = url.trim();
   const pattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/;
+
   if (!pattern.test(trimmed)) return false;
+
   try {
     const parsed = new URL(
       trimmed.startsWith("http") ? trimmed : `https://${trimmed}`
     );
-    return ["http:", "https:"].includes(parsed.protocol) && !!parsed.hostname;
+    if (["http:", "https:"].includes(parsed.protocol) && !!parsed.hostname) {
+      return parsed.href.replace(/\/$/, ""); // normalized, no trailing slash
+    }
+    return false;
   } catch {
     return false;
   }
@@ -130,26 +136,29 @@ const toggleTokenVisibility = () => {
  */
 const saveGitlabOptions = async () => {
   const token = DOM.tokenInput.value.trim();
-  const url = DOM.urlInput.value.trim();
-  if (!url || !isValidUrl(url))
+  const normalizedUrl = normalizeUrl(DOM.urlInput.value);
+
+  if (!normalizedUrl)
     return alertMessage(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
-  if (!(await isUrlReachable(url)))
+
+  if (!(await isUrlReachable(normalizedUrl)))
     return alertMessage(LocalizeKeys.OPTIONS.ERRORS.UNREACHABLE_URL);
+
   if (!token) {
-    showTokenHelpLink(url, token);
+    showTokenHelpLink(normalizedUrl, token);
     return alertMessage(LocalizeKeys.OPTIONS.ALERTS.ADD_GITLAB_TOKEN);
   }
+
   try {
-    const fixedUrl = url.endsWith("/") ? url.slice(0, -1) : url;
     await browser.storage.local.set({
       gitlabToken: token,
-      gitlabUrl: fixedUrl,
+      gitlabUrl: normalizedUrl,
     });
-    showTokenHelpLink(url, token);
+    showTokenHelpLink(normalizedUrl, token);
     alertMessage(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
     browser.runtime.sendMessage({
       type: MessageTypes.SETTINGS_UPDATED,
-      url: fixedUrl,
+      url: normalizedUrl,
     });
     window.close();
   } catch (error) {

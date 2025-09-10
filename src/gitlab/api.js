@@ -1,4 +1,4 @@
-import { LocalizeKeys } from "../Enums";
+import { LocalizeKeys } from "../utils/Enums";
 import {
   closePopup,
   displayLocalizedNotification,

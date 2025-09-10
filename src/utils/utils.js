@@ -1,4 +1,4 @@
-import { LocalizeKeys, MessageTypes } from "../Enums";
+import { LocalizeKeys, MessageTypes } from "./Enums";
 
 /**
  * Displays a browser notification.

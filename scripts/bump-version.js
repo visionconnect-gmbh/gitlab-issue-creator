@@ -1,103 +1,54 @@
-const { execSync } = require("child_process");
 const fs = require("fs");
+const { runCommand } = require("./utils/utils");
 
-// --- Configuration ---
 const VERSION_TYPES = ["patch", "minor", "major"];
 const MANIFEST_FILE = "manifest.json";
 
-// --- Helper Function for Executing Shell Commands ---
-/**
- * Executes a shell command synchronously and handles errors.
- * @param {string} command The command to execute.
- * @param {string} errorMessage The message to display if the command fails.
- * @returns {string} The trimmed stdout from the command.
- */
-function runCommand(command, errorMessage) {
-  try {
-    return execSync(command, { stdio: "pipe" }).toString().trim();
-  } catch (error) {
-    console.error(`${errorMessage}:`, error.message);
-    process.exit(1);
-  }
-}
-
-// --- Main Script Logic ---
 async function main() {
   const type = process.argv[2];
-
-  // 1. Validate Version Type
   if (!VERSION_TYPES.includes(type)) {
     console.error(
-      `Ungültiger Versionstyp: "${type}"\nErlaubt sind: ${VERSION_TYPES.join(
-        ", "
-      )}`
+      `Invalid version type "${type}", allowed: ${VERSION_TYPES.join(", ")}`
     );
     process.exit(1);
   }
 
-  console.log(`Berechne neue ${type}-Version...`);
-
-  // 2. Determine New Version
-  // Use --no-git-tag-version to prevent npm from creating a git tag immediately
+  console.log(`Calculating new ${type} version...`);
   const newVersion = runCommand(
     `npm version ${type} --no-git-tag-version`,
-    "Fehler beim Ermitteln der neuen Version"
+    "Error determining version"
   );
-  console.log(`Neue Version ermittelt: ${newVersion}`);
+  console.log(`New version: ${newVersion}`);
 
-  // 3. Update manifest.json
+  // Update manifest.json
   try {
     const manifest = JSON.parse(fs.readFileSync(MANIFEST_FILE, "utf8"));
-    manifest.version = newVersion.replace(/^v/, ""); // Remove 'v' prefix if present, common with npm version output
+    manifest.version = newVersion.replace(/^v/, "");
     fs.writeFileSync(MANIFEST_FILE, JSON.stringify(manifest, null, 2), "utf8");
-    console.log(
-      `${MANIFEST_FILE} auf Version ${manifest.version} aktualisiert.`
-    );
-  } catch (error) {
-    console.error(
-      `Fehler beim Aktualisieren von ${MANIFEST_FILE}:`,
-      error.message
-    );
+    console.log(`Updated ${MANIFEST_FILE} to version ${manifest.version}`);
+  } catch (err) {
+    console.error("Failed to update manifest:", err.message);
     process.exit(1);
   }
 
-  // 4. Git Operations
-  const commitMessage = `Release: ${
+  const commitMsg = `Release: ${
     type.charAt(0).toUpperCase() + type.slice(1)
   } version ${newVersion}`;
+  console.log("Committing changes...");
+  runCommand("git add .", "Failed to stage files");
+  runCommand(`git commit -m "${commitMsg}"`, "Failed to commit changes");
 
-  console.log(`Staging und Committing Änderungen...`);
-  runCommand(
-    "git add .",
-    "Fehler beim Hinzufügen von Dateien zum Staging-Bereich"
-  );
-  runCommand(
-    `git commit -m "${commitMessage}"`,
-    "Fehler beim Erstellen des Commits"
-  );
-  console.log(`Commit erstellt: "${commitMessage}"`);
+  const existingTags = runCommand("git tag", "Failed to get tags").split("\n");
+  if (!existingTags.includes(newVersion))
+    runCommand(`git tag ${newVersion}`, "Failed to create tag");
 
-  console.log(`Tagging mit "${newVersion}"...`);
-  // check if the tag already exists
-  const existingTags = runCommand(
-    "git tag",
-    "Fehler beim Abrufen der Tags"
-  ).split("\n");
-  if (existingTags.includes(newVersion)) {
-    // use existing tag
-    console.log(`Tag "${newVersion}" existiert bereits. Kein neues Tag erstellt.`);
-  } else {
-    runCommand(`git tag ${newVersion}`, "Fehler beim Erstellen des Tags");
-  }
-  console.log(`Tag "${newVersion}" erstellt.`);
-
-  console.log(`Pushing Commit und Tag "${newVersion}" nach origin...`);
+  console.log(`Pushing commit and tag ${newVersion}...`);
   runCommand(
     `git push && git push origin ${newVersion}`,
-    "Fehler beim Pushen der Änderungen"
+    "Failed to push changes"
   );
-  console.log("Versionierung erfolgreich abgeschlossen!");
+
+  console.log("Versioning completed successfully!");
 }
 
-// Execute the main function
 main();

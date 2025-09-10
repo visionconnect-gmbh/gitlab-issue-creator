@@ -1,5 +1,5 @@
-import { MessageTypes } from "../Enums.js";
-import { localizeHtmlPage } from "../localize.js";
+import { MessageTypes } from "../utils/Enums.js";
+import { localizeHtmlPage } from "../utils/localize.js";
 import { getCurrentUser } from "../gitlab/gitlab.js";
 import {
   elements,

@@ -4,7 +4,7 @@ import {
 } from "../utils/utils.js";
 import { apiGet, apiPost, doRequest } from "./api.js";
 import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
-import { CacheKeys, LocalizeKeys } from "../Enums.js";
+import { CacheKeys, LocalizeKeys } from "../utils/Enums.js";
 
 /**
  * Shows a standard GitLab settings missing notification.

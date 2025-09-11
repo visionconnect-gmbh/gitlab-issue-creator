@@ -5,7 +5,7 @@ import {
   createGitLabIssue,
   getCurrentUser,
 } from "./src/gitlab/gitlab.js";
-import { MessageTypes, LocalizeKeys } from "./src/Enums.js";
+import { MessageTypes, LocalizeKeys } from "./src/utils/Enums.js";
 import {
   displayLocalizedNotification,
   openOptionsPage,

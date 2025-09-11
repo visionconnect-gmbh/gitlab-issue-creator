@@ -10,9 +10,13 @@ export const MessageTypes = Object.freeze({
 });
 
 export const CacheKeys = Object.freeze({
+  USE_CACHE: "use_cache",
+  GITLAB_SETTINGS: "gitlab_settings",
   PROJECTS: "projects",
   ASSIGNEES: "assignees_ALL",
   CURRENT_USER: "current_user",
+
+  ASSIGNEES_LOADING: "enable_assignee_loading",
 });
 
 export const LocalizeKeys = Object.freeze({

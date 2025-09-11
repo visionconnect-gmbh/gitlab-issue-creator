@@ -1,6 +1,6 @@
 import { MessageTypes, CacheKeys, LocalizeKeys } from "../utils/Enums.js";
 import { localizeHtmlPage } from "../utils/localize.js";
-import { clearAllCache, resetCache } from "../utils/cache.js";
+import { clearAllCache, resetCache, getCache, setCache } from "../utils/cache.js";
 
 /**
  * SVG path data for eye icons.
@@ -150,10 +150,7 @@ const saveGitlabOptions = async () => {
   }
 
   try {
-    await browser.storage.local.set({
-      gitlabToken: token,
-      gitlabUrl: normalizedUrl,
-    });
+    setCache(CacheKeys.GITLAB_SETTINGS, { url: normalizedUrl, token });
     showTokenHelpLink(normalizedUrl, token);
     alertMessage(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
     browser.runtime.sendMessage({
@@ -209,7 +206,7 @@ const saveDisableCacheSetting = async (isDisabled) => {
     }
   }
   try {
-    await browser.storage.local.set({ disableCache: isDisabled });
+    setCache(CacheKeys.USE_CACHE, !isDisabled);
     alertMessage(
       isDisabled
         ? LocalizeKeys.OPTIONS.ALERTS.CACHE_DISABLED
@@ -230,7 +227,7 @@ const saveDisableCacheSetting = async (isDisabled) => {
  */
 const saveAssigneeToggle = async (isChecked) => {
   try {
-    await browser.storage.local.set({ enableAssigneeLoading: isChecked });
+    setCache(CacheKeys.ASSIGNEES, isChecked);
     const msgKey = isChecked
       ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
       : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
@@ -250,18 +247,16 @@ const saveAssigneeToggle = async (isChecked) => {
 const loadInitialSettings = async () => {
   try {
     localizeHtmlPage();
-    const keys = [
-      "gitlabToken",
-      "gitlabUrl",
-      "enableAssigneeLoading",
-      "disableCache",
-    ];
-    const data = await browser.storage.local.get(keys);
-    DOM.tokenInput.value = data.gitlabToken || "";
-    DOM.urlInput.value = data.gitlabUrl || "";
-    DOM.assigneesToggleBtn.checked = data.enableAssigneeLoading || false;
-    DOM.cachingToggleBtn.checked = data.disableCache || false;
-    showTokenHelpLink(data.gitlabUrl, data.gitlabToken);
+    const gitlabSettings = getCache(CacheKeys.GITLAB_SETTINGS, 24 * 60 * 60 * 1000); // 24h TTL
+    DOM.tokenInput.value = gitlabSettings.token || "";
+    DOM.urlInput.value = gitlabSettings.url || "";
+
+    const useCache = getCache(CacheKeys.USE_CACHE, 24 * 60 * 60 * 1000); // 24h TTL
+    DOM.cachingToggleBtn.checked = useCache === undefined ? true : useCache;
+
+    const enableAssigneeLoading = getCache(CacheKeys.ASSIGNEES_LOADING, 24 * 60 * 60 * 1000); // 24h TTL
+    DOM.assigneesToggleBtn.checked = enableAssigneeLoading || false;
+    showTokenHelpLink(gitlabSettings.url, gitlabSettings.token);
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_LOADED, error);
   }

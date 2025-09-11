@@ -1,51 +1,33 @@
 const cachePrefix = "cache_";
+let memoryCache = {};
+let cachingDisabled = false;
+
+export async function initCache() {
+  const all = await browser.storage.local.get(null);
+  memoryCache = all;
+  cachingDisabled = all.disableCache || false;
+}
 
 function isCachingDisabled() {
-  return browser.storage.local.get("disableCache") || false;
+  return cachingDisabled;
 }
 
-/**
- * Sets or updates a cache entry.
- * @param {string} key
- * @param {*} data
- */
 export function setCache(key, data) {
   if (isCachingDisabled()) return;
-  localStorage.setItem(
-    `${cachePrefix}${key}`,
-    JSON.stringify({ data, timestamp: Date.now() })
-  );
+  const entry = { data, timestamp: Date.now() };
+  memoryCache[`${cachePrefix}${key}`] = entry;
+  browser.storage.local.set({ [`${cachePrefix}${key}`]: entry }); // async fire-and-forget
 }
 
-/**
- * Returns the cached data for a key if not stale.
- * @param {string} key
- * @param {number} ttlMs
- * @returns {*|null}
- */
 export function getCache(key, ttlMs) {
-  const raw = localStorage.getItem(`${cachePrefix}${key}`);
-  if (!raw) return null;
-
-  try {
-    const entry = JSON.parse(raw);
-    const isFresh = Date.now() - entry.timestamp < ttlMs;
-    return isFresh ? entry.data : null;
-  } catch (e) {
-    console.warn("Corrupted cache entry:", key);
-    return null;
-  }
+  const entry = memoryCache[`${cachePrefix}${key}`];
+  if (!entry) return null;
+  const isFresh = Date.now() - entry.timestamp < ttlMs;
+  return isFresh ? entry.data : null;
 }
 
-/**
- * Adds new items to an array-based cache without duplicating existing ones.
- * Uses the specified key (e.g., "id") for comparison.
- * @param {string} key - Cache key
- * @param {Array} newItems - Items to add
- * @param {string} uniqueKey - Property name to identify uniqueness
- */
 export function addToCacheArray(key, newItems, uniqueKey = "id") {
-  const existing = getCache(key, 9 * 60 * 60 * 1000); // 9 hours TTL
+  const existing = getCache(key, 9 * 60 * 60 * 1000); // 9h TTL
 
   if (!Array.isArray(existing)) {
     setCache(key, newItems);
@@ -56,52 +38,35 @@ export function addToCacheArray(key, newItems, uniqueKey = "id") {
   const filtered = newItems.filter((item) => !existingIds.has(item[uniqueKey]));
 
   if (filtered.length > 0) {
-    const updatedData = [...existing, ...filtered];
-    setCache(key, updatedData);
+    setCache(key, [...existing, ...filtered]);
   }
 }
 
-/**
- * Clears a specific cache key.
- * @param {string} key
- */
 export function resetCache(key) {
-  localStorage.removeItem(`${cachePrefix}${key}`);
+  delete memoryCache[`${cachePrefix}${key}`];
+  browser.storage.local.remove(`${cachePrefix}${key}`);
 }
 
-/**
- * Clears the entire cache.
- */
 export function clearAllCache() {
-  Object.keys(localStorage).forEach((key) => {
+  for (const key of Object.keys(memoryCache)) {
     if (key.startsWith(cachePrefix)) {
-      localStorage.removeItem(key);
+      delete memoryCache[key];
     }
-  });
+  }
+  browser.storage.local.clear();
   console.log("Cache cleared successfully.");
 }
 
-/**
- * Returns all cache keys that start with the cache prefix.
- * @returns {string[]}
- */
 export function getCacheKeys() {
-  return Object.keys(localStorage).filter((key) => key.startsWith(cachePrefix));
+  return Object.keys(memoryCache).filter((key) => key.startsWith(cachePrefix));
 }
 
-/**
- * Returns all raw cache entries (for debugging).
- */
 export function getRawCache() {
   const cache = {};
-  Object.keys(localStorage).forEach((key) => {
+  for (const key of Object.keys(memoryCache)) {
     if (key.startsWith(cachePrefix)) {
-      try {
-        cache[key] = JSON.parse(localStorage.getItem(key));
-      } catch {
-        cache[key] = "INVALID_JSON";
-      }
+      cache[key] = memoryCache[key];
     }
-  });
+  }
   return cache;
 }

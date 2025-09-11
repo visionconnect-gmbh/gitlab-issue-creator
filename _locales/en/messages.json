@@ -115,6 +115,10 @@
         "message": "Load Assignees",
         "description": "Label for add loading of assignees."
     },
+    "OptionsLabelEnableWatermark": {
+        "message": "Enable Watermark",
+        "description": "Label for enable watermark."
+    },
     "OptionsLabelDisableCache": {
         "message": "Disable Caching",
         "description": "Label for disable caching."
@@ -127,10 +131,6 @@
         "message": "Open the personal token page, create a new one with API scope, copy it, and paste it here.",
         "description": "Tooltip for access token link."
     },
-    "OptionsTooltipDisableCache": {
-        "message": "Enabled: Disable caching. Disabled: Enable caching.",
-        "description": "Tooltip for disable caching."
-    },
     "OptionsTitleAdditionalOptions": {
         "message": "Additional Options",
         "description": "Title for additional options."
@@ -138,6 +138,14 @@
     "OptionsTooltipEnableAssigneeLoading": {
         "message": "Enabled: Load project assignees. Disabled: Assign only yourself.",
         "description": "Tooltip for enable assignee loading."
+    },
+    "OptionsTooltipEnableWatermark": {
+        "message": "Enabled: Add a small watermark to the issue description. Disabled: No watermark.",
+        "description": "Tooltip for enable watermark."
+    },
+    "OptionsTooltipDisableCache": {
+        "message": "Enabled: Disable caching. Disabled: Enable caching.",
+        "description": "Tooltip for disable caching."
     },
     "OptionsTitleCleanup": {
         "message": "Reset Add-on",

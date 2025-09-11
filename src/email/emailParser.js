@@ -31,7 +31,7 @@ export function findAttachmentParts(parts) {
       part.name
     ) {
       attachments.push({
-        name: part.name || "Attachment",
+        name: part.name || `Attachment ${attachments.length + 1}`,
         contentType: part.contentType,
         size: part.size,
         partName: part.partName,

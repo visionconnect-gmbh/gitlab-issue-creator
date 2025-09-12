@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   await resetEditor();
-  await localizeHtmlPage(CACHE_KEY);
+  localizeHtmlPage(CACHE_KEY);
 
   browser.runtime.sendMessage({ type: MessageTypes.POPUP_READY });
   browser.runtime.onMessage.addListener(handleIncomingMessage);

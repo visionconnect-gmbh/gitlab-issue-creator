@@ -150,7 +150,7 @@ const saveGitlabOptions = async () => {
   }
 
   try {
-    setCache(CacheKeys.GITLAB_SETTINGS, { url: normalizedUrl, token });
+    await setCache(CacheKeys.GITLAB_SETTINGS, { url: normalizedUrl, token });
     showTokenHelpLink(normalizedUrl, token);
     alertMessage(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
     browser.runtime.sendMessage({
@@ -168,7 +168,7 @@ const saveGitlabOptions = async () => {
  */
 const clearCache = async () => {
   try {
-    clearAllCache();
+    await clearAllCache();
     alertMessage(LocalizeKeys.OPTIONS.ALERTS.CACHE_CLEARED);
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.CACHE_CLEARED, error);
@@ -183,7 +183,7 @@ const clearCache = async () => {
  */
 const resetSpecificCache = async (key, successMsg, errorMsg) => {
   try {
-    resetCache(key);
+    await resetCache(key);
     alertMessage(successMsg);
   } catch (error) {
     handleError(errorMsg, error);
@@ -206,7 +206,7 @@ const saveDisableCacheSetting = async (isDisabled) => {
     }
   }
   try {
-    setCache(CacheKeys.USE_CACHE, !isDisabled);
+    await setCache(CacheKeys.DISABLE_CACHE, isDisabled);
     alertMessage(
       isDisabled
         ? LocalizeKeys.OPTIONS.ALERTS.CACHE_DISABLED
@@ -227,7 +227,7 @@ const saveDisableCacheSetting = async (isDisabled) => {
  */
 const saveAssigneeToggle = async (isChecked) => {
   try {
-    setCache(CacheKeys.ASSIGNEES, isChecked);
+    await setCache(CacheKeys.ASSIGNEES, isChecked);
     const msgKey = isChecked
       ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
       : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
@@ -241,22 +241,46 @@ const saveAssigneeToggle = async (isChecked) => {
   }
 };
 
+const saveWatermarkToggle = async (isChecked) => {
+  try {
+    await setCache(CacheKeys.ENABLE_WATERMARK, isChecked);
+    const msgKey = isChecked
+      ? LocalizeKeys.OPTIONS.ALERTS.WATERMARK_ENABLED
+      : LocalizeKeys.OPTIONS.ALERTS.WATERMARK_DISABLED;
+    alertMessage(msgKey);
+    browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      enableWatermark: isChecked,
+    });
+  } catch (error) {
+    handleError(LocalizeKeys.NOTIFICATION.GENERIC_ERROR, error);
+  }
+};
+
 /**
  * Loads initial values from storage and updates the UI.
  */
 const loadInitialSettings = async () => {
   try {
     localizeHtmlPage();
-    const gitlabSettings = getCache(CacheKeys.GITLAB_SETTINGS, 24 * 60 * 60 * 1000); // 24h TTL
+
+    // Use fallback directly in getCache
+    const gitlabSettings = await getCache(CacheKeys.GITLAB_SETTINGS, undefined, {});
+
     DOM.tokenInput.value = gitlabSettings.token || "";
-    DOM.urlInput.value = gitlabSettings.url || "";
+    DOM.urlInput.value   = gitlabSettings.url   || "";
 
-    const useCache = getCache(CacheKeys.USE_CACHE, 24 * 60 * 60 * 1000); // 24h TTL
-    DOM.cachingToggleBtn.checked = useCache === undefined ? true : useCache;
+    const disableCache = await getCache(CacheKeys.DISABLE_CACHE, undefined, false);
+    DOM.cachingToggleBtn.checked = disableCache;
 
-    const enableAssigneeLoading = getCache(CacheKeys.ASSIGNEES_LOADING, 24 * 60 * 60 * 1000); // 24h TTL
-    DOM.assigneesToggleBtn.checked = enableAssigneeLoading || false;
+    const enableAssigneeLoading = await getCache(CacheKeys.ASSIGNEES_LOADING, undefined, false);
+    DOM.assigneesToggleBtn.checked = enableAssigneeLoading;
+
     showTokenHelpLink(gitlabSettings.url, gitlabSettings.token);
+
+    const watermarkSetting = await getCache(CacheKeys.ENABLE_WATERMARK, undefined, true);
+    DOM.watermarkToggleBtn.checked = watermarkSetting;
+
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_LOADED, error);
   }
@@ -269,25 +293,28 @@ const setupEventListeners = () => {
   DOM.toggleBtn.addEventListener("click", toggleTokenVisibility);
   DOM.saveButton.addEventListener("click", saveGitlabOptions);
   DOM.cacheClearButton.addEventListener("click", clearCache);
-  DOM.clearProjectsButton.addEventListener("click", () =>
-    resetSpecificCache(
+  DOM.clearProjectsButton.addEventListener("click", async () =>
+    await resetSpecificCache(
       CacheKeys.PROJECTS,
       LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED,
       LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED
     )
   );
-  DOM.clearAssigneesButton.addEventListener("click", () =>
-    resetSpecificCache(
+  DOM.clearAssigneesButton.addEventListener("click", async () =>
+    await resetSpecificCache(
       CacheKeys.ASSIGNEES,
       LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED,
       LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED
     )
   );
-  DOM.assigneesToggleBtn.addEventListener("change", (e) =>
-    saveAssigneeToggle(e.target.checked)
+  DOM.assigneesToggleBtn.addEventListener("change", async (e) =>
+    await saveAssigneeToggle(e.target.checked)
   );
-  DOM.cachingToggleBtn.addEventListener("change", (e) =>
-    saveDisableCacheSetting(e.target.checked)
+  DOM.watermarkToggleBtn.addEventListener("change", async (e) => {
+    await saveWatermarkToggle(e.target.checked);
+  });
+  DOM.cachingToggleBtn.addEventListener("change", async (e) =>
+    await saveDisableCacheSetting(e.target.checked)
   );
 };
 
@@ -295,6 +322,7 @@ const setupEventListeners = () => {
  * Initializes the options UI by mapping DOM elements, loading settings, and attaching listeners.
  */
 const initSettingsUI = async () => {
+  // Map of DOM element keys to their IDs
   const map = [
     ["urlInput", "gitlabUrl"],
     ["tokenInput", "gitlabToken"],
@@ -302,11 +330,12 @@ const initSettingsUI = async () => {
     ["toggleBtn", "toggleVisibility"],
     ["saveButton", "save"],
     ["assigneesToggleBtn", "enableAssigneeLoading"],
+    ["watermarkToggleBtn", "enableWatermark"],
     ["cachingToggleBtn", "disableCache"],
     ["cacheClearButton", "clearCacheBtn"],
     ["clearProjectsButton", "clearProjectsBtn"],
     ["clearAssigneesButton", "clearAssigneesBtn"],
-    ["tokenHelpLink", "tokenHelpLink"],
+    ["tokenHelpLink", "tokenHelpLink"]
   ];
   map.forEach(([key, id]) => (DOM[key] = document.getElementById(id)));
   await loadInitialSettings();

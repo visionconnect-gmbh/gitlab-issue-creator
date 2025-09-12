@@ -23,25 +23,12 @@ function notifyMissingSettings() {
  * Gets and validates GitLab settings from local storage.
  * @returns {Promise<Object|null>} Settings or null if invalid.
  */
-async function getGitLabSettings() {
-  const settings = await browser.storage.local.get([
-    "gitlabToken",
-    "gitlabUrl",
-  ]);
-  if (!settings.gitlabToken || !settings.gitlabUrl) {
+export async function getGitLabSettings() {
+  const settings = await getCache(CacheKeys.GITLAB_SETTINGS, undefined, {});
+  if (!settings.token || !settings.url) {
     notifyMissingSettings();
     return null;
   }
-  return settings;
-}
-
-/**
- * Gets and validates GitLab settings. Displays notification if missing.
- * @returns {Promise<Object|null>} Valid settings or null.
- */
-export async function requireValidSettings() {
-  const settings = await getGitLabSettings();
-  if (!settings) return null;
   return settings;
 }
 
@@ -52,17 +39,17 @@ export async function requireValidSettings() {
 const USER_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 export async function getCurrentUser() {
   //Get cached user if available
-  const cachedUser = getCache(CacheKeys.CURRENT_USER, USER_CACHE_TTL);
+  const cachedUser = await getCache(CacheKeys.CURRENT_USER, USER_CACHE_TTL);
   if (cachedUser) {
     return cachedUser;
   }
 
-  const settings = await requireValidSettings();
+  const settings = await getGitLabSettings();
   if (!settings) return null;
 
   try {
     const user = await apiGet("/api/v4/user", {
-      headers: { "PRIVATE-TOKEN": settings.gitlabToken },
+      headers: { "PRIVATE-TOKEN": settings.token },
     });
 
     if (!user) {
@@ -71,7 +58,7 @@ export async function getCurrentUser() {
     }
 
     // cache user
-    setCache(CacheKeys.CURRENT_USER, user, USER_CACHE_TTL);
+    await setCache(CacheKeys.CURRENT_USER, user, USER_CACHE_TTL);
     return user;
   } catch (error) {
     console.error("Error fetching current user:", error);
@@ -88,19 +75,19 @@ const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
  * @param {function(Array):void} [onUpdate] - Optional callback for live update
  */
 export async function getProjects(onUpdate) {
-  const cached = getCache(CacheKeys.PROJECTS, CACHE_TTL_MS);
+  const cached = await getCache(CacheKeys.PROJECTS, CACHE_TTL_MS);
 
   if (cached) {
     // Add new projects to the cache if they are not already present
     const newProjects = await getNewProjects();
     if (newProjects.length > 0) {
-      addToCacheArray(CacheKeys.PROJECTS, newProjects, "id");
+      await addToCacheArray(CacheKeys.PROJECTS, newProjects, "id");
     }
     if (onUpdate) onUpdate(cached);
     return cached;
   }
 
-  const settings = await requireValidSettings();
+  const settings = await getGitLabSettings();
   if (!settings) return;
 
   try {
@@ -112,7 +99,7 @@ export async function getProjects(onUpdate) {
       fetched = await apiGet(
         `/api/v4/projects?membership=true&simple=true&per_page=100&page=${page}`,
         {
-          headers: { "PRIVATE-TOKEN": settings.gitlabToken },
+          headers: { "PRIVATE-TOKEN": settings.token },
         }
       );
 
@@ -132,7 +119,7 @@ export async function getProjects(onUpdate) {
 
     console.log(`Fetched ${allProjects.length} projects`);
 
-    setCache(CacheKeys.PROJECTS, allProjects);
+    await setCache(CacheKeys.PROJECTS, allProjects);
     if (onUpdate) onUpdate(allProjects);
   } catch (error) {
     console.error("Error fetching projects:", error);
@@ -141,10 +128,10 @@ export async function getProjects(onUpdate) {
 }
 
 async function getNewProjects() {
-  const settings = await requireValidSettings();
+  const settings = await getGitLabSettings();
   if (!settings) return [];
 
-  const current_projects = getCache(CacheKeys.PROJECTS, CACHE_TTL_MS); // from cache
+  const current_projects = await getCache(CacheKeys.PROJECTS, CACHE_TTL_MS); // from cache
 
   // Entry 0 is the most recent project
   const last_id = current_projects.length > 0 ? current_projects[0].id : -1;
@@ -158,7 +145,7 @@ async function getNewProjects() {
     const projects = await apiGet(
       `/api/v4/projects?membership=true&simple=true&id_after=${last_id}`,
       {
-        headers: { "PRIVATE-TOKEN": settings.gitlabToken },
+        headers: { "PRIVATE-TOKEN": settings.token },
       }
     );
 
@@ -191,19 +178,19 @@ export async function getAssignees(projectId, onUpdate) {
     return [];
   }
 
-  const cachedWrapper = getCache(CacheKeys.ASSIGNEES, CACHE_TTL_MS);
+  const cachedWrapper = await getCache(CacheKeys.ASSIGNEES, CACHE_TTL_MS);
 
   if (cachedWrapper && cachedWrapper[projectId]) {
     if (onUpdate) onUpdate(cachedWrapper[projectId]);
     return cachedWrapper[projectId];
   }
 
-  const settings = await requireValidSettings();
+  const settings = await getGitLabSettings();
   if (!settings) return [];
 
   try {
     const assignees = await apiGet(`/api/v4/projects/${projectId}/users`, {
-      headers: { "PRIVATE-TOKEN": settings.gitlabToken },
+      headers: { "PRIVATE-TOKEN": settings.token },
     });
 
     if (!Array.isArray(assignees)) {
@@ -230,7 +217,10 @@ export async function getAssignees(projectId, onUpdate) {
 }
 
 export async function uploadAttachmentToGitLab(projectId, attachmentFile) {
-  const { gitlabToken } = await getGitLabSettings();
+  const settings = await getGitLabSettings();
+
+  const gitlabToken = settings ? settings.token : null;
+  if (!settings || !gitlabToken) return;
 
   if (!attachmentFile || !(attachmentFile instanceof File)) {
     throw new Error("Invalid attachment file.");
@@ -284,7 +274,7 @@ export async function createGitLabIssue(
   description,
   issueEndDate = null
 ) {
-  const settings = await requireValidSettings();
+  const settings = await getGitLabSettings();
   if (!settings) return;
 
   try {
@@ -298,7 +288,7 @@ export async function createGitLabIssue(
     const response = await apiPost(
       `/api/v4/projects/${projectId}/issues`,
       issueData,
-      { headers: { "PRIVATE-TOKEN": settings.gitlabToken } }
+      { headers: { "PRIVATE-TOKEN": settings.token } }
     );
 
     const url = response.web_url || "";

@@ -51,6 +51,14 @@
         "message": "Assignee loading disabled.",
         "description": "Response for disabled assignee loading."
     },
+    "OptionsAlertWatermarkEnabled": {
+        "message": "Watermark enabled.",
+        "description": "Response for enabled watermark."
+    },
+    "OptionsAlertWatermarkDisabled": {
+        "message": "Watermark disabled.",
+        "description": "Response for disabled watermark."
+    },
     "OptionsAlertDisableCache": {
         "message": "Do you want to disable the cache? This may slow down the extension and increase network requests.",
         "description": "Response for disabled cache."

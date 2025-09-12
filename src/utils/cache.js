@@ -1,36 +1,35 @@
+import { CacheKeys } from "./Enums";
+
 const cachePrefix = "cache_";
-let memoryCache = {};
-let cachingDisabled = false;
 
-export async function initCache() {
-  const all = await browser.storage.local.get(null);
-  memoryCache = all;
-  cachingDisabled = all.disableCache || false;
+async function isCachingDisabled() {
+  return await browser.storage.local.get(CacheKeys.DISABLE_CACHE).then((res) => res.disableCaching || false);
 }
 
-function isCachingDisabled() {
-  return cachingDisabled;
-}
-
-export function setCache(key, data) {
-  if (isCachingDisabled()) return;
+export async function setCache(key, data) {
+  if ((await isCachingDisabled())) return;
   const entry = { data, timestamp: Date.now() };
-  memoryCache[`${cachePrefix}${key}`] = entry;
-  browser.storage.local.set({ [`${cachePrefix}${key}`]: entry }); // async fire-and-forget
+  await browser.storage.local.set({ [`${cachePrefix}${key}`]: entry });
 }
 
-export function getCache(key, ttlMs) {
-  const entry = memoryCache[`${cachePrefix}${key}`];
-  if (!entry) return null;
-  const isFresh = Date.now() - entry.timestamp < ttlMs;
-  return isFresh ? entry.data : null;
+export async function getCache(key, ttlMs, fallback = null) {
+  const entryObj = await browser.storage.local.get(`${cachePrefix}${key}`);
+  const entry = entryObj[`${cachePrefix}${key}`];
+  if (!entry) return fallback;
+
+  if (ttlMs) {
+    const isFresh = Date.now() - entry.timestamp < ttlMs;
+    return isFresh ? entry.data : fallback;
+  }
+
+  return entry.data;
 }
 
-export function addToCacheArray(key, newItems, uniqueKey = "id") {
-  const existing = getCache(key, 9 * 60 * 60 * 1000); // 9h TTL
+export async function addToCacheArray(key, newItems, uniqueKey = "id") {
+  const existing = await getCache(key, 9 * 60 * 60 * 1000); // 9h TTL
 
   if (!Array.isArray(existing)) {
-    setCache(key, newItems);
+    await setCache(key, newItems);
     return;
   }
 
@@ -38,34 +37,34 @@ export function addToCacheArray(key, newItems, uniqueKey = "id") {
   const filtered = newItems.filter((item) => !existingIds.has(item[uniqueKey]));
 
   if (filtered.length > 0) {
-    setCache(key, [...existing, ...filtered]);
+    await setCache(key, [...existing, ...filtered]);
   }
 }
 
-export function resetCache(key) {
-  delete memoryCache[`${cachePrefix}${key}`];
-  browser.storage.local.remove(`${cachePrefix}${key}`);
+export async function resetCache(key) {
+  await browser.storage.local.remove(`${cachePrefix}${key}`);
 }
 
-export function clearAllCache() {
-  for (const key of Object.keys(memoryCache)) {
-    if (key.startsWith(cachePrefix)) {
-      delete memoryCache[key];
-    }
+export async function clearAllCache() {
+  const all = await browser.storage.local.get(null);
+  const keysToRemove = Object.keys(all).filter((key) => key.startsWith(cachePrefix));
+  if (keysToRemove.length > 0) {
+    await browser.storage.local.remove(keysToRemove);
   }
-  browser.storage.local.clear();
   console.log("Cache cleared successfully.");
 }
 
-export function getCacheKeys() {
-  return Object.keys(memoryCache).filter((key) => key.startsWith(cachePrefix));
+export async function getCacheKeys() {
+  const all = await browser.storage.local.get(null);
+  return Object.keys(all).filter((key) => key.startsWith(cachePrefix));
 }
 
-export function getRawCache() {
+export async function getRawCache() {
+  const all = await browser.storage.local.get(null);
   const cache = {};
-  for (const key of Object.keys(memoryCache)) {
+  for (const key of Object.keys(all)) {
     if (key.startsWith(cachePrefix)) {
-      cache[key] = memoryCache[key];
+      cache[key] = all[key];
     }
   }
   return cache;

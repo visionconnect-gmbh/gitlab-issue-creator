@@ -51,6 +51,14 @@
     "message": "Zuständigen-Laden deaktiviert.",
     "description": "Response for disabled assignee loading."
   },
+  "OptionsAlertWatermarkEnabled": {
+    "message": "Wasserzeichen aktiviert.",
+    "description": "Response for enabled watermark."
+  },
+  "OptionsAlertWatermarkDisabled": {
+    "message": "Wasserzeichen deaktiviert.",
+    "description": "Response for disabled watermark."
+  },
   "OptionsAlertDisableCache": {
     "message": "Möchten Sie den Cache deaktivieren? Dies kann die Erweiterung verlangsamen und die Anzahl der Netzwerkanfragen erhöhen.",
     "description": "Response for disabled cache."

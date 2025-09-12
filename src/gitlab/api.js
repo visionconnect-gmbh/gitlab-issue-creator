@@ -1,4 +1,5 @@
-import { LocalizeKeys } from "../utils/Enums";
+import { getCache } from "../utils/cache";
+import { LocalizeKeys, CacheKeys } from "../utils/Enums";
 import {
   closePopup,
   displayLocalizedNotification,
@@ -21,8 +22,8 @@ async function handleResponse(response) {
 
 export async function doRequest(endpoint, options = {}, addContentType = true) {
   if (!API_BASE_URL) {
-    const settings = await browser.storage.local.get(["gitlabUrl"]);
-    API_BASE_URL = settings.gitlabUrl;
+    const settings = await getCache(CacheKeys.GITLAB_SETTINGS, undefined, {});
+    API_BASE_URL = settings.url;
 
     if (!API_BASE_URL) {
       displayLocalizedNotification(

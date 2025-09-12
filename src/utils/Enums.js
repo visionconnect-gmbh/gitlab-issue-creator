@@ -10,13 +10,14 @@ export const MessageTypes = Object.freeze({
 });
 
 export const CacheKeys = Object.freeze({
-  USE_CACHE: "use_cache",
+  DISABLE_CACHE: "disable_cache",
   GITLAB_SETTINGS: "gitlab_settings",
   PROJECTS: "projects",
   ASSIGNEES: "assignees_ALL",
   CURRENT_USER: "current_user",
 
   ASSIGNEES_LOADING: "enable_assignee_loading",
+  ENABLE_WATERMARK: "enable_watermark",
 });
 
 export const LocalizeKeys = Object.freeze({
@@ -63,6 +64,8 @@ export const LocalizeKeys = Object.freeze({
       OPTIONS_SAVED: "OptionsAlertOptionsSaved",
       ASSIGNEES_ENABLED: "OptionsAlertAssigneesEnabled",
       ASSIGNEES_DISABLED: "OptionsAlertAssigneesDisabled",
+      WATERMARK_ENABLED: "OptionsAlertWatermarkEnabled",
+      WATERMARK_DISABLED: "OptionsAlertWatermarkDisabled",
       DISABLE_CACHE: "OptionsAlertDisableCache",
       CACHE_DISABLED: "OptionsAlertCacheDisabled",
       CACHE_ENABLED: "OptionsAlertCacheEnabled",
@@ -111,6 +114,7 @@ export const LocalizeKeys = Object.freeze({
     ATTACHMENTS_TITLE: "IssueAttachmentsTitle",
     ATTACHMENT_PREVIEW_TEXT: "IssueAttachmentPreviewText",
     ATTACHMENT_PREVIEW_TEXT_DISCLAIMER: "IssueAttachmentPreviewTextDisclaimer",
+    WATERMARK_TEXT: "IssueWatermarkText",
   },
 
   EMAIL: {

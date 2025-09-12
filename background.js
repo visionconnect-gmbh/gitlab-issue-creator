@@ -1,14 +1,13 @@
 import {
   getAssignees,
   getProjects,
-  requireValidSettings,
+  getGitLabSettings,
   createGitLabIssue,
   getCurrentUser,
 } from "./src/gitlab/gitlab.js";
 import { MessageTypes, LocalizeKeys } from "./src/utils/Enums.js";
 import {
-  displayLocalizedNotification,
-  openOptionsPage,
+  displayLocalizedNotification
 } from "./src/utils/utils.js";
 import { getEmailContent } from "./src/email/emailContent.js";
 
@@ -22,9 +21,7 @@ let popupReady = false;
 
 async function handleBrowserActionClick(messageId = null) {
   try {
-    if (!(await requireValidSettings())) {
-      console.warn("GitLab settings are not valid.");
-      openOptionsPage();
+    if (!(await getGitLabSettings())) {
       return;
     }
 
@@ -140,7 +137,8 @@ async function handleRuntimeMessages(msg, sender) {
         const title = msg.title?.trim() || `Email: ${emailGlobal.subject}`;
 
         const description = replaceWithBrTags(
-          msg.description?.trim() || browser.i18n.getMessage(LocalizeKeys.FALLBACK.NO_DESCRIPTION)
+          msg.description?.trim() ||
+            browser.i18n.getMessage(LocalizeKeys.FALLBACK.NO_DESCRIPTION)
         );
         const issueEnd = msg.endDate;
         try {
@@ -227,19 +225,32 @@ function reset() {
   popupReady = false;
 }
 
-browser.menus.create({
-  id: "create-gitlab-issue",
-  title: browser.i18n.getMessage(LocalizeKeys.BROWSER.ACTION_TITLE),
-  contexts: ["message_list"],
-});
+async function init() {
+  browser.menus.create({
+    id: "create-gitlab-issue",
+    title: browser.i18n.getMessage(LocalizeKeys.BROWSER.ACTION_TITLE),
+    contexts: ["message_list"],
+  });
 
-browser.menus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === "create-gitlab-issue") {
-    await handleBrowserActionClick(info.selectedMessages.messages[0]?.id || null);
+  browser.menus.onClicked.addListener(async (info, tab) => {
+    if (info.menuItemId === "create-gitlab-issue") {
+      await handleBrowserActionClick(
+        info.selectedMessages.messages[0]?.id || null
+      );
+    }
+  });
+
+  browser.browserAction.onClicked.addListener((tab) => {
+    handleBrowserActionClick(null);
+  });
+
+  browser.runtime.onMessage.addListener(handleRuntimeMessages);
+}
+
+(async () => {
+  try {
+    await init();
+  } catch (err) {
+    console.error("Error during initialization:", err);
   }
-});
-
-browser.browserAction.onClicked.addListener((tab) => {
-  handleBrowserActionClick(null);
-});
-browser.runtime.onMessage.addListener(handleRuntimeMessages);
+})();

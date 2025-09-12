@@ -1,9 +1,7 @@
-// popup/handlers.js
-import { MessageTypes, LocalizeKeys } from "../../utils/Enums.js";
+import { MessageTypes, LocalizeKeys, CacheKeys } from "../../utils/Enums.js";
 import { displayLocalizedNotification } from "../../utils/utils.js";
 import {
   uploadAttachmentToGitLab,
-  getCurrentUser,
 } from "../../gitlab/gitlab.js";
 import {
   elements,
@@ -15,14 +13,12 @@ import {
   assigneesCache,
   selectedAssigneeId,
   issueEndDate as selectedIssueEndDate,
-  filteredProjects,
   setProjects,
   setFilteredProjects,
   setMessageData,
   setAssigneesCache,
   setCurrentAssignees,
   setSelectedProjectId,
-  setSelectedAssigneeId,
   setIsAssigneeLoadingEnabled,
   resetState,
 } from "./state.js";
@@ -32,13 +28,12 @@ import {
   updateAssigneeSelectVisibility,
   showButtonLoadingState,
 } from "./ui.js";
+import { getCache } from "../../utils/cache.js";
 
 export async function resetEditor() {
   resetState();
 
-  const { enableAssigneeLoading } = await browser.storage.local.get(
-    "enableAssigneeLoading"
-  );
+  const enableAssigneeLoading = await getCache(CacheKeys.ASSIGNEES_LOADING, undefined, false);
   setIsAssigneeLoadingEnabled(enableAssigneeLoading || false);
   updateAssigneeSelectVisibility(isAssigneeLoadingEnabled);
 
@@ -155,6 +150,11 @@ async function createTicketDescription() {
     description += await generateAttachmentsMarkdown();
   }
 
+  if((getCache(CacheKeys.ENABLE_WATERMARK, undefined, true))) {
+    const watermarkText = "<!-- " + `created with gitlab-issue-creator` + " -->";
+    description += `\n\n${watermarkText}`;
+  }
+
   return description;
 }
 
@@ -222,8 +222,7 @@ function generateBaseDescription() {
     );
   }
 
-  return history
-    .map((entry, index) => {
+  return history.map((entry, index) => {
       const separator = index > 0 ? "\n---\n\n" : "";
       const main = formatEntry(entry, index);
       const forwarded = entry.forwardedMessage

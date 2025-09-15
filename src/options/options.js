@@ -191,6 +191,46 @@ const resetSpecificCache = async (key, successMsg, errorMsg) => {
 };
 
 /**
+ * Saves the assignee toggle setting.
+ * @param {boolean} isChecked
+ */
+const saveAssigneeToggle = async (isChecked) => {
+  try {
+    await setCache(CacheKeys.ASSIGNEES_LOADING, isChecked);
+    const msgKey = isChecked
+      ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
+      : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
+    alertMessage(msgKey);
+    browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      enableAssigneeLoading: isChecked,
+    });
+  } catch (error) {
+    handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_SAVED, error);
+  }
+};
+
+/**
+ * Saves the watermark toggle setting.
+ * @param {boolean} isChecked
+ */
+const saveWatermarkToggle = async (isChecked) => {
+  try {
+    await setCache(CacheKeys.ENABLE_WATERMARK, isChecked);
+    const msgKey = isChecked
+      ? LocalizeKeys.OPTIONS.ALERTS.WATERMARK_ENABLED
+      : LocalizeKeys.OPTIONS.ALERTS.WATERMARK_DISABLED;
+    alertMessage(msgKey);
+    browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      enableWatermark: isChecked,
+    });
+  } catch (error) {
+    handleError(LocalizeKeys.NOTIFICATION.GENERIC_ERROR, error);
+  }
+};
+
+/**
  * Saves disable cache setting to storage.
  * @param {boolean} isDisabled
  */
@@ -218,42 +258,6 @@ const saveDisableCacheSetting = async (isDisabled) => {
     });
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.CACHE_UPDATE, error);
-  }
-};
-
-/**
- * Saves the assignee toggle setting.
- * @param {boolean} isChecked
- */
-const saveAssigneeToggle = async (isChecked) => {
-  try {
-    await setCache(CacheKeys.ASSIGNEES, isChecked);
-    const msgKey = isChecked
-      ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
-      : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
-    alertMessage(msgKey);
-    browser.runtime.sendMessage({
-      type: MessageTypes.SETTINGS_UPDATED,
-      enableAssigneeLoading: isChecked,
-    });
-  } catch (error) {
-    handleError(LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_SAVED, error);
-  }
-};
-
-const saveWatermarkToggle = async (isChecked) => {
-  try {
-    await setCache(CacheKeys.ENABLE_WATERMARK, isChecked);
-    const msgKey = isChecked
-      ? LocalizeKeys.OPTIONS.ALERTS.WATERMARK_ENABLED
-      : LocalizeKeys.OPTIONS.ALERTS.WATERMARK_DISABLED;
-    alertMessage(msgKey);
-    browser.runtime.sendMessage({
-      type: MessageTypes.SETTINGS_UPDATED,
-      enableWatermark: isChecked,
-    });
-  } catch (error) {
-    handleError(LocalizeKeys.NOTIFICATION.GENERIC_ERROR, error);
   }
 };
 

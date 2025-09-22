@@ -60,7 +60,7 @@ async function buildAddon() {
   }
 
   fs.mkdirSync(DEST_DIR, { recursive: true });
-  const zipFilePath = path.join(DEST_DIR, `${ADDON_NAME}-${version}.zip`);
+  const zipFilePath = path.join(DEST_DIR, `${ADDON_NAME}-v${version}.zip`);
   await createZipArchive(BUILD_DIR, zipFilePath);
 
   console.log("Cleaning temporary build...");

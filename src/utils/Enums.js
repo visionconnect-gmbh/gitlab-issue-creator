@@ -70,6 +70,7 @@ export const LocalizeKeys = Object.freeze({
       DISABLE_CACHE: "OptionsAlertDisableCache",
       CACHE_DISABLED: "OptionsAlertCacheDisabled",
       CACHE_ENABLED: "OptionsAlertCacheEnabled",
+      CLEAR_CACHE: "OptionsAlertClearCache",
     },
     ERRORS: {
       INVALID_URL: "OptionsErrorInvalidUrl",

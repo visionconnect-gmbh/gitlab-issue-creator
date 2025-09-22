@@ -84,7 +84,13 @@ export const setupEventListeners = () => {
   DOM.toggleBtn.addEventListener("click", toggleTokenVisibility);
   DOM.saveButton.addEventListener("click", saveGitlabOptions);
 
-  DOM.cacheClearButton.addEventListener("click", clearCache);
+  DOM.cacheClearButton.addEventListener("click", async () => {
+    if (
+      confirm(browser.i18n.getMessage(LocalizeKeys.OPTIONS.ALERTS.CLEAR_CACHE))
+    ) {
+      await clearCache();
+    }
+  });
 
   DOM.clearProjectsButton.addEventListener(
     "click",

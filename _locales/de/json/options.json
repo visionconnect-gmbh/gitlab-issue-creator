@@ -59,6 +59,10 @@
     "message": "Cache ist nun aktiviert.",
     "description": "Response for enabled cache."
   },
+  "OptionsAlertClearCache": {
+    "message": "Möchten Sie den Cache wirklich leeren? Dadurch werden alle zwischengespeicherten Daten, einschließlich URL und Token, entfernt.",
+    "description": "Alert for clearing cache."
+  },
   "OptionsErrorOptionsLoaded": {
     "message": "Fehler beim Laden der Einstellungen!",
     "description": "Error for not loaded options."

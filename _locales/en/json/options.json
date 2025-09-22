@@ -59,6 +59,10 @@
     "message": "Cache is now enabled.",
     "description": "Response for enabled cache."
   },
+  "OptionsAlertClearCache": {
+    "message": "Are you sure you want to clear the cache? This will remove all cached data, including URL and Token.",
+    "description": "Alert for clearing cache."
+  },
   "OptionsErrorOptionsLoaded": {
     "message": "Error loading options!",
     "description": "Error for not loaded options."

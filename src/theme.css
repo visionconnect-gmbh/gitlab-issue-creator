@@ -4,7 +4,9 @@
   --color-text: #1a1a1a;
   --color-primary: #0060df;
   --color-primary-hover: #004bb5;
-  --color-border: #d1d4db;
+  --color-secondary: #008993;
+  --color-secondary-hover: #006f73;
+  --color-border: #4d4db4;
   --color-shadow: rgba(0, 96, 223, 0.3);
   --color-button-active-shadow: rgba(0, 48, 128, 0.5);
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -18,6 +20,8 @@
     --color-text: #e0e0e8;
     --color-primary: #3390ff;
     --color-primary-hover: #1a6fcc;
+    --color-secondary: #00b9c6;
+    --color-secondary-hover: #009aa0;
     --color-border: #3b3f4a;
     --color-shadow: rgba(51, 144, 255, 0.5);
     --color-button-active-shadow: rgba(26, 111, 204, 0.7);

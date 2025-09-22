@@ -25,8 +25,8 @@ export async function getCache(key, ttlMs, fallback = null) {
   return entry.data;
 }
 
-export async function addToCacheArray(key, newItems, uniqueKey = "id") {
-  const existing = await getCache(key, 9 * 60 * 60 * 1000); // 9h TTL
+export async function addToCacheArray(key, newItems, uniqueKey = "id", ttlMs = 9 * 60 * 60 * 1000) {
+  const existing = await getCache(key, ttlMs); // Default: 9h TTL
 
   if (!Array.isArray(existing)) {
     await setCache(key, newItems);

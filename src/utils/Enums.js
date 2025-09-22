@@ -1,6 +1,7 @@
 export const MessageTypes = Object.freeze({
   POPUP_READY: "popup-ready",
   PROJECT_LIST: "project-list",
+  INITIAL_DATA: "initial-data",
   CREATE_GITLAB_ISSUE: "create-gitlab-issue",
   CLEAR_CACHE: "clear-cache",
   SETTINGS_UPDATED: "settings-updated",
@@ -91,7 +92,7 @@ export const LocalizeKeys = Object.freeze({
     LABELS: {
       SELECT_PROJECT: "PopupLabelSelectProject",
       TITLE: "PopupLabelTitleOfProject",
-      ATTACHMENTS_CHECKBOX: "PopupLabelAttachmentsCheckbox",
+      ATTACHMENTS_BUTTON: "PopupLabelAttachmentsButton",
       ASSIGNEE_SELECT: "PopupLabelAssigneeSelect",
       ISSUE_DESCRIPTION: "PopupLabelIssueDescription",
       ISSUE_END: "PopupLabelIssueEnd",
@@ -107,6 +108,7 @@ export const LocalizeKeys = Object.freeze({
     },
     MESSAGES: {
       NO_ASSIGNEES_FOUND: "PopupNoAssigneesFound",
+      NO_ATTACHMENTS: "PopupNoAttachments",
     },
   },
 

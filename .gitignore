@@ -1,9 +1,10 @@
+.env
 node_modules/
 dist/
-builds/
-*_prototype.js
 src_temp/
 src_zips/
+builds/
+*_prototype.js
 *.zip
 package-lock.json
-.env
+messages.json

@@ -1,0 +1,162 @@
+{
+  "ButtonSave": {
+    "message": "Save",
+    "description": "Title of save buttons."
+  },
+  "ButtonClearCache": {
+    "message": "Clear Cache",
+    "description": "Title of save buttons."
+  },
+  "OptionsAlertAddGitLabUrl": {
+    "message": "Please enter a valid GitLab URL.",
+    "description": "Alert for missing GitLab url."
+  },
+  "OptionsAlertAddGitLabToken": {
+    "message": "Please enter a valid GitLab token.",
+    "description": "Alert for missing GitLab token."
+  },
+  "OptionsAlertCacheCleared": {
+    "message": "Cache cleared successfully!",
+    "description": "Response for cleared cache."
+  },
+  "OptionsAlertProjectsCleared": {
+    "message": "Projects cleared successfully!",
+    "description": "Response for cleared projects."
+  },
+  "OptionsAlertAssigneesCleared": {
+    "message": "Assignees list cleared successfully!",
+    "description": "Response for cleared assignees."
+  },
+  "OptionsAlertOptionsSaved": {
+    "message": "Options saved successfully!",
+    "description": "Response for saved options."
+  },
+  "OptionsAlertAssigneesEnabled": {
+    "message": "Assignee loading enabled.",
+    "description": "Response for enabled assignee loading."
+  },
+  "OptionsAlertAssigneesDisabled": {
+    "message": "Assignee loading disabled.",
+    "description": "Response for disabled assignee loading."
+  },
+  "OptionsAlertWatermarkEnabled": {
+    "message": "Watermark enabled.",
+    "description": "Response for enabled watermark."
+  },
+  "OptionsAlertWatermarkDisabled": {
+    "message": "Watermark disabled.",
+    "description": "Response for disabled watermark."
+  },
+  "OptionsAlertDisableCache": {
+    "message": "Do you want to disable the cache? This may slow down the extension and increase network requests.",
+    "description": "Response for disabled cache."
+  },
+  "OptionsAlertCacheDisabled": {
+    "message": "Cache is now disabled.",
+    "description": "Response for disabled cache."
+  },
+  "OptionsAlertCacheEnabled": {
+    "message": "Cache is now enabled.",
+    "description": "Response for enabled cache."
+  },
+  "OptionsErrorOptionsLoaded": {
+    "message": "Error loading options!",
+    "description": "Error for not loaded options."
+  },
+  "OptionsErrorInvalidUrl": {
+    "message": "Invalid GitLab URL!",
+    "description": "Error for invalid GitLab URL."
+  },
+  "OptionsErrorUnreachableUrl": {
+    "message": "GitLab URL is unreachable!",
+    "description": "Error for unreachable GitLab URL."
+  },
+  "OptionsErrorOptionsSaved": {
+    "message": "Error saving options!",
+    "description": "Error for not saved options."
+  },
+  "OptionsErrorAssigneesSaved": {
+    "message": "Error saving assignee setting!",
+    "description": "Error for not saved assignees."
+  },
+  "OptionsErrorCacheCleared": {
+    "message": "Error clearing cache!",
+    "description": "Error for not cleared cache."
+  },
+  "OptionsErrorProjectsCleared": {
+    "message": "Error clearing projects!",
+    "description": "Error for not cleared projects."
+  },
+  "OptionsErrorAssigneesCleared": {
+    "message": "Error clearing assignees!",
+    "description": "Error for not cleared assignees."
+  },
+  "OptionsTabsTitle": {
+    "message": "Settings",
+    "description": "Title of options tab."
+  },
+  "OptionsTitle": {
+    "message": "GitLab Settings",
+    "description": "Title of options window."
+  },
+  "OptionsLabelGitlabURL": {
+    "message": "GitLab URL",
+    "description": "Label of GitLab url."
+  },
+  "OptionsLabelGitlabToken": {
+    "message": "Private GitLab Access Token",
+    "description": "Label for private GitLab access token."
+  },
+  "OptionsLabelEnableAssigneeLoading": {
+    "message": "Load Assignees",
+    "description": "Label for add loading of assignees."
+  },
+  "OptionsLabelEnableWatermark": {
+    "message": "Enable Watermark",
+    "description": "Label for enable watermark."
+  },
+  "OptionsLabelDisableCache": {
+    "message": "Disable Caching",
+    "description": "Label for disable caching."
+  },
+  "OptionsTitleTokenLink": {
+    "message": "Create Access Token",
+    "description": "Title for access token link."
+  },
+  "OptionsTooltipTokenLink": {
+    "message": "Open the personal token page, create a new one with API scope, copy it, and paste it here.",
+    "description": "Tooltip for access token link."
+  },
+  "OptionsTitleAdditionalOptions": {
+    "message": "Additional Options",
+    "description": "Title for additional options."
+  },
+  "OptionsTooltipEnableAssigneeLoading": {
+    "message": "Enabled: Load project assignees. Disabled: Assign only yourself.",
+    "description": "Tooltip for enable assignee loading."
+  },
+  "OptionsTooltipEnableWatermark": {
+    "message": "Enabled: Add a small watermark to the issue description. Disabled: No watermark.",
+    "description": "Tooltip for enable watermark."
+  },
+  "OptionsTooltipDisableCache": {
+    "message": "Enabled: Disable caching. Disabled: Enable caching.",
+    "description": "Tooltip for disable caching."
+  },
+  "OptionsTitleCleanup": {
+    "message": "Reset Add-on",
+    "description": "Title for cleanup section."
+  },
+  "OptionsButtonEmptyProjects": {
+    "message": "Clear Projects",
+    "description": "Title for button empty projects."
+  },
+  "OptionsButtonEmptyAsignees": {
+    "message": "Clear Assignees List",
+    "description": "Title for button empty assignees."
+  },
+  "OptionsMadeBy": {
+    "message": "Developed by",
+    "description": "Infotext for made by."
+  }
+}

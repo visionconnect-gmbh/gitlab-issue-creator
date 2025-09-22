@@ -6,195 +6,97 @@
       __MSG_PopupTabsTitle__ - __MSG_ExtensionName__
     </title>
     <link rel="stylesheet" href="../theme.css" />
+    <link rel="stylesheet" href="popup.css" />
     <link rel="stylesheet" href="../../dist/libs/easymde.min.css" />
-    <style>
-      body {
-        margin: 10px;
-        padding: 0;
-        min-width: 650px;
-        min-height: 500px;
-        overflow-y: auto;
-        font-size: 1rem;
-      }
-
-      label {
-        display: block !important;
-      }
-
-      .date-range {
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-        flex-wrap: wrap;
-      }
-
-      .date-field {
-        flex: 1 1 48%;
-      }
-
-      .CodeMirror,
-      .EasyMDEContainer {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-
-      .CodeMirror-fullscreen {
-        z-index: 99999;
-      }
-
-      .editor-toolbar {
-        border: 1px solid #ccc;
-        border-bottom: none;
-        border-radius: 4px 4px 0 0;
-      }
-
-      .editor-toolbar button {
-        width: auto;
-        padding: 6px 10px;
-        margin-top: 0;
-        font-size: 1em;
-        background: none;
-        color: inherit;
-      }
-
-      .editor-toolbar button.active {
-        background-color: #e0e0e0;
-      }
-
-      .editor-toolbar button:hover {
-        background-color: #f0f0f0;
-      }
-
-      .grid {
-        display: grid;
-        grid: auto / 60% 40%;
-      }
-
-      .grid-item {
-        padding: 0 20px;
-      }
-
-      #create {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 99;
-        width: auto;
-      }
-
-      /* Date input styling */
-      input[type="date"] {
-        width: 100%;
-        padding: 0.6rem 0.75rem;
-        margin-bottom: 12px;
-        font-size: 1rem;
-        font-family: var(--font-family);
-        color: var(--color-text);
-        background-color: transparent;
-        border: 1.5px solid var(--color-border);
-        border-radius: 6px;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        outline-offset: 2px;
-      }
-
-      /* Hover & focus */
-      input[type="date"]:hover,
-      input[type="date"]:focus {
-        border-color: var(--color-primary);
-        box-shadow: 0 0 6px var(--color-shadow);
-        outline: none;
-      }
-
-      /* Hide default icon in Chrome/Edge/Safari */
-      input[type="date"]::-webkit-calendar-picker-indicator {
-        cursor: pointer;
-        filter: invert(40%) sepia(60%) saturate(500%) hue-rotate(180deg);
-        opacity: 0.8;
-        transition: opacity 0.2s ease;
-      }
-
-      input[type="date"]::-webkit-calendar-picker-indicator:hover {
-        opacity: 1;
-      }
-
-      /* Firefox calendar icon adjustments */
-      input[type="date"]::-moz-focus-inner {
-        border: 0;
-      }
-      input[type="date"]::-moz-calendar-picker-indicator {
-        cursor: pointer;
-      }
-    </style>
   </head>
 
   <body>
-    <h2 data-message="localize"><span>__MSG_PopupTitle__</span></h2>
-    <div class="grid">
-      <div class="grid-item">
-        <div class="section">
-          <div class="select-container">
-            <label for="projectSearch" data-message="localize">
-              __MSG_PopupLabelSelectProject__:
-            </label>
-            <input
-              type="text"
-              id="projectSearch"
-              list="projectSuggestions"
-              data-i18n-attr="placeholder:PopupPlaceholderSelectProject"
-            />
-            <datalist id="projectSuggestions"></datalist>
-          </div>
-        </div>
-
-        <div class="select-container">
-          <label for="issueTitle" data-message="localize">
-            __MSG_PopupLabelTitleOfProject__:
-          </label>
-          <input type="text" id="issueTitle" />
-        </div>
-      </div>
-
-      <div class="grid-item">
-        <div class="section">
-          <div class="select-container" style="display: none">
-            <label for="assigneeSelect" data-message="localize">
-              __MSG_PopupLabelAssigneeSelect__:
-            </label>
-            <select id="assigneeSelect">
-              <option value="" disabled selected data-message="localize">
-                __MSG_PopupAssigneeSelectFirstEntry__
-              </option>
-            </select>
-          </div>
-
-          <div class="select-container date-range">
-            <div class="date-field">
-              <label for="issueEnd" data-message="localize">
-                __MSG_PopupLabelIssueEnd__:
+    <div id="issue-creator-container">
+      <h2 data-message="localize"><span>__MSG_PopupTitle__</span></h2>
+      <div class="grid">
+        <div class="grid-item">
+          <div class="section">
+            <div class="select-container">
+              <label for="projectSearch" data-message="localize">
+                __MSG_PopupLabelSelectProject__:
               </label>
-              <input type="date" id="issueEnd" />
+              <input
+                type="text"
+                id="projectSearch"
+                list="projectSuggestions"
+                data-i18n-attr="placeholder:PopupPlaceholderSelectProject"
+              />
+              <datalist id="projectSuggestions"></datalist>
             </div>
           </div>
 
           <div class="select-container">
-            <label for="attachmentsCheckbox" data-message="localize">
-              __MSG_PopupLabelAttachmentsCheckbox__:
+            <label for="issueTitle" data-message="localize">
+              __MSG_PopupLabelTitleOfProject__:
             </label>
-            <input type="checkbox" id="attachmentsCheckbox" />
+            <input type="text" id="issueTitle" />
+          </div>
+        </div>
+
+        <div class="grid-item">
+          <div class="section">
+            <div class="select-container" style="display: none">
+              <label for="assigneeSelect" data-message="localize">
+                __MSG_PopupLabelAssigneeSelect__:
+              </label>
+              <select id="assigneeSelect">
+                <option value="" disabled selected data-message="localize">
+                  __MSG_PopupAssigneeSelectFirstEntry__
+                </option>
+              </select>
+            </div>
+
+            <div class="select-container date-range">
+              <div class="date-field">
+                <label for="issueEnd" data-message="localize">
+                  __MSG_PopupLabelIssueEnd__:
+                </label>
+                <input type="date" id="issueEnd" />
+              </div>
+            </div>
+
+            <div class="select-container">
+              <button id="attachmentsButton" data-message="localize">
+                <span data-message="localize"
+                  >__MSG_PopupLabelAttachmentsButton__</span
+                >
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      <div class="section">
+        <label for="issueDescription" data-message="localize">
+          __MSG_PopupLabelIssueDescription__:
+        </label>
+        <textarea id="issueDescription"></textarea>
+      </div>
+      <button id="create" data-message="localize">
+        __MSG_PopupButtonSubmit__
+      </button>
     </div>
-    <div class="section">
-      <label for="issueDescription" data-message="localize">
-        __MSG_PopupLabelIssueDescription__:
-      </label>
-      <textarea id="issueDescription"></textarea>
-    </div>
-    <button id="create" data-message="localize">
-      __MSG_PopupButtonSubmit__
-    </button>
 
+    <div id="attachment-selector-backdrop" style="display: none">
+      <div id="attachment-selector-container">
+        <div class="attachment-selector-header">
+          <h2>
+            <span data-message="localize">__MSG_PopupTitleAttachments__</span>
+          </h2>
+          <button id="close-attachment-selector">&times;</button>
+        </div>
+        <button id="load-attachments-preview" style="display: none;">
+          <span data-message="localize"
+            >__MSG_PopupButtonLoadAttachments__</span
+          >
+        </button>
+        <div id="attachment-list"></div>
+      </div>
+    </div>
     <script src="../../dist/libs/easymde.min.js"></script>
     <script type="module" src="../../dist/bundled-issue_creator.js"></script>
   </body>

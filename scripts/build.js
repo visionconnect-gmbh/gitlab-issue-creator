@@ -15,6 +15,8 @@ const EXCLUDE_PATTERNS = [
   BUILD_DIR,
   DEST_DIR,
   "src_zips",
+  "_locales/de/json",
+  "_locales/en/json",
   ".git",
   ".gitignore",
   "package.json",

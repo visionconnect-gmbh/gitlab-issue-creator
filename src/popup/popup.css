@@ -1,0 +1,191 @@
+body {
+  margin: 10px;
+  padding: 0;
+  min-width: 650px;
+  min-height: 500px;
+  overflow-y: auto;
+  font-size: 1rem;
+}
+
+label {
+  display: block !important;
+}
+
+.date-range {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.date-field {
+  flex: 1 1 48%;
+}
+
+.CodeMirror,
+.EasyMDEContainer {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.CodeMirror-fullscreen {
+  z-index: 99999;
+}
+
+.editor-toolbar {
+  border: 1px solid #ccc;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+
+.editor-toolbar button {
+  width: auto;
+  padding: 6px 10px;
+  margin-top: 0;
+  font-size: 1em;
+  background: none;
+  color: inherit;
+}
+
+.editor-toolbar button.active {
+  background-color: #e0e0e0;
+}
+
+.editor-toolbar button:hover {
+  background-color: #f0f0f0;
+}
+
+.grid {
+  display: grid;
+  grid: auto / 60% 40%;
+}
+
+.grid-item {
+  padding: 0 20px;
+}
+
+#create {
+  background-color: var(--color-secondary);
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 99;
+  width: auto;
+}
+#create:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+/* Date input styling */
+input[type="date"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline-offset: 2px;
+}
+
+/* Hover & focus */
+input[type="date"]:hover,
+input[type="date"]:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 6px var(--color-shadow);
+  outline: none;
+}
+
+/* Hide default icon in Chrome/Edge/Safari */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(40%) sepia(60%) saturate(500%) hue-rotate(180deg);
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Firefox calendar icon adjustments */
+input[type="date"]::-moz-focus-inner {
+  border: 0;
+}
+input[type="date"]::-moz-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+/* Overlay background */
+#attachment-selector-backdrop {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* semi-transparent black */
+  z-index: 1000; /* on top of other content */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal content box */
+#attachment-selector-container h2,
+#attachment-selector-container #attachment-list {
+  margin: 0;
+  padding: 0;
+}
+
+#attachment-selector-container {
+  background-color: var(--color-bg);
+  padding: 20px;
+  border-radius: 8px;
+  width: 75%;
+  height: auto;
+  max-height: 80%;
+  overflow-y: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.attachment-selector-header {
+  display: flex;
+  align-items: center; /* vertically centers title and button */
+  justify-content: space-between; /* pushes title to start, button to end */
+  padding: 0.5rem 1rem; /* optional spacing */
+}
+
+.attachment-selector-header h2 {
+  margin: 0; /* remove default margin */
+  font-size: 1.5rem;
+}
+
+#close-attachment-selector {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 32px !important;
+  padding: 0;
+}
+
+#attachment-list div {
+  padding: 8px;
+}
+
+.attachment-item {
+  border-bottom: 1px solid #eee;
+}
+
+.attachment-label {
+  display: inline !important;
+  margin-top: 0 !important;
+  margin-left: 8px;
+  margin-right: 10px;
+  font-size: 1em;
+  vertical-align: middle;
+}

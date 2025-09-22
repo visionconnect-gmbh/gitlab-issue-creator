@@ -20,9 +20,13 @@ async function displayNotification(message, title = null) {
 
 export async function displayLocalizedNotification(
   messageKey,
-  title = "GitLab Issue Creator"
+  title = null
 ) {
   try {
+    if (!title) {
+      title = browser.i18n.getMessage(LocalizeKeys.EXTENSION.NAME) || "GitLab Issue Creator";
+    }
+
     const message = browser.i18n.getMessage(messageKey);
     if (message) {
       return displayNotification(message, title);
@@ -70,4 +74,9 @@ export function getUILanguage() {
     return defaultLang;
   }
   return lang;
+}
+
+export async function getAddonVersion() {
+  const version = await browser.runtime.getManifest().version;
+  return version || "unknown";
 }

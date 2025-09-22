@@ -1,7 +1,10 @@
-# Projektstruktur – *GitLab Issue Creator*
+# **STRUCTURE.md**
+
 **ENGLISH VERSION:** [STRUCTURE_en](./STRUCTURE_en.md)
 
-Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issues direkt aus E-Mails zu erstellen. Die folgende Übersicht beschreibt den Aufbau des Projekts.
+# Projektstruktur – *GitLab Issue Creator*
+
+Dieses Projekt ist eine Thunderbird-Erweiterung, mit der GitLab-Issues direkt aus E-Mails erstellt werden können. Die folgende Übersicht beschreibt die Struktur des Projekts.
 
 ---
 
@@ -10,18 +13,23 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ```text
 ├── manifest.json
 ├── package.json
+├── package-lock.json
 ├── rollup.config.mjs
-├── readme.md
-├── OPTIONS.md
-├── STRUCTURE.md
+├── README.md
+├── README_en.md
+├── md/OPTIONS.md
+├── md/OPTIONS_en.md
+├── md/STRUCTURE.md
+├── md/STRUCTURE_en.md
 ```
 
-* **manifest.json** – Zentrale Metadaten und Konfiguration für das Add-on.
-* **package.json** – Node.js-Projektdefinition mit Abhängigkeiten und Scripts.
-* **rollup.config.mjs** – Konfiguration für den Modul-Bundler Rollup.
-* **readme.md** – Dokumentation und Einstieg in das Projekt.
-* **OPTIONS.md** – Erläuterung aller Benutzeroptionen und Konfigurationsmöglichkeiten.
-* **STRUCTURE.md** – Diese Strukturübersicht.
+* **manifest.json** – Zentrale Metadaten- und Konfigurationsdatei für das Add-on.
+* **package.json** – Node.js Projektdefinition inkl. Abhängigkeiten und Skripten.
+* **package-lock.json** – Gesperrter Abhängigkeitsbaum für reproduzierbare Builds.
+* **rollup.config.mjs** – Konfiguration des Rollup-Modul-Bundlers.
+* **README.md / README\_en.md** – Projektbeschreibung und Einführung.
+* **md/OPTIONS*.md*\* – Beschreibung aller Benutzeroptionen und Konfigurationsmöglichkeiten.
+* **md/STRUCTURE*.md*\* – Strukturübersicht des Projekts.
 
 ---
 
@@ -29,12 +37,12 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 
 ```text
 ├── _locales/
-│   ├── en/messages.json
-│   └── de/messages.json
+│   ├── en/
+│   └── de/
 ```
 
 * Übersetzte UI-Texte im WebExtension-Format.
-* Zugriff erfolgt über `localize.js`.
+* Zugriff über `localize.js`.
 
 ---
 
@@ -44,19 +52,24 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ├── scripts/
 │   ├── build.js
 │   ├── bump-version.js
-│   └── build-version.js
+│   ├── pack-src.js
+│   ├── publish.js
+│   └── utils/
 ├── dist/
 │   ├── bundled-background.js
-│   ├── bundled-options.js
+│   ├── bundled-background.js.map
 │   ├── bundled-issue_creator.js
-│   └── *.map
+│   ├── bundled-issue_creator.js.map
+│   ├── bundled-options.js
+│   ├── bundled-options.js.map
+│   └── libs/
 ├── builds/
-│   └── gitlab-issue-creator-x.y.z.zip
+│   └── gitlab-issue-creator-6.0.1.zip
 ```
 
-* **scripts/** – Automatisierung (Build, Versions-Management)
-* **dist/** – Vom Rollup erzeugte, gebündelte Dateien inkl. Source Maps.
-* **builds/** – Veröffentlichungs-Archive (z. B. für Thunderbird).
+* **scripts/** – Automatisierungsskripte (Build-Prozess, Versionsmanagement).
+* **dist/** – Rollup-bündelte Ausgabedateien inkl. Source Maps.
+* **builds/** – Fertige Release-Archive (z.B. für Thunderbird-Einreichung).
 
 ---
 
@@ -64,14 +77,16 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 
 ```text
 ├── icons/
-│   ├── icon-16x.png
-│   ├── icon-64x.png
+│   ├── icon-16px.png
+│   ├── icon-32px.png
+│   ├── icon-48px.png
+│   ├── icon-64px.png
 │   ├── Icon.svg
 │   └── vc-icon-32px.png
 ```
 
-* Add-on- und Toolbar-Icons in verschiedenen Auflösungen.
-* `vc-icon-32px.png`: Firmenlogo für die UI.
+* Add-on- und Toolbar-Icons in verschiedenen Größen.
+* `vc-icon-32px.png`: Firmenlogo, das in der UI verwendet wird.
 
 ---
 
@@ -80,151 +95,72 @@ Dieses Projekt ist eine Thunderbird-Erweiterung, die es ermöglicht, GitLab-Issu
 ```text
 ├── src/
 │   ├── theme.css
-│   ├── Enums.js
-│   ├── localize.js
-│   ├── background.js
+│   ├── background/
+│   ├── email/
+│   ├── gitlab/
+│   ├── options/
+│   ├── popup/
+│   └── utils/
 ```
 
-* **theme.css** – Zentrales UI-Styling.
-* **Enums.js** – Konstanten und Aufzählungen für z. B. Prioritäten.
-* **localize.js** – Zugriff auf übersetzte Texte.
-* **background.js** – Hauptlogik des Hintergrundprozesses (Listener, Init etc.)
+* **theme.css** – Zentrale UI-Styling-Datei.
+* **background/** – Hintergrundlogik.
+* **email/** – E-Mail Parsing und Inhaltsverarbeitung.
+* **gitlab/** – GitLab API Kommunikation und Issue-Erstellung.
+* **options/** – Konfigurationsseite UI-Logik.
+* **popup/** – Issue-Erstellungs-Popup und Logik.
+* **utils/** – Hilfsfunktionen und Caching.
 
 ---
 
-### GitLab-Integration
+### Vollständige Verzeichnisstruktur
 
 ```text
-├── src/gitlab/
-│   ├── api.js
-│   └── gitlab.js
-```
-
-* **api.js** – Kommunikation mit der GitLab-API (Tokens, Requests).
-* **gitlab.js** – Verarbeitung von API-Daten, Ticketerstellung etc.
-
----
-
-### E-Mail-Verarbeitung
-
-```text
-├── src/email/
-│   ├── emailContent.js
-│   └── emailParser.js
-```
-
-* **emailContent.js** – Extraktion und Formatierung von E-Mail-Daten.
-* **emailParser.js** – Zerlegung von Headern, Absendern etc.
-
----
-
-### Einstellungsseite
-
-```text
-├── src/options/
-│   ├── options.html
-│   └── options.js
-```
-
-* HTML- und JS-Dateien für die Konfigurationsseite des Add-ons.
-
----
-
-### Popup zur Ticketerstellung
-
-```text
-├── src/popup/
-│   ├── issue_creator.html
-│   ├── issue_creator.js
-│   ├── logic/
-│   │   ├── handler.js
-│   │   ├── state.js
-│   │   └── ui.js
-```
-
-* **issue\_creator.html** – Die Benutzeroberfläche.
-* **issue\_creator.js** – Einstiegspunkt und Setup.
-* **logic/** – Modularisierte Logik:
-
-  * `handler.js`: Event-Logik.
-  * `state.js`: Zustandsverwaltung.
-  * `ui.js`: Sichtbarkeiten, Fehlermeldungen, Validierungen.
-
----
-
-### Eingebundene Drittanbieter-Bibliotheken
-
-```text
-├── src/libs/
-│   ├── easymde/
-│   │   ├── easymde.min.js
-│   │   └── easymde.min.css
-│   └── VENDORS.md
-```
-
-* **easymde/** – Minifizierte JS- und CSS-Dateien des Markdown-Editors \[*EasyMDE*].
-
----
-
-### Hilfsfunktionen
-
-```text
-├── src/utils/
-│   ├── utils.js
-│   └── cache.js
-```
-
-* **utils.js** – Allgemeine Hilfsfunktionen (String-Handling, URL-Checks etc.)
-* **cache.js** – Einfaches Caching (z. B. für Projekt- oder Label-Listen)
-
----
-
-## Gesamtstruktur im Überblick
-
-```text
-├── manifest.json
+.
 ├── background.js
-├── package.json
+├── manifest.json
 ├── rollup.config.mjs
+├── package.json
+├── package-lock.json
+├── README_en.md
 ├── README.md
-├── STRUCTURE.md
-├── OPTIONS.md
-├── _locales/
-│   ├── de/messages.json
-│   └── en/messages.json
-├── dist/
-│   └── *.js + *.map
 ├── builds/
-│   └── gitlab-issue-creator-x.y.z.zip
+│   └── gitlab-issue-creator-6.0.1.zip
+├── dist/
+│   ├── bundled-background.js
+│   ├── bundled-background.js.map
+│   ├── bundled-issue_creator.js
+│   ├── bundled-issue_creator.js.map
+│   ├── bundled-options.js
+│   ├── bundled-options.js.map
+│   └── libs/
 ├── icons/
-│   ├── *.png
-│   └── Icon.svg
+│   ├── icon-16px.png
+│   ├── icon-32px.png
+│   ├── icon-48px.png
+│   ├── icon-64px.png
+│   ├── Icon.svg
+│   └── vc-icon-32px.png
+├── _locales/
+│   ├── de/
+│   └── en/
+├── md/
+│   ├── OPTIONS_en.md
+│   ├── OPTIONS.md
+│   ├── STRUCTURE_en.md
+│   └── STRUCTURE.md
 ├── scripts/
 │   ├── build.js
 │   ├── bump-version.js
-│   └── build-version.js
+│   ├── pack-src.js
+│   ├── publish.js
+│   └── utils/
 └── src/
-    ├── theme.css
-    ├── Enums.js
-    ├── localize.js
-    ├── background.js
-    ├── gitlab/
-    │   ├── api.js
-    │   └── gitlab.js
+    ├── background/
     ├── email/
-    │   ├── emailContent.js
-    │   └── emailParser.js
+    ├── gitlab/
     ├── options/
-    │   ├── options.html
-    │   └── options.js
     ├── popup/
-    │   ├── issue_creator.html
-    │   ├── issue_creator.js
-    │   └── logic/
-    │       ├── handler.js
-    │       ├── state.js
-    │       └── ui.js
+    ├── theme.css
     └── utils/
-        ├── utils.js
-        └── cache.js
 ```

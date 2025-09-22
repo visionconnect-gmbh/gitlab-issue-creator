@@ -1,0 +1,50 @@
+{
+  "NotificationGenericError": {
+    "message": "An error occurred. Please try again later.",
+    "description": "Generic error notification."
+  },
+  "NotificationUploadAttachmentError": {
+    "message": "Error uploading attachment. Please check your internet connection.",
+    "description": "Notification when there is an error uploading an attachment."
+  },
+  "NotificationNoMessageSelected": {
+    "message": "No email selected. Please open an email.",
+    "description": "Notification when no email is selected."
+  },
+  "NotificationNoEmailContent": {
+    "message": "Could not retrieve email content.",
+    "description": "Notification when email content cannot be retrieved."
+  },
+  "NotificationGitlabSettingsMissing": {
+    "message": "GitLab settings are missing. Please configure them in the settings.",
+    "description": "Notification when GitLab settings are missing."
+  },
+  "NotificationGitLabUrlNotConfigured": {
+    "message": "GitLab URL is not configured. Please set it in the settings.",
+    "description": "Notification when GitLab URL is not configured."
+  },
+  "NotificationGitLabTokenNotConfigured": {
+    "message": "GitLab token is not configured. Please set it in the settings.",
+    "description": "Notification when GitLab token is not configured."
+  },
+  "NotificationInvalidGitLabToken": {
+    "message": "Invalid GitLab token. Please check your settings.",
+    "description": "Notification when GitLab token is invalid."
+  },
+  "NotificationNoGitlabSettings": {
+    "message": "GitLab settings are not set. Please configure them in the settings.",
+    "description": "Notification when no GitLab settings are set."
+  },
+  "NotificationIssueCreated": {
+    "message": "Issue created successfully! Click to open.",
+    "description": "Notification when issue is successfully created."
+  },
+  "NotificationNoProjectSelected": {
+    "message": "Please select a valid project.",
+    "description": "Notification when an invalid project is selected."
+  },
+  "NotificationAttachmentNotFound": {
+    "message": "Attachment not found. Issue creation aborted.",
+    "description": "Notification when an attachment is not found."
+  }
+}

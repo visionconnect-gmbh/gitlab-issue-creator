@@ -1,0 +1,30 @@
+{
+  "FallbackNoDescription": {
+    "message": "No description provided.",
+    "description": "Fallback message when no description is available."
+  },
+  "FallbackNoEmailContent": {
+    "message": "No email content available.",
+    "description": "Fallback message when no email content is available."
+  },
+  "FallbackUnknownSender": {
+    "message": "Unknown sender",
+    "description": "Fallback message when the sender is unknown."
+  },
+  "FallbackNoDateAvailable": {
+    "message": "No date available",
+    "description": "Fallback message when no date is available."
+  },
+  "FallbackNoProjectName": {
+    "message": "No project name",
+    "description": "Fallback message when no project name is available."
+  },
+  "FallbackUnknownAssignee": {
+    "message": "Unknown assignee",
+    "description": "Fallback message when the assignee is unknown."
+  },
+  "FallbackNoTranslation": {
+    "message": "No translation available",
+    "description": "Fallback message when no translation is available."
+  }
+}

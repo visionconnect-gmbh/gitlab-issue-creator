@@ -1,0 +1,90 @@
+{
+  "PopupTabsTitle": {
+    "message": "Popup",
+    "description": "Title of popup tab."
+  },
+  "PopupTitle": {
+    "message": "Create GitLab Issue",
+    "description": "Title of popup window."
+  },
+  "PopupTitleAttachments": {
+    "message": "Attachments",
+    "description": "Title of attachment section."
+  },
+  "PopupLabelSelectProject": {
+    "message": "Select Project",
+    "description": "Label for project select."
+  },
+  "PopupPlaceholderSelectProject": {
+    "message": "Search project name...",
+    "description": "Label for project placeholder."
+  },
+  "PopupLabelTitleOfProject": {
+    "message": "Issue Title",
+    "description": "Label for project title."
+  },
+  "PopupLabelAttachmentsButton": {
+    "message": "Add Email Attachments",
+    "description": "Label for attachment button."
+  },
+  "PopupLabelAssigneeSelect": {
+    "message": "Assignee",
+    "description": "Label for assignee selectbox."
+  },
+  "PopupLabelIssueDescription": {
+    "message": "Description",
+    "description": "Label of project description."
+  },
+  "PopupAssigneeSelectFirstEntry": {
+    "message": "Please select an assignee",
+    "description": "First entry of assignee select box."
+  },
+  "PopupLabelIssueEnd": {
+    "message": "Due",
+    "description": "Label for issue enddate."
+  },
+  "PopupFromAuthor": {
+    "message": "From",
+    "description": "Label for author of the email."
+  },
+  "PopupDateReceived": {
+    "message": "Received on",
+    "description": "Label for date received."
+  },
+  "PopupForwardedMessage": {
+    "message": "Forwarded Message",
+    "description": "Label for forwarded message."
+  },
+  "PopupButtonSubmit": {
+    "message": "Create Issue",
+    "description": "Title submit Button."
+  },
+  "PopupButtonLoadAttachments": {
+    "message": "Load Attachments Preview",
+    "description": "Button to load attachment preview."
+  },
+  "PopupNoAssigneesFound": {
+    "message": "(No assignees found)",
+    "description": "Message when no assignees are found."
+  },
+  "PopupNoAttachments": {
+    "message": "(No attachments available)",
+    "description": "Message when no attachments are available."
+  },
+  "EmailNoContentMessage": {
+    "message": "(No Text available.)",
+    "description": "Message when no content is available in the email."
+  },
+  "IssueAttachmentsTitle": {
+    "message": "Attached Files",
+    "description": "Title for issue attachments."
+  },
+  "IssueAttachmentPreviewText": {
+    "message": "Will be uploaded when creating the issue.",
+    "description": "Markdown preview for issue attachments."
+  },
+  "IssueAttachmentPreviewTextDisclaimer": {
+    "message": "DO NOT EDIT!",
+    "description": "Disclaimer for issue attachment preview text."
+  }
+}

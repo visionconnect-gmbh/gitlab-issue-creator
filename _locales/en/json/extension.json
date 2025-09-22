@@ -1,0 +1,14 @@
+{
+  "ExtensionName": {
+    "message": "GitLab Issue Creator",
+    "description": "Name of the extension."
+  },
+  "ExtensionDescription": {
+    "message": "Creates GitLab Issues from emails.",
+    "description": "Description of the extension."
+  },
+  "BrowserActionTitle": {
+    "message": "Create GitLab Issue",
+    "description": "Description of the extension."
+  }
+}

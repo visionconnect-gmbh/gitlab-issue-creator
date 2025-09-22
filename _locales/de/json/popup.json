@@ -1,0 +1,90 @@
+{
+  "PopupTabsTitle": {
+    "message": "Popup",
+    "description": "Title of popup tab."
+  },
+  "PopupTitle": {
+    "message": "GitLab-Ticket erstellen",
+    "description": "Title of popup window."
+  },
+  "PopupTitleAttachments": {
+    "message": "Anhänge",
+    "description": "Title of attachment section."
+  },
+  "PopupLabelSelectProject": {
+    "message": "Projekt auswählen",
+    "description": "Label for project select."
+  },
+  "PopupPlaceholderSelectProject": {
+    "message": "Projektname suchen...",
+    "description": "Label for project placeholder."
+  },
+  "PopupLabelTitleOfProject": {
+    "message": "Titel des Tickets",
+    "description": "Label for project title."
+  },
+  "PopupLabelAttachmentsButton": {
+    "message": "Email-Anhänge hinzufügen",
+    "description": "Label for attachment button."
+  },
+  "PopupLabelAssigneeSelect": {
+    "message": "Beauftragte(r)",
+    "description": "Label for assignee selectbox."
+  },
+  "PopupLabelIssueDescription": {
+    "message": "Beschreibung",
+    "description": "Label of project description."
+  },
+  "PopupAssigneeSelectFirstEntry": {
+    "message": "Bitte wählen Sie einen Zuständigen",
+    "description": "First entry of assignee select box."
+  },
+  "PopupLabelIssueEnd": {
+    "message": "Fällig",
+    "description": "Label for issue enddate."
+  },
+  "PopupFromAuthor": {
+    "message": "Von",
+    "description": "Label for author of the email."
+  },
+  "PopupDateReceived": {
+    "message": "Empfangen am",
+    "description": "Label for date received."
+  },
+  "PopupForwardedMessage": {
+    "message": "Weitergeleitete Nachricht",
+    "description": "Label for forwarded message."
+  },
+  "PopupButtonSubmit": {
+    "message": "Ticket erstellen",
+    "description": "Title submit Button."
+  },
+  "PopupButtonLoadAttachments": {
+    "message": "Vorschau der Anhänge laden",
+    "description": "Button to load attachment preview."
+  },
+  "PopupNoAssigneesFound": {
+    "message": "(Keine Bearbeiter gefunden)",
+    "description": "Message when no assignees are available."
+  },
+  "PopupNoAttachments": {
+    "message": "(Keine Anhänge verfügbar)",
+    "description": "Message when no attachments are available."
+  },
+  "EmailNoContentMessage": {
+    "message": "(Kein Nachrichtentext)",
+    "description": "Default message when no email content is available."
+  },
+  "IssueAttachmentsTitle": {
+    "message": "Angehängte Dateien",
+    "description": "Title for issue attachments."
+  },
+  "IssueAttachmentPreviewText": {
+    "message": "Wird beim Erstellen des Tickets hochgeladen.",
+    "description": "Preview text for issue attachments."
+  },
+  "IssueAttachmentPreviewTextDisclaimer": {
+    "message": "NICHT EDITIEREN!",
+    "description": "Disclaimer for issue attachment preview text."
+  }
+}

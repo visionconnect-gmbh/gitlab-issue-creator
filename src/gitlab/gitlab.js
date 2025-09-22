@@ -82,6 +82,7 @@ export async function getProjects(onUpdate) {
     const newProjects = await getNewProjects();
     if (newProjects.length > 0) {
       await addToCacheArray(CacheKeys.PROJECTS, newProjects, "id");
+      cached.unshift(...newProjects);
     }
     if (onUpdate) onUpdate(cached);
     return cached;

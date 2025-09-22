@@ -7,6 +7,7 @@ let messageData = null;
 let selectedProjectId = null;
 let selectedAssigneeId = null;
 let issueEndDate = null;
+let selectedAttachments = [];
 
 const elements = {
   projectSearch: document.getElementById("projectSearch"),
@@ -14,8 +15,13 @@ const elements = {
   issueTitle: document.getElementById("issueTitle"),
   assigneeSelect: document.getElementById("assigneeSelect"),
   issueEnd: document.getElementById("issueEnd"),
-  attachmentsCheckbox: document.getElementById("attachmentsCheckbox"),
+  attachmentsButton: document.getElementById("attachmentsButton"),
   createBtn: document.getElementById("create"),
+
+  closeAttachmentSelectorBtn: document.getElementById("close-attachment-selector"),
+  attachmentSelectorBackdrop: document.getElementById("attachment-selector-backdrop"),
+  attachmentList: document.getElementById("attachment-list"),
+  loadAttachmentsPreviewBtn: document.getElementById("load-attachments-preview"),
 };
 
 const easyMDE = new EasyMDE({
@@ -58,6 +64,7 @@ export {
   selectedProjectId,
   selectedAssigneeId,
   issueEndDate,
+  selectedAttachments,
   elements,
   easyMDE,
 };
@@ -100,17 +107,34 @@ export function setIssueEndDate(date) {
   issueEndDate = newDate;
 }
 
+export function setSelectedAttachments(attachments) {
+  selectedAttachments = attachments;
+}
+
+export function toggleAttachmentSelection(attachment) {
+  const index = selectedAttachments.findIndex(att => att.partName === attachment.partName);
+
+  if (index !== -1) {
+    // remove
+    selectedAttachments.splice(index, 1);
+  } else {
+    // add
+    selectedAttachments.push(attachment);
+  }
+}
+
 export function resetState() {
   easyMDE.value("");
   elements.issueTitle.value = "";
   elements.issueEnd.value = null;
-  elements.attachmentsCheckbox.checked = false;
   selectedProjectId = null;
   currentAssignees = [];
   filteredProjects = [];
   projects = [];
   assigneesCache = {};
   selectedAssigneeId = null;
+  issueEndDate = null;
+  selectedAttachments = [];
   elements.projectSearch.value = "";
   elements.projectSuggestions.replaceChildren();
   elements.projectSearch.focus();

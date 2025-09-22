@@ -6,16 +6,18 @@ import {
   setSelectedAssigneeId,
   setCurrentAssignees,
   setIssueEndDate,
-} from "./logic/state.js";
-import { renderAssignees } from "./logic/ui.js";
+} from "./logic/popupState.js";
+import { loadAttachmentsPreview, renderAssignees, toggleAttachmentSelectorVisibility } from "./logic/ui.js";
+import { resetEditor } from "./logic/handler/resetHandler.js";
 import {
-  resetEditor,
   handleIncomingMessage,
-  handleProjectSearchInput,
   handleProjectSearchChange,
-  handleAttachmentsCheckboxChange,
-  handleCreateButtonClick,
-} from "./logic/handlers.js";
+  handleProjectSearchInput,
+} from "./logic/handler/projectHandler.js";
+import {
+  handleAttachmentButtonClick,
+  handleCreateButtonClick
+} from "./logic/handler/issueHandler.js";
 
 const CACHE_KEY = "ticket_creator";
 
@@ -32,8 +34,11 @@ async function init() {
     projectSearch,
     assigneeSelect,
     issueEnd,
-    attachmentsCheckbox,
     createBtn,
+    attachmentsButton,
+    attachmentSelectorBackdrop,
+    loadAttachmentsPreviewBtn,
+    closeAttachmentSelectorBtn,
   } = elements;
 
   // Input listeners
@@ -61,6 +66,17 @@ async function init() {
   });
 
   // Other handlers
-  attachmentsCheckbox.addEventListener("change", handleAttachmentsCheckboxChange);
+  attachmentsButton.addEventListener("click", handleAttachmentButtonClick);
+  attachmentSelectorBackdrop.addEventListener("click", (event) => {
+    if (event.target === attachmentSelectorBackdrop) {
+      toggleAttachmentSelectorVisibility();
+    }
+  });
+  closeAttachmentSelectorBtn.addEventListener("click", toggleAttachmentSelectorVisibility);
+
+  loadAttachmentsPreviewBtn.addEventListener("click", () => {
+    loadAttachmentsPreview();
+  });
+
   createBtn.addEventListener("click", handleCreateButtonClick);
 }

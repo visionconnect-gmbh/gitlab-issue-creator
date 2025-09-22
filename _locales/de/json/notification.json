@@ -1,0 +1,50 @@
+{
+  "NotificationGenericError": {
+    "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+    "description": "Generic error notification."
+  },
+  "NotificationUploadAttachmentError": {
+    "message": "Fehler beim Hochladen des Anhangs. Bitte überprüfen Sie Ihre Internetverbindung.",
+    "description": "Notification when there is an error uploading an attachment."
+  },
+  "NotificationNoMessageSelected": {
+    "message": "Kein E-Mail ausgewählt. Bitte eine E-Mail öffnen.",
+    "description": "Notification when no email is selected."
+  },
+  "NotificationNoEmailContent": {
+    "message": "E-Mail-Inhalt konnte nicht abgerufen werden.",
+    "description": "Notification when email content cannot be retrieved."
+  },
+  "NotificationGitLabSettingsMissing": {
+    "message": "GitLab-Einstellungen fehlen. Bitte in den Einstellungen konfigurieren.",
+    "description": "Notification when GitLab settings are missing."
+  },
+  "NotificationGitLabUrlNotConfigured": {
+    "message": "GitLab URL ist nicht konfiguriert. Bitte in den Einstellungen festlegen.",
+    "description": "Notification when GitLab URL is not configured."
+  },
+  "NotificationGitLabTokenNotConfigured": {
+    "message": "GitLab Token ist nicht konfiguriert. Bitte in den Einstellungen festlegen.",
+    "description": "Notification when GitLab token is not configured."
+  },
+  "NotificationInvalidGitLabToken": {
+    "message": "Ungültiger GitLab Token. Bitte überprüfen Sie Ihre Einstellungen.",
+    "description": "Notification when GitLab token is invalid."
+  },
+  "NotificationNoGitlabSettings": {
+    "message": "GitLab-Einstellungen sind nicht gesetzt. Bitte in den Einstellungen konfigurieren.",
+    "description": "Notification when no GitLab settings are set."
+  },
+  "NotificationIssueCreated": {
+    "message": "Ticket erfolgreich erstellt! Klicke zum Öffnen.",
+    "description": "Notification when issue is successfully created."
+  },
+  "NotificationNoProjectSelected": {
+    "message": "Bitte wählen Sie ein gültiges Projekt aus.",
+    "description": "Notification when an invalid project is selected."
+  },
+  "NotificationAttachmentNotFound": {
+    "message": "Anhang nicht gefunden. Ticket-Erstellung abgebrochen.",
+    "description": "Notification when an attachment is not found."
+  }
+}

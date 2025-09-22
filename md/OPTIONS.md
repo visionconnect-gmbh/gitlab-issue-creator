@@ -1,4 +1,5 @@
 # Optionen des Add-ons: GitLab Ticket Creator
+
 **ENGLISH VERSION:** [OPTIONS_en](./OPTIONS_en.md)
 
 Diese Seite beschreibt die Konfigurationsmöglichkeiten des Thunderbird-Add-ons **GitLab Ticket Creator**. Die Einstellungen werden benötigt, damit das Add-on korrekt mit eurer GitLab-Instanz kommunizieren kann. Einige Optionen dienen zusätzlich der Optimierung des Nutzererlebnisses.
@@ -35,7 +36,7 @@ Die Schaltfläche „Access Token erstellen“ erscheint automatisch, sobald ein
 
 ---
 
-## Assignee-Autovervollständigung
+## Zuständige laden
 
 **Option:** `Assignees automatisch laden`
 **Typ:** Checkbox
@@ -44,6 +45,33 @@ Ist diese Option aktiviert, lädt das Add-on automatisch die Liste möglicher Ve
 
 **Beachtet:**
 Diese Funktion kann bei sehr großen Gruppen zu längeren Ladezeiten führen.
+
+---
+
+---
+
+## Wasserzeichen hinzufügen
+
+**Option:** `Wasserzeichen aktivieren`
+**Typ:** Checkbox
+
+Mit aktivieren dieser Option wird dem Ticket beim erstellen ein unsichtbares Wasserzeichen hinzugefügt.
+Dies erlaubt ein einfaches Filtern von Tickets welche mittles dieses Add-Ons erstellt wurden.
+
+---
+
+---
+
+## Cache deaktivieren
+
+**Option:** `Cache deaktivieren`
+**Typ:** Checkbox
+
+Mit aktivieren dieser Option werden Daten niht im Cache gespeichert, sondern immer neu geladen.
+Dies sollte nur bei Problemen aktiviert werden, da es das Add-On stark beeinflusst.
+
+**Beachtet:**
+Diese Funktion kann zu langen Ladezeiten führen
 
 ---
 
@@ -84,6 +112,8 @@ Fehlermeldungen werden direkt im Add-on-Fenster über `alert()` ausgegeben. Bei 
 | **GitLab URL**                     | URL zur GitLab-Instanz                               |
 | **GitLab Token**                   | Persönlicher Access Token mit API-Rechten            |
 | **Assignee-Autovervollständigung** | Aktiviert das automatische Nachladen von Zuständigen |
+| **Wasserzeichen aktivieren**       | Fügt dem Ticket ein unsichtbares Wasserzeichen hinzu |
+| **Cache deaktivieren**             | Deaktivieren das Speichern der Daten im Cache        |
 | **Cache leeren**                   | Löscht alle gespeicherten Metadaten                  |
 | **Projekte zurücksetzen**          | Löscht nur die Projektliste                          |
 | **Zuständige zurücksetzen**        | Löscht nur die Liste der Assignees                   |

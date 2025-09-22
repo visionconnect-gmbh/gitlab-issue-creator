@@ -1,5 +1,5 @@
 import { LocalizeKeys, CacheKeys, MessageTypes } from "../../../utils/Enums.js";
-import { displayLocalizedNotification } from "../../../utils/utils.js";
+import { displayLocalizedNotification, getAddonVersion } from "../../../utils/utils.js";
 import { getCache } from "../../../utils/cache.js";
 import { uploadAttachmentToGitLab } from "../../../gitlab/gitlab.js";
 import {

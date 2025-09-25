@@ -135,10 +135,28 @@ function createAttachmentCheckbox(attachment) {
   return checkbox;
 }
 
-function createAttachmentLabel(attachment, checkboxId) {
+function createAttachmentLabel(attachment, checkboxId, maxLength = 20) {
   const label = document.createElement("label");
   label.className = "attachment-label";
-  label.textContent = attachment.name;
+
+  const name = attachment.name;
+  const dotIndex = name.lastIndexOf(".");
+
+  let displayName = name;
+
+  if (dotIndex > 0) {
+    const baseName = name.slice(0, dotIndex);
+    const extension = name.slice(dotIndex); // includes the dot, e.g., ".jpg"
+
+    if (baseName.length + extension.length > maxLength) {
+      const truncatedBase = baseName.slice(0, maxLength - extension.length - 1);
+      displayName = truncatedBase + "…" + extension;
+    }
+  } else if (name.length > maxLength) {
+    displayName = name.slice(0, maxLength - 1) + "…";
+  }
+
+  label.textContent = displayName;
   label.htmlFor = checkboxId;
   return label;
 }

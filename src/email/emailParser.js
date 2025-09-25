@@ -8,6 +8,7 @@ import {
   extractForwardedMessage,
   extractForwardedAuthorAndDate,
   removeForwardedHeader,
+  removeForwardedMessage,
 } from "./handler/forwardedHandler.js";
 import {
   findTextPart,
@@ -48,20 +49,18 @@ export function emailParser(emailBody) {
   const { latestMessage, quotedLines } = splitQuotedAndLatest(emailBody);
   const quotedMessages = extractQuotedMessages(quotedLines);
   const rawMessages = [latestMessage, ...quotedMessages].filter(Boolean);
-
   const dateAndAuthorLines = rawMessages.map(extractDateAndAuthorLine);
   const remappedMessages = remapDateAndAuthorLines(
     rawMessages,
     dateAndAuthorLines
   );
-
   return remappedMessages.map((rawMessage) => {
     const headerLine = rawMessage.split("\n")[0];
     const { from, date, time } = parseDateAndAuthorLine(headerLine);
     const forwardedText = extractForwardedMessage(rawMessage);
-
     const contentWithoutHeader = removeDateAndAuthorLines(rawMessage);
-    const cleanedMessageOuter = removeEmptyLines(contentWithoutHeader);
+    let cleanedMessageOuter = removeEmptyLines(contentWithoutHeader);
+    cleanedMessageOuter = removeForwardedMessage(cleanedMessageOuter);
     const finalMessageOuter = removeSignature(cleanedMessageOuter);
 
     let forwardedMessage = null;

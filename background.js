@@ -1,7 +1,6 @@
 import { handleMessage } from "./src/background/handler/messageHandler.js";
 import {
   openPopup,
-  sendProjectsToPopup,
 } from "./src/background/handler/popupHandler.js";
 import { State } from "./src/background/backgroundState.js";
 import { getGitLabSettings, getProjects } from "./src/gitlab/gitlab.js";
@@ -27,15 +26,11 @@ async function handleClick(messageId = null) {
     return;
   }
   
-  await openPopup();
+  const projects = await getProjects();
   State.setEmail(email);
+  State.setProjects(projects);
 
-  await getProjects(async (projects) => {
-    State.setProjects(projects);
-    if (State.isPopupReady()) {
-      await sendProjectsToPopup();
-    }
-  });
+  openPopup();
 }
 
 async function getMessage() {

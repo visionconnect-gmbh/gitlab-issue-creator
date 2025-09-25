@@ -63,6 +63,10 @@
     "message": "Are you sure you want to clear the cache? This will remove all cached data, including URL and Token.",
     "description": "Alert for clearing cache."
   },
+  "OptionsErrorOpening": {
+    "message": "Error opening options!",
+    "description": "Error for not opened options page."
+  },
   "OptionsErrorOptionsLoaded": {
     "message": "Error loading options!",
     "description": "Error for not loaded options."

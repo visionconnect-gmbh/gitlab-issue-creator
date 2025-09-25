@@ -63,6 +63,10 @@
     "message": "Möchten Sie den Cache wirklich leeren? Dadurch werden alle zwischengespeicherten Daten, einschließlich URL und Token, entfernt.",
     "description": "Alert for clearing cache."
   },
+  "OptionsErrorOpening": {
+    "message": "Fehler beim Öffnen der Einstellungen!",
+    "description": "Error for not opened options page."
+  },
   "OptionsErrorOptionsLoaded": {
     "message": "Fehler beim Laden der Einstellungen!",
     "description": "Error for not loaded options."

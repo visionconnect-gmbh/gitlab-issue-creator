@@ -1,4 +1,4 @@
-import { MessageTypes } from "../../../utils/Enums.js";
+import { MessageTypes, Popup_MessageTypes } from "../../../utils/Enums.js";
 import {
   projects,
   elements,
@@ -16,36 +16,60 @@ import {
 } from "../popupState.js";
 import { renderProjectSuggestions, renderAssignees } from "../ui.js";
 import { generateFullDescription } from "./descriptionHandler.js";
+import { isPopupMessageType } from "../../../utils/utils.js";
 
 export function handleIncomingMessage(msg) {
+  // Check if message type is Popup_MessageTypes
+  if (isPopupMessageType(msg.type)) return;
+
   switch (msg.type) {
     case MessageTypes.INITIAL_DATA:
-      handleProjectsData(msg);
-
-      setMessageData(msg.email);
-      elements.issueTitle.value = messageData.subject ?? "";
-      easyMDE.value(generateFullDescription());
+      handleInitalData(msg);
       break;
     case MessageTypes.PROJECT_LIST:
-      handleProjectsData(msg);
+      handleProjectsData(msg.projects);
       break;
     case MessageTypes.ASSIGNEES_LIST:
-      if (msg.projectId === selectedProjectId) {
-        setAssigneesCache(msg.projectId, msg.assignees || []);
-        setCurrentAssignees(assigneesCache[msg.projectId]);
-        renderAssignees();
-      }
+      handleAssigneeData(msg);
       break;
     default:
       console.warn("Unknown message type:", msg.type);
   }
 }
 
-function handleProjectsData(msg) {
-  setProjects(msg.projects || []);
+function handleInitalData(msg) {
+  const projects = msg.projects;
+  if (projects) handleProjectsData(projects);
+
+  setMessageData(msg.email);
+  elements.issueTitle.value = messageData.subject ?? "";
+  easyMDE.value(generateFullDescription());
+
+  sendMessageToBackground(Popup_MessageTypes.REQUEST_PROJECTS);
+}
+
+function handleProjectsData(projects) {
+  setProjects(projects || []);
   setFilteredProjects([...projects]);
   renderProjectSuggestions();
-  setAssigneesCache(null, msg.assignees || {}); // full cache update
+}
+
+function handleAssigneeData(msg) {
+  const projectId = msg.projectId;
+  const assignees = msg.assignees;
+  if (!projectId || !Array.isArray(assignees)) {
+    console.warn("Invalid assignee data received:", msg);
+    return;
+  }
+
+  if (!projectId == selectedProjectId) {
+    // Data is for a different project, ignore
+    return;
+  }
+
+  setAssigneesCache(projectId, assignees);
+  setCurrentAssignees(assignees);
+  renderAssignees();
 }
 
 export function handleProjectSearchInput() {
@@ -77,6 +101,8 @@ export function handleProjectSearchChange() {
 }
 
 async function updateAssigneesForSelectedProject() {
+  if (!isAssigneeLoadingEnabled) return;
+
   if (!selectedProjectId) {
     setCurrentAssignees([]);
     renderAssignees();
@@ -86,10 +112,14 @@ async function updateAssigneesForSelectedProject() {
   if (assigneesCache[selectedProjectId]) {
     setCurrentAssignees(assigneesCache[selectedProjectId]);
     renderAssignees();
-  } else if (isAssigneeLoadingEnabled) {
-    browser.runtime.sendMessage({
-      type: MessageTypes.REQUEST_ASSIGNEES,
-      projectId: selectedProjectId,
-    });
+    return;
   }
+
+  sendMessageToBackground(Popup_MessageTypes.REQUEST_ASSIGNEES, {
+    projectId: selectedProjectId,
+  });
+}
+
+function sendMessageToBackground(type, payload = {}) {
+  browser.runtime.sendMessage({ type, ...payload });
 }

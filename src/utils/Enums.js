@@ -1,13 +1,18 @@
 export const MessageTypes = Object.freeze({
-  POPUP_READY: "popup-ready",
-  PROJECT_LIST: "project-list",
   INITIAL_DATA: "initial-data",
-  CREATE_GITLAB_ISSUE: "create-gitlab-issue",
+  PROJECT_LIST: "project-list",
+  ASSIGNEES_LIST: "assignees-list",
   CLEAR_CACHE: "clear-cache",
   SETTINGS_UPDATED: "settings-updated",
-  REQUEST_ASSIGNEES: "request-assignees",
-  ASSIGNEES_LIST: "assignees-list",
   CLOSE_POPUP: "close-popup",
+});
+
+export const Popup_MessageTypes = Object.freeze({
+  POPUP_READY: "popup-ready",
+  REQUEST_INITIAL_DATA: "request-initial-data",
+  REQUEST_PROJECTS: "request-projects",
+  REQUEST_ASSIGNEES: "request-assignees",
+  CREATE_GITLAB_ISSUE: "create-gitlab-issue",
 });
 
 export const CacheKeys = Object.freeze({
@@ -73,6 +78,7 @@ export const LocalizeKeys = Object.freeze({
       CLEAR_CACHE: "OptionsAlertClearCache",
     },
     ERRORS: {
+      ERROR_OPENING: "OptionsErrorOpening",
       INVALID_URL: "OptionsErrorInvalidUrl",
       UNREACHABLE_URL: "OptionsErrorUnreachableUrl",
       OPTIONS_LOADED: "OptionsErrorOptionsLoaded",
@@ -110,6 +116,9 @@ export const LocalizeKeys = Object.freeze({
     MESSAGES: {
       NO_ASSIGNEES_FOUND: "PopupNoAssigneesFound",
       NO_ATTACHMENTS: "PopupNoAttachments",
+    },
+    ERRORS: {
+      ERROR_CLOSING: "PopupErrorClosing"
     },
   },
 

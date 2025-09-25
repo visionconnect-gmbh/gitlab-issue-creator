@@ -63,6 +63,10 @@
     "message": "Load Attachments Preview",
     "description": "Button to load attachment preview."
   },
+  "PopupErrorClosing": {
+    "message": "Error closing popup!",
+    "description": "Error for not closed popup."
+  },
   "PopupNoAssigneesFound": {
     "message": "(No assignees found)",
     "description": "Message when no assignees are found."

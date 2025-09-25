@@ -38,7 +38,7 @@ export function generateBaseDescription() {
 
   return history
     .map((entry, index) => {
-      const separator = index > 0 ? "\n---\n\n" : "";
+      const separator = index > 0 ? "\n---\n" : "";
       const main = formatEntry(entry, index);
       const forwarded = entry.forwardedMessage
         ? "\n\n" + formatEntry(entry.forwardedMessage, index, true)

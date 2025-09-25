@@ -118,8 +118,6 @@ export async function getProjects(onUpdate) {
       page++;
     } while (fetched.length === 100);
 
-    console.log(`Fetched ${allProjects.length} projects`);
-
     await setCache(CacheKeys.PROJECTS, allProjects);
     if (onUpdate) onUpdate(allProjects);
   } catch (error) {

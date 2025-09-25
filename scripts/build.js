@@ -23,6 +23,7 @@ const EXCLUDE_PATTERNS = [
   "package-lock.json",
   "rollup.config.mjs",
   "build.js",
+  ".gitlab-ci.yml",
 ];
 
 async function buildAddon() {

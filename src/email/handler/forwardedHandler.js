@@ -58,3 +58,19 @@ export function removeForwardedHeader(message) {
   if (headerEndIndex === -1 || !headerCandidate) return message;
   return lines.slice(headerEndIndex + 1).join("\n");
 }
+
+
+/**
+ * Removes the forwarded message and its header from the base message
+ */
+export function removeForwardedMessage(baseMessage) {
+  if (!baseMessage || typeof baseMessage !== "string") return baseMessage;
+
+  // Regex for forwarded message header (like "-----Ursprüngliche Nachricht-----")
+  const forwardHeaderRegex = /^-{3,}.*?-{3,}$/m;
+  const match = baseMessage.match(forwardHeaderRegex);
+  if (!match) return baseMessage;
+
+  // Remove everything from the start of the header to the end of the message
+  return baseMessage.slice(0, baseMessage.indexOf(match[0])).trimEnd();
+}

@@ -63,6 +63,10 @@
     "message": "Vorschau der Anhänge laden",
     "description": "Button to load attachment preview."
   },
+  "PopupErrorClosing": {
+    "message": "Fehler beim Schließen des Popups!",
+    "description": "Error for not closed popup."
+  },
   "PopupNoAssigneesFound": {
     "message": "(Keine Bearbeiter gefunden)",
     "description": "Message when no assignees are available."

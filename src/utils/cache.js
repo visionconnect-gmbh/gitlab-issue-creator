@@ -51,7 +51,7 @@ export async function clearAllCache() {
   if (keysToRemove.length > 0) {
     await browser.storage.local.remove(keysToRemove);
   }
-  console.log("Cache cleared successfully.");
+  console.warn("Cache cleared successfully.");
 }
 
 export async function getCacheKeys() {

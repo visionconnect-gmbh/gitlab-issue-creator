@@ -43,7 +43,7 @@ async function packSource() {
     console.warn("No valid manifest.json - using 'src' as version");
   }
 
-  const zipPath = path.join(SRC_ZIP_DIR, `${ADDON_NAME}-source-${version}.zip`);
+  const zipPath = path.join(SRC_ZIP_DIR, `${ADDON_NAME}-${version}-source.zip`);
   await createZipArchive(SRC_TEMP_DIR, zipPath);
   rimrafSync(SRC_TEMP_DIR);
 

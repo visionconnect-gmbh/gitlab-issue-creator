@@ -1,31 +1,48 @@
-import { MessageTypes, LocalizeKeys } from "../../utils/Enums.js";
-import { State } from "../backgroundState.js";
-import { closePopup, isPopup, sendInitialDataToPopup } from "./popupHandler.js";
 import {
-  getAssignees,
+  MessageTypes,
+  LocalizeKeys,
+  Popup_MessageTypes,
+} from "../../utils/Enums.js";
+import { State } from "../backgroundState.js";
+import {
+  closePopup,
+  isPopup,
+  sendAssigneesToPopup,
+  sendInitialDataToPopup,
+  sendProjectsToPopup,
+} from "./popupHandler.js";
+import {
   createGitLabIssue,
   getCurrentUser,
 } from "../../gitlab/gitlab.js";
 import { displayLocalizedNotification } from "../../utils/utils.js";
 
 export async function handleMessage(msg) {
-  if(!msg) {
+  if (!msg) {
     console.warn("Received null/undefined message");
     return; // Stop processing if message is invalid
   }
 
   try {
     switch (msg.type) {
-      case MessageTypes.POPUP_READY:
+      case Popup_MessageTypes.POPUP_READY:
         State.setPopupReady(true);
+        State.setPopupWindowId(msg.tabId || null);
+        break;
+
+      case Popup_MessageTypes.REQUEST_INITIAL_DATA:
         await sendInitialDataToPopup();
         break;
 
-      case MessageTypes.REQUEST_ASSIGNEES:
-        await handleAssignees(msg.projectId);
+      case Popup_MessageTypes.REQUEST_PROJECTS:
+        await sendProjectsToPopup();
+        break;
+        
+      case Popup_MessageTypes.REQUEST_ASSIGNEES:
+        await sendAssigneesToPopup(msg.projectId);
         break;
 
-      case MessageTypes.CREATE_GITLAB_ISSUE:
+      case Popup_MessageTypes.CREATE_GITLAB_ISSUE:
         await handleCreateIssue(msg);
         break;
 
@@ -43,28 +60,6 @@ export async function handleMessage(msg) {
   } catch (err) {
     console.error("Runtime message error:", err);
     displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
-  }
-}
-
-async function handleAssignees(projectId) {
-  if (!projectId) return;
-  if (!State.getAssignees(projectId)) {
-    try {
-      State.setAssignees(projectId, await getAssignees(projectId));
-    } catch {
-      State.setAssignees(projectId, []);
-    }
-  }
-
-  const [tab] = await browser.tabs.query({
-    windowId: State.getPopupWindowId(),
-  });
-  if (tab) {
-    await browser.tabs.sendMessage(tab.id, {
-      type: MessageTypes.ASSIGNEES_LIST,
-      projectId,
-      assignees: State.getAssignees(projectId),
-    });
   }
 }
 
@@ -104,7 +99,7 @@ async function reloadPopup() {
   const [tab] = await browser.tabs.query({
     windowId: State.getPopupWindowId(),
   });
-  if(tab) {
+  if (tab) {
     // check if tab is actually popup
     if (isPopup(tab)) {
       await browser.tabs.reload(tab.id);
@@ -114,5 +109,3 @@ async function reloadPopup() {
     }
   }
 }
-
-

@@ -1,44 +1,40 @@
 export function parseDateAndAuthorLine(line) {
   if (!line) return { from: "", date: "", time: "" };
 
-  const patterns = [
-    {
-      regex: /Am (\d{2}\.\d{2}\.\d{4}) um (\d{2}:\d{2}) schrieb (.+?):/,
-      groups: { date: 1, time: 2, from: 3 },
-    },
-    {
-      regex:
-        /On (\d{1,2}\/\d{1,2}\/\d{4}) (\d{1,2}:\d{2})\s?(AM|PM), (.+?) wrote:/i,
-      groups: { date: 1, time: 2, meridiem: 3, from: 4 },
-    },
-    {
-      regex: /Le (\d{2}\/\d{2}\/\d{4}) à (\d{2}:\d{2}), (.+?) a écrit ?:/,
-      groups: { date: 1, time: 2, from: 3 },
-    },
-    {
-      regex: /El (\d{2}\/\d{2}\/\d{4}) a las (\d{2}:\d{2}), (.+?) escribió:/,
-      groups: { date: 1, time: 2, from: 3 },
-    },
-    {
-      regex:
-        /(\d{1,2}[./-]\d{1,2}[./-]\d{2,4})[,\s]+(\d{1,2}:\d{2}(?:\s?(?:AM|PM))?),\s+(.+?)\s+wrote:/i,
-      groups: { date: 1, time: 2, from: 3 },
-    },
-  ];
+  const cleaned = line.replace(/\s+/g, " ").trim();
 
-  for (const p of patterns) {
-    const match = line.match(p.regex);
-    if (match) {
-      const { date, time, meridiem, from } = p.groups;
-      return {
-        date: match[date],
-        time: meridiem ? `${match[time]} ${match[meridiem]}` : match[time],
-        from: match[from].trim(),
-      };
-    }
+  // Date: 1–2 digits sep 1–2 digits sep 2–4 digits
+  const datePattern = /\d{1,2}[./-]\d{1,2}[./-]\d{2,4}/;
+  // Time: 1–2 digits:2 digits + optional AM/PM
+  const timePattern = /\d{1,2}:\d{2}(?:\s?(?:AM|PM))?/i;
+
+  const dateMatch = cleaned.match(datePattern);
+  const timeMatch = cleaned.match(timePattern);
+
+  if (!dateMatch || !timeMatch) {
+    return { from: "", date: "", time: "" };
   }
 
-  return { from: "", date: "", time: "" };
+  const date = dateMatch[0];
+  const time = timeMatch[0];
+
+  // Take substring starting *after* the time
+  const afterTime = cleaned.slice(cleaned.indexOf(time) + time.length).trim();
+
+  // Author = until first colon
+  let from = (afterTime.split(":")[0] || "").trim();
+
+  from = extractName(from);
+  return { date, time, from };
+}
+
+function extractName(line) {
+  // Match sequences of capitalized words
+  const matches = line.match(/\b([A-ZÄÖÜ][a-zäöüß]+(?:\s[A-ZÄÖÜ][a-zäöüß]+)*)\b/g);
+  if (!matches) return line.trim();
+  
+  // Return all capitalized sequences joined by space (in case there are multiple)
+  return matches.join(' ').trim();
 }
 
 export function extractDateAndAuthorLine(message) {

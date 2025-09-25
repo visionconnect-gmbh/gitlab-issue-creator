@@ -1,5 +1,6 @@
 import { State, reset } from "../backgroundState.js";
 import { MessageTypes } from "../../utils/Enums.js";
+import { getAssignees } from "../../gitlab/gitlab.js";
 
 const POPUP_PATH = "src/popup/issue_creator.html";
 
@@ -66,7 +67,8 @@ async function validateTab() {
   const [tab] = await browser.tabs.query({ windowId: winId });
   if (!tab) return -1;
 
-  if (!isPopup(tab)) return -1;
+  const isValid = isPopup(tab);
+  if (!isValid) return -1;
 
   return tab.id;
 }
@@ -74,7 +76,9 @@ async function validateTab() {
 export async function sendInitialDataToPopup() {
   const tabId = await validateTab();
   if (tabId === -1) {
-    console.warn("Popup tab not found or invalid.");
+    console.warn(
+      "Popup tab not found or invalid. When trying to send initial data."
+    );
     return;
   }
 
@@ -96,7 +100,9 @@ export async function sendInitialDataToPopup() {
 export async function sendProjectsToPopup() {
   const tabId = await validateTab();
   if (tabId === -1) {
-    console.warn("Popup tab not found or invalid.");
+    console.warn(
+      "Popup tab not found or invalid. When trying to send projects."
+    );
     return;
   }
 
@@ -108,11 +114,43 @@ export async function sendProjectsToPopup() {
   });
 }
 
+export async function sendAssigneesToPopup(projectId) {
+  if (!projectId) return;
+
+  let assignees = State.getAssignees(projectId);
+
+  if (!assignees) {
+    try {
+      assignees = await getAssignees(projectId);
+    } catch {
+      assignees = [];
+    }
+    State.setAssignees(projectId, assignees);
+  }
+
+  const tabId = await validateTab();
+  if (tabId === -1) {
+    console.warn(
+      "Popup tab not found or invalid. When trying to send assignees."
+    );
+    return;
+  }
+
+  try {
+    await browser.tabs.sendMessage(tabId, {
+      type: MessageTypes.ASSIGNEES_LIST,
+      projectId,
+      assignees,
+    });
+  } catch (err) {
+    console.error("Failed to send assignees data to popup:", err);
+  }
+}
+
 export function isPopup(tab) {
   if (!tab?.title) return false;
 
   const { type, title, url } = tab;
-
   return (
     type === "popup" ||
     title.toLowerCase().includes("popup") ||

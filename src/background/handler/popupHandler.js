@@ -1,6 +1,6 @@
 import { State, reset } from "../backgroundState.js";
 import { MessageTypes } from "../../utils/Enums.js";
-import { getAssignees } from "../../gitlab/gitlab.js";
+import { getAssignees, getProjects } from "../../gitlab/gitlab.js";
 
 const POPUP_PATH = "src/popup/issue_creator.html";
 
@@ -106,9 +106,22 @@ export async function sendProjectsToPopup() {
     return;
   }
 
-  const projects = State.getProjects();
+  let projects = State.getProjects();
 
-  await browser.tabs.sendMessage(tabId, {
+  if (!projects || projects.length === 0) {
+    // Fetch from storage/server if not cached in memory
+    try {
+      projects = await getProjects();
+      State.setProjects(projects);
+    } catch (err) {
+      console.error("Failed to fetch projects:", err);
+      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
+      return;
+    }
+  }
+
+  // Send projects to popup
+  browser.runtime.sendMessage({
     type: MessageTypes.PROJECT_LIST,
     projects,
   });

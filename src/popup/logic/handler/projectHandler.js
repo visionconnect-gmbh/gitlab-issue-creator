@@ -19,21 +19,25 @@ import { generateFullDescription } from "./descriptionHandler.js";
 import { isPopupMessageType } from "../../../utils/utils.js";
 
 export function handleIncomingMessage(msg) {
-  // Check if message type is Popup_MessageTypes
-  if (isPopupMessageType(msg.type)) return;
+  try {
+    // Check if message type is Popup_MessageTypes
+    if (isPopupMessageType(msg.type)) return;
 
-  switch (msg.type) {
-    case MessageTypes.INITIAL_DATA:
-      handleInitalData(msg);
-      break;
-    case MessageTypes.PROJECT_LIST:
-      handleProjectsData(msg.projects);
-      break;
-    case MessageTypes.ASSIGNEES_LIST:
-      handleAssigneeData(msg);
-      break;
-    default:
-      console.warn("Unknown message type:", msg.type);
+    switch (msg.type) {
+      case MessageTypes.INITIAL_DATA:
+        handleInitalData(msg);
+        break;
+      case MessageTypes.PROJECT_LIST:
+        handleProjectsData(msg.projects);
+        break;
+      case MessageTypes.ASSIGNEES_LIST:
+        handleAssigneeData(msg);
+        break;
+      default:
+        console.warn("Unknown message type:", msg.type);
+    }
+  } catch (error) {
+    console.error(`Error handling message of type ${msg.type}: ${error}. Message:`, msg);
   }
 }
 

@@ -75,7 +75,7 @@ const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
  * @param {function(Array):void} [onUpdate] - Optional callback for live update
  */
 export async function getProjects(onUpdate) {
-  const cached = await getCache(CacheKeys.PROJECTS, CACHE_TTL_MS);
+  const cached = await getCache(CacheKeys.PROJECTS, CACHE_TTL_MS * 13.5);
 
   if (cached) {
     // Add new projects to the cache if they are not already present
@@ -120,6 +120,7 @@ export async function getProjects(onUpdate) {
 
     await setCache(CacheKeys.PROJECTS, allProjects);
     if (onUpdate) onUpdate(allProjects);
+    return allProjects;
   } catch (error) {
     console.error("Error fetching projects:", error);
     displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);

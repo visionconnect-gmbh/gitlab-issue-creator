@@ -3,7 +3,7 @@ import {
   openPopup,
 } from "./src/background/handler/popupHandler.js";
 import { State } from "./src/background/backgroundState.js";
-import { getGitLabSettings, getProjects } from "./src/gitlab/gitlab.js";
+import { getGitLabSettings } from "./src/gitlab/gitlab.js";
 import { getEmailContent } from "./src/email/emailParser.js";
 import { LocalizeKeys } from "./src/utils/Enums.js";
 import { displayLocalizedNotification } from "./src/utils/utils.js";
@@ -26,9 +26,7 @@ async function handleClick(messageId = null) {
     return;
   }
   
-  const projects = await getProjects();
   State.setEmail(email);
-  State.setProjects(projects);
 
   openPopup();
 }

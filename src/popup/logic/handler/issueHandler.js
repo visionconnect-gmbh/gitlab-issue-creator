@@ -1,4 +1,4 @@
-import { LocalizeKeys, CacheKeys, MessageTypes } from "../../../utils/Enums.js";
+import { LocalizeKeys, CacheKeys, MessageTypes, Popup_MessageTypes } from "../../../utils/Enums.js";
 import { displayLocalizedNotification, getAddonVersion } from "../../../utils/utils.js";
 import { getCache } from "../../../utils/cache.js";
 import { uploadAttachmentToGitLab } from "../../../gitlab/gitlab.js";
@@ -119,7 +119,7 @@ async function uploadAttachmentOrNotify(file, attachmentName) {
 
 function sendCreateIssueMessage(description) {
   return browser.runtime.sendMessage({
-    type: MessageTypes.CREATE_GITLAB_ISSUE,
+    type: Popup_MessageTypes.CREATE_GITLAB_ISSUE,
     projectId: selectedProjectId,
     assignee: selectedAssigneeId || null,
     endDate: selectedIssueEndDate,

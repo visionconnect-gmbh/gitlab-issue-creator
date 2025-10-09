@@ -6,8 +6,13 @@ async function isCachingDisabled() {
   return await browser.storage.local.get(CacheKeys.DISABLE_CACHE).then((res) => res.disableCaching || false);
 }
 
+function isGitlabSettingsCacheKey(key) {
+  return key === `${CacheKeys.GITLAB_SETTINGS}`;
+}
+
 export async function setCache(key, data) {
-  if ((await isCachingDisabled())) return;
+  if (await isCachingDisabled() && !isGitlabSettingsCacheKey(key)) return;
+
   const entry = { data, timestamp: Date.now() };
   await browser.storage.local.set({ [`${cachePrefix}${key}`]: entry });
 }

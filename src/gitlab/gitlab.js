@@ -6,6 +6,8 @@ import { apiGet, apiPost, doRequest } from "./api.js";
 import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
 import { CacheKeys, LocalizeKeys } from "../utils/Enums.js";
 
+const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
+
 /**
  * Shows a standard GitLab settings missing notification.
  */
@@ -67,15 +69,14 @@ export async function getCurrentUser() {
   }
 }
 
-const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
-
+const PROJECT_CACHE_TTL_MS = CACHE_TTL_MS * 13.5;
 /**
  * Returns cached projects if available and not stale.
  * Otherwise fetches from GitLab and updates the cache in background.
  * @param {function(Array):void} [onUpdate] - Optional callback for live update
  */
 export async function getProjects(onUpdate) {
-  const cached = await getCache(CacheKeys.PROJECTS, CACHE_TTL_MS * 13.5);
+  const cached = await getCache(CacheKeys.PROJECTS, PROJECT_CACHE_TTL_MS);
 
   if (cached) {
     // Add new projects to the cache if they are not already present
@@ -131,7 +132,7 @@ async function getNewProjects() {
   const settings = await getGitLabSettings();
   if (!settings) return [];
 
-  const current_projects = await getCache(CacheKeys.PROJECTS, CACHE_TTL_MS); // from cache
+  const current_projects = await getCache(CacheKeys.PROJECTS, PROJECT_CACHE_TTL_MS, []); // from cache
 
   // Entry 0 is the most recent project
   const last_id = current_projects.length > 0 ? current_projects[0].id : -1;

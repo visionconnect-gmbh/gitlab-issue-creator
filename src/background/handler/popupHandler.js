@@ -1,6 +1,7 @@
 import { State, reset } from "../backgroundState.js";
-import { MessageTypes } from "../../utils/Enums.js";
+import { MessageTypes, LocalizeKeys } from "../../utils/Enums.js";
 import { getAssignees, getProjects } from "../../gitlab/gitlab.js";
+import { displayLocalizedNotification } from "../../utils/utils.js";
 
 const POPUP_PATH = "src/popup/issue_creator.html";
 

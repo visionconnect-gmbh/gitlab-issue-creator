@@ -8,6 +8,9 @@ import { getEmailContent } from "./src/email/emailParser.js";
 import { LocalizeKeys } from "./src/utils/Enums.js";
 import { displayLocalizedNotification } from "./src/utils/utils.js";
 
+/** Handles the click event from the browser action or context menu
+ * @param {number|null} messageId - The ID of the selected message, or null to get the currently displayed message
+ */
 async function handleClick(messageId = null) {
   if (!(await getGitLabSettings())) return;
 
@@ -31,6 +34,9 @@ async function handleClick(messageId = null) {
   openPopup();
 }
 
+/** Gets the currently displayed message in the active tab
+ * @returns {Promise<any>} The currently displayed message
+ */
 async function getMessage() {
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   return await browser.messageDisplay.getDisplayedMessage(tab.id);

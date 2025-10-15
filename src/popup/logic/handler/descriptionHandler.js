@@ -76,6 +76,8 @@ function formatEntry(entry, index, isForwarded = false) {
   return `${forwardedPrefix}${metaInfo}${messageText}`;
 }
 
+/** Determine the sender for an entry
+ */
 function determineSender(entry, index, isForwarded) {
   if (index === 0 && !isForwarded) return messageData.author;
   return (
@@ -85,6 +87,15 @@ function determineSender(entry, index, isForwarded) {
   );
 }
 
+/** Format the date for an entry
+ * Tries to use the message date for the first entry if available
+ * Falls back to parsing the date and time strings
+ * If all fails, returns a localized fallback message
+ * @param {Object} entry - The entry object containing date and time
+ * @param {number} index - The index of the entry in the history
+ * @param {boolean} isForwarded - Whether this entry is a forwarded message
+ * @returns {string} The formatted date string
+ */
 function formatDate(entry, index, isForwarded) {
   const messageDate =
     !isForwarded && index === 0 && messageData?.date instanceof Date
@@ -123,6 +134,12 @@ function formatDate(entry, index, isForwarded) {
   );
 }
 
+/** Format time string to localized format
+ * Supports both 12-hour (with AM/PM) and 24-hour formats
+ * @param {string} timeStr - The time string to format
+ * @param {boolean} is12HourFormat - Whether the time string is in 12-hour format
+ * @returns {string} The formatted time string or original if parsing fails
+ */
 function formatTime(timeStr, is12HourFormat) {
   if (!timeStr) return "";
   const dummyDate = "1970-01-01";

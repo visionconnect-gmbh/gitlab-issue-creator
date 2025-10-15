@@ -43,6 +43,10 @@ export async function getEmailContent(message) {
   };
 }
 
+/** Parses the email body to extract conversation history, including handling quoted messages and forwarded content.
+ * @param {string} emailBody - The full body text of the email.
+ * @returns {Array} An array of message objects with properties: from, date, time, message, and optional forwardedMessage.
+ */
 export function emailParser(emailBody) {
   if (!emailBody || typeof emailBody !== "string") return [];
 

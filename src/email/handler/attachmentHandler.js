@@ -4,6 +4,10 @@ export const ALLOWED_ATTACHMENT_TYPES = [
   "image/png",
 ];
 
+/** Recursively finds attachment parts in the email parts structure.
+ * @param {Array} parts - The array of email parts to search.
+ * @returns {Array} An array of attachment objects with name, contentType, size, and partName.
+ */
 export function findAttachmentParts(parts) {
   const attachments = [];
   for (const part of parts) {

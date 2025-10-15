@@ -18,6 +18,11 @@ import { renderProjectSuggestions, renderAssignees } from "../ui.js";
 import { generateFullDescription } from "./descriptionHandler.js";
 import { isPopupMessageType } from "../../../utils/utils.js";
 
+/**
+ * Handles incoming messages from the background script.
+ * @param {Object} msg - The incoming message object.
+ * @returns {void}
+ */
 export function handleIncomingMessage(msg) {
   try {
     // Check if message type is Popup_MessageTypes
@@ -41,6 +46,10 @@ export function handleIncomingMessage(msg) {
   }
 }
 
+/**
+ * Handles initial data message from the background script.
+ * @param {Object} msg - The incoming message object.
+ */
 function handleInitalData(msg) {
   const projects = msg.projects;
   if (projects) handleProjectsData(projects);
@@ -52,12 +61,21 @@ function handleInitalData(msg) {
   sendMessageToBackground(Popup_MessageTypes.REQUEST_PROJECTS);
 }
 
+/**
+ * Handles project data message from the background script.
+ * @param {Array} projects - The array of project objects.
+ */
 function handleProjectsData(projects) {
   setProjects(projects || []);
   setFilteredProjects([...projects]);
   renderProjectSuggestions();
 }
 
+/**
+ * Handles assignee data message from the background script.
+ * @param {Object} msg - The incoming message object.
+ * @returns {void}
+ */
 function handleAssigneeData(msg) {
   const projectId = msg.projectId;
   const assignees = msg.assignees;
@@ -76,6 +94,10 @@ function handleAssigneeData(msg) {
   renderAssignees();
 }
 
+/**
+ * Handles input event on the project search field.
+ * Filters projects based on the search term and updates the UI.
+ */
 export function handleProjectSearchInput() {
   const searchTerm = elements.projectSearch.value.toLowerCase();
 
@@ -94,6 +116,10 @@ export function handleProjectSearchInput() {
   updateAssigneesForSelectedProject();
 }
 
+/** Handles change event on the project search field.
+ * Sets the selected project ID based on the input value.
+ * Updates the assignees for the selected project.
+ */
 export function handleProjectSearchChange() {
   const inputValue = elements.projectSearch.value;
   const match = projects.find(
@@ -104,6 +130,9 @@ export function handleProjectSearchChange() {
   updateAssigneesForSelectedProject();
 }
 
+/** Updates the assignees for the currently selected project.
+ * Fetches from cache or requests from background if not cached.
+ */
 async function updateAssigneesForSelectedProject() {
   if (!isAssigneeLoadingEnabled) return;
 

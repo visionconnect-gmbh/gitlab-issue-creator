@@ -20,6 +20,11 @@ async function displayNotification(message, title = null) {
   return notificationId;
 }
 
+/** Displays a localized notification using a message key from _locales.
+ * If the message key is not found, it falls back to a default error message.
+ * @param {string} messageKey The key for the localized message.
+ * @param {string|null} title Optional title for the notification. Defaults to extension name.
+ */
 export async function displayLocalizedNotification(
   messageKey,
   title = null
@@ -44,6 +49,9 @@ export async function displayLocalizedNotification(
   }
 }
 
+/** Opens the options page of the extension.
+ * If the options page cannot be opened, it catches the error and logs it.
+ */
 export function openOptionsPage() {
   browser.runtime.openOptionsPage().catch((error) => {
     console.error("Error opening options page:", error);
@@ -51,6 +59,21 @@ export function openOptionsPage() {
   });
 }
 
+/** Opens the popup by sending a message to the background script.
+ * If the background script is not available, it catches the error and logs it.
+ */
+export function openPopup() {
+  browser.runtime
+    .sendMessage({ type: MessageTypes.OPEN_POPUP })
+    .catch((err) => {
+      console.error("Error opening popup:", err);
+      displayLocalizedNotification(LocalizeKeys.POPUP.ERRORS.ERROR_OPENING);
+    });
+}
+
+/** Closes the popup by sending a message to the background script.
+ * If the background script is not available, it catches the error and logs it.
+ */
 export function closePopup() {
   // Close the popup by sending a message to the background script
   browser.runtime
@@ -63,6 +86,10 @@ export function closePopup() {
     });
 }
 
+/**
+ * Gets the UI language, defaults to manifest.json default_locale or 'en'
+ * @returns {string} The UI language code, e.g. "en", "de"
+ */
 export function getUILanguage() {
   const lang = browser.i18n.getUILanguage();
   if (!lang) {
@@ -74,6 +101,10 @@ export function getUILanguage() {
   return lang;
 }
 
+/**
+ * Gets the addon version from the manifest.
+ * @returns {Promise<string>} The addon version from manifest.json or "unknown"
+ */
 export async function getAddonVersion() {
   const version = await browser.runtime.getManifest().version;
   return version || "unknown";

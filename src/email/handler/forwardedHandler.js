@@ -1,5 +1,9 @@
 import { getSignatureIndex } from "./textHandler.js";
 
+/** Extracts the forwarded message from the email body
+ * @param {string} message - The full email message
+ * @returns {string|null} The extracted forwarded message or null if not found
+ */
 export function extractForwardedMessage(message) {
   const forwardHeaderRegex = /^-{3,}.*?-{3,}$/m;
   const match = message.match(forwardHeaderRegex);
@@ -14,6 +18,10 @@ export function extractForwardedMessage(message) {
   return cleanText || null;
 }
 
+/** Extracts the author and date from the forwarded message header
+ * @param {string} forwardedText - The text of the forwarded message
+ * @returns {Object} An object with 'author' and 'date' properties, or null if not found
+ */
 export function extractForwardedAuthorAndDate(forwardedText) {
   const lines = forwardedText
     .split("\n")
@@ -38,6 +46,10 @@ export function extractForwardedAuthorAndDate(forwardedText) {
   return { author, date };
 }
 
+/** Removes the header of the forwarded message, if present
+ * @param {string} message - The full email message
+ * @returns {string} The message without the forwarded header
+ */
 export function removeForwardedHeader(message) {
   const lines = message.split("\n");
   let headerEndIndex = -1;

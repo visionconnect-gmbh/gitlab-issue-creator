@@ -25,6 +25,10 @@ import {
 
 document.addEventListener("DOMContentLoaded", init);
 
+/**
+ * Initializes the popup by setting up event listeners, loading initial data,
+ * and notifying the background script that the popup is ready.
+ */
 async function init() {
   await resetEditor();
   localizeHtmlPage();
@@ -63,11 +67,19 @@ async function init() {
   });
 }
 
+/**
+ * Sets up the project search input field.
+ * @param {HTMLInputElement} projectSearch The project search input element.
+ */
 function setupProjectSearch(projectSearch) {
   projectSearch.addEventListener("input", handleProjectSearchInput);
   projectSearch.addEventListener("change", handleProjectSearchChange);
 }
 
+/**
+ * Sets up the assignee select element.
+ * @param {HTMLSelectElement} assigneeSelect The assignee select element.
+ */
 async function setupAssigneeSelect(assigneeSelect) {
   assigneeSelect.addEventListener("change", async (e) => {
     const selectedId = e.target.value || (await getCurrentUser()).id;
@@ -83,12 +95,22 @@ async function setupAssigneeSelect(assigneeSelect) {
   }
 }
 
+/**
+ * Sets up the issue end date input field.
+ * @param {HTMLInputElement} issueEnd The issue end date input element.
+ */
 function setupIssueEnd(issueEnd) {
   issueEnd.addEventListener("change", (e) => {
     setIssueEndDate(e.target.value ? new Date(e.target.value) : null);
   });
 }
 
+/** Sets up attachment handling including button clicks and backdrop interactions.
+ * @param {HTMLButtonElement} attachmentsButton The button to open the attachment selector.
+ * @param {HTMLElement} backdrop The backdrop element for the attachment selector.
+ * @param {HTMLButtonElement} closeBtn The button to close the attachment selector.
+ * @param {HTMLButtonElement} previewBtn The button to load the attachment preview.
+ */
 function setupAttachmentHandling(
   attachmentsButton,
   backdrop,

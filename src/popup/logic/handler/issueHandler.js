@@ -14,11 +14,18 @@ import {
 import { createAttachmentList, showButtonLoadingState } from "../ui.js";
 import { generateBaseDescription } from "./descriptionHandler.js";
 
+/** Handles the click event on the attachment button.
+ * Displays the attachment selector backdrop and creates the attachment list.
+ */
 export function handleAttachmentButtonClick() {
   elements.attachmentSelectorBackdrop.style.display = "flex";
   createAttachmentList(messageData?.attachments || []);
 }
 
+/** Handles the click event on the create issue button.
+ * Validates the selected project and prepares the issue description.
+ * Sends a message to create the issue and shows a loading state.
+ */
 export async function handleCreateButtonClick() {
   if (!selectedProjectId) {
     return displayLocalizedNotification(
@@ -35,6 +42,9 @@ export async function handleCreateButtonClick() {
   }
 }
 
+/** Generates the issue description including attachments and watermark if enabled.
+ * @returns {Promise<string>} The complete issue description.
+ */
 async function createTicketDescription() {
   let description = easyMDE.value().trim() || generateBaseDescription();
 
@@ -61,6 +71,10 @@ async function createTicketDescription() {
   return description.trim();
 }
 
+/** Generates the Markdown for the selected attachments.
+ * Uploads each attachment to GitLab and formats the links in Markdown.
+ * @returns {Promise<string>} The Markdown string for the attachments.
+ */
 async function generateAttachmentsMarkdown() {
   const lines = [];
 
@@ -86,6 +100,10 @@ async function generateAttachmentsMarkdown() {
   return lines.join("\n\n");
 }
 
+/** Retrieves the attachment file or displays a notification if not found.
+ * @param {Object} attachment - The attachment object.
+ * @returns {Promise<File|null>} The attachment file or null if not found.
+ */
 async function getAttachmentFileOrNotify(attachment) {
   try {
     const file = await getAttachmentFile(
@@ -105,6 +123,11 @@ async function getAttachmentFileOrNotify(attachment) {
   }
 }
 
+/** Uploads the attachment to GitLab or displays a notification on failure.
+ * @param {File} file - The attachment file to upload.
+ * @param {string} attachmentName - The name of the attachment for error messages.
+ * @returns {Promise<Object>} The upload result from GitLab.
+ */
 async function uploadAttachmentOrNotify(file, attachmentName) {
   try {
     return await uploadAttachmentToGitLab(selectedProjectId, file);
@@ -117,6 +140,10 @@ async function uploadAttachmentOrNotify(file, attachmentName) {
   }
 }
 
+/** Sends a message to the background script to create a GitLab issue.
+ * @param {string} description - The complete issue description.
+ * @returns {Promise<any>} The response from the background script.
+ */
 function sendCreateIssueMessage(description) {
   return browser.runtime.sendMessage({
     type: Popup_MessageTypes.CREATE_GITLAB_ISSUE,
@@ -128,6 +155,11 @@ function sendCreateIssueMessage(description) {
   });
 }
 
+/** Retrieves the attachment file from the message by ID and part name.
+ * @param {number} messageId - The ID of the message containing the attachment.
+ * @param {string} partName - The part name of the attachment to retrieve.
+ * @returns {Promise<File|null>} The attachment file or null if not found.
+ */
 export async function getAttachmentFile(messageId, partName) {
   if(!messageId || messageId === -1) return null;
 

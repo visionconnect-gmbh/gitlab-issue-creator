@@ -5,6 +5,11 @@ import { displayLocalizedNotification } from "../../utils/utils.js";
 
 const POPUP_PATH = "src/popup/issue_creator.html";
 
+/**
+ * Opens the popup window for creating a GitLab issue.
+ * Closes any existing popup before opening a new one.
+ * Sets up a dedicated listener to handle popup closure.
+ */
 export async function openPopup() {
   // Close the last popup and await it fully
   await closeLastPopup();
@@ -32,6 +37,9 @@ export async function openPopup() {
   browser.windows.onRemoved.addListener(handler);
 }
 
+/**
+ * Closes the currently open popup window.
+ */
 export async function closePopup() {
   const id = State.getPopupWindowId();
   if (!id) return;
@@ -47,7 +55,8 @@ export async function closePopup() {
   State.setLastPopupWindowId(null);
 }
 
-// Wait for the last popup to fully close before creating a new one
+/** Closes the last opened popup window if it exists.
+ */
 async function closeLastPopup() {
   const lastId = State.getLastPopupWindowId();
   if (!lastId) return;
@@ -61,6 +70,10 @@ async function closeLastPopup() {
   State.setLastPopupWindowId(null);
 }
 
+/**
+ * Validates the popup tab.
+ * @returns {Promise<number>} The tab ID of the popup, or -1 if not found or invalid.
+ */
 async function validateTab() {
   const winId = State.getPopupWindowId();
   if (!winId) return -1;
@@ -74,6 +87,8 @@ async function validateTab() {
   return tab.id;
 }
 
+/** Sends the initial data (email and projects) to the popup.
+ */
 export async function sendInitialDataToPopup() {
   const tabId = await validateTab();
   if (tabId === -1) {
@@ -98,6 +113,9 @@ export async function sendInitialDataToPopup() {
   });
 }
 
+/**
+ * Sends the project list to the popup.
+ */
 export async function sendProjectsToPopup() {
   const tabId = await validateTab();
   if (tabId === -1) {
@@ -128,6 +146,10 @@ export async function sendProjectsToPopup() {
   });
 }
 
+/** Sends the assignees for a given project to the popup.
+ * Fetches from cache or GitLab API if not cached.
+ * @param {number} projectId - The ID of the project to get assignees for.
+ */
 export async function sendAssigneesToPopup(projectId) {
   if (!projectId) return;
 
@@ -161,6 +183,10 @@ export async function sendAssigneesToPopup(projectId) {
   }
 }
 
+/** Checks if the given tab is a popup tab.
+ * @param {Object} tab - The tab object to check.
+ * @returns {boolean} True if the tab is a popup, false otherwise.
+ */
 export function isPopup(tab) {
   if (!tab?.title) return false;
 

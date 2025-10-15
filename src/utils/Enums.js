@@ -1,3 +1,4 @@
+// Message types for communication with background
 export const MessageTypes = Object.freeze({
   INITIAL_DATA: "initial-data",
   PROJECT_LIST: "project-list",
@@ -7,6 +8,8 @@ export const MessageTypes = Object.freeze({
   CLOSE_POPUP: "close-popup",
 });
 
+// Message types for communication between popup and background
+// Popup sends these messages to the background script
 export const Popup_MessageTypes = Object.freeze({
   POPUP_READY: "popup-ready",
   REQUEST_INITIAL_DATA: "request-initial-data",
@@ -15,6 +18,7 @@ export const Popup_MessageTypes = Object.freeze({
   CREATE_GITLAB_ISSUE: "create-gitlab-issue",
 });
 
+// Keys for storing data in browser.storage.local
 export const CacheKeys = Object.freeze({
   DISABLE_CACHE: "disable_cache",
   GITLAB_SETTINGS: "gitlab_settings",
@@ -26,6 +30,7 @@ export const CacheKeys = Object.freeze({
   ENABLE_WATERMARK: "enable_watermark",
 });
 
+// Keys for localization messages in _locales
 export const LocalizeKeys = Object.freeze({
   EXTENSION: {
     NAME: "ExtensionName",

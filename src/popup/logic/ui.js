@@ -11,6 +11,9 @@ import {
 } from "./popupState.js";
 import { generateFullDescription } from "./handler/descriptionHandler.js";
 
+/**
+ * Renders the project suggestions in the datalist based on filteredProjects.
+ */
 export function renderProjectSuggestions() {
   elements.projectSuggestions.replaceChildren();
 
@@ -25,6 +28,9 @@ export function renderProjectSuggestions() {
   });
 }
 
+/**
+ * Renders the assignees in the select element based on currentAssignees.
+ */
 export function renderAssignees() {
   elements.assigneeSelect.replaceChildren();
 
@@ -60,6 +66,9 @@ export function renderAssignees() {
   }
 }
 
+/** Updates the visibility of the assignee select element.
+ * @param {boolean} isVisible - True to show, false to hide.
+ */
 export function updateAssigneeSelectVisibility(isVisible) {
   const parentDiv = elements.assigneeSelect.parentElement;
   if (parentDiv) {
@@ -79,6 +88,8 @@ export function showButtonLoadingState() {
   }, LOADING_TIMNEOUT_S * 1000);
 }
 
+/** Toggles the visibility of the attachment selector backdrop.
+ */
 export function toggleAttachmentSelectorVisibility() {
   const isVisible =
     elements.attachmentSelectorBackdrop.style.display === "flex";
@@ -87,6 +98,10 @@ export function toggleAttachmentSelectorVisibility() {
     : "flex";
 }
 
+/** Creates and displays the list of attachments with checkboxes.
+ * If no attachments are available, shows a placeholder message.
+ * @param {Array} attachments - Array of attachment objects from the email.
+ */
 export function createAttachmentList(attachments) {
   clearAttachmentList();
 
@@ -102,12 +117,19 @@ export function createAttachmentList(attachments) {
   });
 }
 
+/**
+ * Clears all items from the attachment list.
+ */
 function clearAttachmentList() {
   while (elements.attachmentList.firstChild) {
     elements.attachmentList.removeChild(elements.attachmentList.firstChild);
   }
 }
 
+/**
+ * Creates a div element indicating no attachments are available.
+ * @returns {HTMLDivElement} A div element indicating no attachments are available.
+ */
 function createNoAttachmentItem() {
   const noAttachmentItem = document.createElement("div");
   noAttachmentItem.className = "no-attachment-item";
@@ -117,6 +139,11 @@ function createNoAttachmentItem() {
   return noAttachmentItem;
 }
 
+/**
+ * Creates a checkbox input element for the given attachment.
+ * @param {Object} attachment - The attachment object.
+ * @returns {HTMLInputElement} The checkbox input element.
+ */
 function createAttachmentCheckbox(attachment) {
   const checkbox = document.createElement("input");
   const uniqueSuffix = Math.random().toString(36).slice(2, 9);
@@ -135,6 +162,12 @@ function createAttachmentCheckbox(attachment) {
   return checkbox;
 }
 
+/** Creates a label element for the given attachment with truncation if necessary.
+ * @param {Object} attachment - The attachment object.
+ * @param {string} checkboxId - The ID of the associated checkbox input.
+ * @param {number} maxLength - Maximum length of the displayed name before truncation.
+ * @returns {HTMLLabelElement} The label element for the attachment.
+ */
 function createAttachmentLabel(attachment, checkboxId, maxLength = 20) {
   const label = document.createElement("label");
   label.className = "attachment-label";
@@ -161,6 +194,10 @@ function createAttachmentLabel(attachment, checkboxId, maxLength = 20) {
   return label;
 }
 
+/** Creates a list item div for the given attachment including label and checkbox.
+ * @param {Object} attachment - The attachment object.
+ * @returns {HTMLDivElement} The list item div for the attachment.
+ */
 function createAttachmentItem(attachment) {
   const listItem = document.createElement("div");
   listItem.className = "attachment-item";
@@ -184,6 +221,10 @@ function createAttachmentItem(attachment) {
   return listItem;
 }
 
+/** Loads and displays previews for supported attachments (images, PDFs).
+ * Previews are appended below each attachment item in the list.
+ * Unsupported types show a placeholder with the filename.
+ */ 
 export async function loadAttachmentsPreview() {
   const attachments = messageData?.attachments || [];
   const attachmentList = document.getElementById("attachment-list");

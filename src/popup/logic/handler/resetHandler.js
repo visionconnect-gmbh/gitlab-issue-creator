@@ -8,6 +8,10 @@ import {
 } from "../popupState.js";
 import { updateAssigneeSelectVisibility } from "../ui.js";
 
+/** Resets the issue editor to its initial state.
+ * Clears all input fields, resets selections, and reloads cached settings.
+ * Disables the assignee select if no assignees are found.
+ */
 export async function resetEditor() {
   resetState();
 

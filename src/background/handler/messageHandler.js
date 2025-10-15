@@ -17,6 +17,9 @@ import {
 } from "../../gitlab/gitlab.js";
 import { displayLocalizedNotification } from "../../utils/utils.js";
 
+/** Handles incoming messages from the popup.
+ * @param {Object} msg - The incoming message object.
+ */
 export async function handleMessage(msg) {
   if (!msg) {
     console.warn("Received null/undefined message");
@@ -63,6 +66,9 @@ export async function handleMessage(msg) {
   }
 }
 
+/** Handles the creation of a GitLab issue based on the message data.
+ * @param {Object} msg - The incoming message object containing issue details.
+ */
 async function handleCreateIssue(msg) {
   const projectId = msg.projectId;
   const title = msg.title?.trim() || `Email: ${State.getEmail().subject}`;
@@ -95,6 +101,9 @@ function transformToMarkdown(text) {
   );
 }
 
+/** Reloads the popup tab if it exists and is valid.
+ * If the tab is not a popup, clears the popup state.
+ */
 async function reloadPopup() {
   const [tab] = await browser.tabs.query({
     windowId: State.getPopupWindowId(),

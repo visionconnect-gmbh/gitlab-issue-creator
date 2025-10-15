@@ -9,10 +9,20 @@ async function isCachingDisabled() {
   return await browser.storage.local.get(CacheKeys.DISABLE_CACHE).then((res) => res.disableCaching || false);
 }
 
+/** Checks if the given key is for Gitlab Settings.
+ * Gitlab Settings should always be cached, even if caching is disabled.
+ * @param {string} key The cache key to check.
+ * @returns {boolean} True if the key is for Gitlab Settings, false otherwise.
+ */
 function isGitlabSettingsCacheKey(key) {
   return key === `${CacheKeys.GITLAB_SETTINGS}`;
 }
 
+/** Sets a cache entry.
+ * @param {string} key The cache key.
+ * @param {*} data The data to cache.
+ * @returns {Promise<void>}
+ */
 export async function setCache(key, data) {
   if (await isCachingDisabled() && !isGitlabSettingsCacheKey(key)) return;
 

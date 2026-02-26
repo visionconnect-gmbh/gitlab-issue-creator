@@ -1,6 +1,6 @@
 import { CacheKeys, LocalizeKeys, MessageTypes } from "../utils/Enums.js";
 import { localizeHtmlPage } from "../utils/localize.js";
-import { getCache, setCache } from "../utils/cache.js";
+import { getCache, getSetting, setSetting } from "../utils/cache.js";
 import { DOM } from "./logic/optionsState.js";
 import { alertMessage, handleError } from "./logic/handler/alertHandler.js";
 import {
@@ -50,25 +50,22 @@ export const loadInitialSettings = async () => {
     const gitlabSettings = await getCache(
       CacheKeys.GITLAB_SETTINGS,
       undefined,
-      {}
+      {},
     );
     DOM.tokenInput.value = gitlabSettings.token || "";
     DOM.urlInput.value = gitlabSettings.url || "";
 
-    DOM.cachingToggleBtn.checked = await getCache(
+    DOM.cachingToggleBtn.checked = await getSetting(
       CacheKeys.DISABLE_CACHE,
-      undefined,
-      false
+      false,
     );
-    DOM.assigneesToggleBtn.checked = await getCache(
+    DOM.assigneesToggleBtn.checked = await getSetting(
       CacheKeys.ASSIGNEES_LOADING,
-      undefined,
-      false
+      true,
     );
-    DOM.watermarkToggleBtn.checked = await getCache(
+    DOM.watermarkToggleBtn.checked = await getSetting(
       CacheKeys.ENABLE_WATERMARK,
-      undefined,
-      true
+      true,
     );
 
     showTokenHelpLink(gitlabSettings.url, gitlabSettings.token);
@@ -98,8 +95,8 @@ export const setupEventListeners = () => {
       await resetSpecificCache(
         CacheKeys.PROJECTS,
         LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED,
-        LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED
-      )
+        LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED,
+      ),
   );
 
   DOM.clearAssigneesButton.addEventListener(
@@ -108,23 +105,23 @@ export const setupEventListeners = () => {
       await resetSpecificCache(
         CacheKeys.ASSIGNEES,
         LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED,
-        LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED
-      )
+        LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED,
+      ),
   );
 
   DOM.assigneesToggleBtn.addEventListener(
     "change",
-    async (e) => await saveAssigneeToggle(e.target.checked)
+    async (e) => await saveAssigneeToggle(e.target.checked),
   );
 
   DOM.watermarkToggleBtn.addEventListener(
     "change",
-    async (e) => await saveWatermarkToggle(e.target.checked)
+    async (e) => await saveWatermarkToggle(e.target.checked),
   );
 
   DOM.cachingToggleBtn.addEventListener(
     "change",
-    async (e) => await saveDisableCacheSetting(e.target.checked, DOM)
+    async (e) => await saveDisableCacheSetting(e.target.checked, DOM),
   );
 };
 
@@ -141,7 +138,7 @@ const saveGitlabOptions = async () => {
     return alertMessage(LocalizeKeys.OPTIONS.ALERTS.ADD_GITLAB_TOKEN);
   }
   try {
-    await setCache(CacheKeys.GITLAB_SETTINGS, { url: normalizedUrl, token });
+    await setSetting(CacheKeys.GITLAB_SETTINGS, { url: normalizedUrl, token });
     showTokenHelpLink(normalizedUrl, token);
     alertMessage(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
     browser.runtime.sendMessage({

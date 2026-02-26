@@ -2,43 +2,64 @@ import { CacheKeys } from "./Enums";
 
 const cachePrefix = "cache_";
 
-/** Checks if caching is disabled in the settings.
- * @returns {Promise<boolean>} True if caching is disabled in settings, false otherwise
+// --- PERSISTENT SETTINGS (Bypass Caching Logic) ---
+
+/** * Saves a persistent user setting.
+ * @param {string} key The setting key.
+ * @param {*} value The value to store.
+ */
+export async function setSetting(key, value) {
+  await browser.storage.local.set({ [key]: value });
+}
+
+/** * Retrieves a persistent user setting.
+ * @param {string} key The setting key.
+ * @param {*} fallback Value if setting is missing.
+ */
+export async function getSetting(key, fallback = null) {
+  const res = await browser.storage.local.get(key);
+  return res[key] !== undefined ? res[key] : fallback;
+}
+
+// --- TEMPORARY CACHE (API Data) ---
+
+/** * Checks if caching is disabled in the settings.
+ * @returns {Promise<boolean>}
  */
 async function isCachingDisabled() {
-  return await browser.storage.local.get(CacheKeys.DISABLE_CACHE).then((res) => res.disableCaching || false);
+  // We use getSetting here so it doesn't check the cache for the cache status
+  return await getSetting(CacheKeys.DISABLE_CACHE, false);
 }
 
-/** Checks if the given key is for Gitlab Settings.
- * Gitlab Settings should always be cached, even if caching is disabled.
- * @param {string} key The cache key to check.
- * @returns {boolean} True if the key is for Gitlab Settings, false otherwise.
- */
-function isGitlabSettingsCacheKey(key) {
-  return key === `${CacheKeys.GITLAB_SETTINGS}`;
-}
-
-/** Sets a cache entry.
+/** * Sets a cache entry.
  * @param {string} key The cache key.
  * @param {*} data The data to cache.
- * @returns {Promise<void>}
  */
 export async function setCache(key, data) {
-  if (await isCachingDisabled() && !isGitlabSettingsCacheKey(key)) return;
+  // Logic: If caching is disabled, we ONLY allow Gitlab Settings (credentials) to be saved.
+  if ((await isCachingDisabled())) {
+    return;
+  }
 
-  const entry = { data, timestamp: Date.now() };
-  await browser.storage.local.set({ [`${cachePrefix}${key}`]: entry });
+  const entry = { 
+    data, 
+    timestamp: Date.now() 
+  };
+  
+  await browser.storage.local.set({ 
+    [`${cachePrefix}${key}`]: entry 
+  });
 }
 
-/** Gets a cache entry.
+/** * Gets a cache entry.
  * @param {string} key The cache key.
- * @param {number|null} ttlMs Time to live in milliseconds. If null, no expiration is checked.
- * @param {*} fallback Value to return if the cache is missing or expired. Default is null.
- * @returns {Promise<*>} The cached data or the fallback value.
+ * @param {number|null} ttlMs Time to live in ms.
+ * @param {*} fallback Fallback value.
  */
 export async function getCache(key, ttlMs, fallback = null) {
   const entryObj = await browser.storage.local.get(`${cachePrefix}${key}`);
   const entry = entryObj[`${cachePrefix}${key}`];
+  
   if (!entry) return fallback;
 
   if (ttlMs) {
@@ -52,13 +73,12 @@ export async function getCache(key, ttlMs, fallback = null) {
 /**
  * Adds new items to a cached array.
  * @param {string} key The cache key.
- * @param {*} newItems The new items to add.
+ * @param {Array} newItems The new items to add.
  * @param {string} uniqueKey The unique key to identify items.
- * @param {number|null} ttlMs Time to live in milliseconds. If null, no expiration is checked.
- * @returns {Promise<void>}
+ * @param {number|null} ttlMs Time to live in milliseconds.
  */
-export async function addToCacheArray(key, newItems, uniqueKey = "id", ttlMs = 9 * 60 * 60 * 1000) {
-  const existing = await getCache(key, ttlMs); // Default: 9h TTL
+export async function addToCacheArray(key, newItems, uniqueKey = "id", ttlMs = 32400000) {
+  const existing = await getCache(key, ttlMs); 
 
   if (!Array.isArray(existing)) {
     await setCache(key, newItems);
@@ -74,15 +94,14 @@ export async function addToCacheArray(key, newItems, uniqueKey = "id", ttlMs = 9
 }
 
 /**
- * Resets a cache entry.
+ * Resets a specific cache entry.
  * @param {string} key The cache key.
  */
 export async function resetCache(key) {
   await browser.storage.local.remove(`${cachePrefix}${key}`);
 }
 
-/** Clears all cache entries. This includes Gitlab Settings
- * @returns {Promise<void>}
+/** * Clears all entries that start with the cache prefix.
  */
 export async function clearAllCache() {
   const all = await browser.storage.local.get(null);
@@ -93,16 +112,16 @@ export async function clearAllCache() {
   console.warn("Cache cleared successfully.");
 }
 
-/** Gets all cache keys.
- * @returns {Promise<string[]>} An array of all cache keys.
+/** * Gets all keys currently in the cache.
+ * @returns {Promise<string[]>}
  */
 export async function getCacheKeys() {
   const all = await browser.storage.local.get(null);
   return Object.keys(all).filter((key) => key.startsWith(cachePrefix));
 }
 
-/** Gets the raw cache object from storage.
- * @returns {Promise<Object>} An object with all cache entries.
+/** * Gets the raw cache object.
+ * @returns {Promise<Object>}
  */
 export async function getRawCache() {
   const all = await browser.storage.local.get(null);

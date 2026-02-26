@@ -1,4 +1,4 @@
-import { setCache } from "../../../utils/cache.js";
+import { setSetting } from "../../../utils/cache.js";
 import { CacheKeys, LocalizeKeys, MessageTypes } from "../../../utils/Enums.js";
 import { alertMessage, handleError } from "./alertHandler.js";
 
@@ -7,7 +7,7 @@ import { alertMessage, handleError } from "./alertHandler.js";
  */
 export const saveAssigneeToggle = async (isChecked) => {
   try {
-    await setCache(CacheKeys.ASSIGNEES_LOADING, isChecked);
+    await setSetting(CacheKeys.ASSIGNEES_LOADING, isChecked);
     const msgKey = isChecked
       ? LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_ENABLED
       : LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_DISABLED;
@@ -26,7 +26,7 @@ export const saveAssigneeToggle = async (isChecked) => {
  */
 export const saveWatermarkToggle = async (isChecked) => {
   try {
-    await setCache(CacheKeys.ENABLE_WATERMARK, isChecked);
+    await setSetting(CacheKeys.ENABLE_WATERMARK, isChecked);
     const msgKey = isChecked
       ? LocalizeKeys.OPTIONS.ALERTS.WATERMARK_ENABLED
       : LocalizeKeys.OPTIONS.ALERTS.WATERMARK_DISABLED;
@@ -55,7 +55,7 @@ export const saveDisableCacheSetting = async (isDisabled, domElements) => {
     }
   }
   try {
-    await setCache(CacheKeys.DISABLE_CACHE, isDisabled);
+    await setSetting(CacheKeys.DISABLE_CACHE, isDisabled);
     alertMessage(
       isDisabled
         ? LocalizeKeys.OPTIONS.ALERTS.CACHE_DISABLED

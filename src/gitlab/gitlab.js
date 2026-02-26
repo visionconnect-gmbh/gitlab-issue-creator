@@ -3,7 +3,7 @@ import {
   openOptionsPage,
 } from "../utils/utils.js";
 import { apiGet, apiPost, doRequest } from "./api.js";
-import { getCache, setCache, addToCacheArray } from "../utils/cache.js";
+import { getCache, setCache, addToCacheArray, getSetting } from "../utils/cache.js";
 import { CacheKeys, LocalizeKeys } from "../utils/Enums.js";
 
 const CACHE_TTL_MS = 9 * 60 * 60 * 1000; // 9 hours
@@ -26,7 +26,7 @@ function notifyMissingSettings() {
  * @returns {Promise<Object|null>} Settings or null if invalid.
  */
 export async function getGitLabSettings() {
-  const settings = await getCache(CacheKeys.GITLAB_SETTINGS, undefined, {});
+  const settings = await getSetting(CacheKeys.GITLAB_SETTINGS, {});
   if (!settings.token || !settings.url) {
     notifyMissingSettings();
     return null;
@@ -60,7 +60,7 @@ export async function getCurrentUser() {
     }
 
     // cache user
-    await setCache(CacheKeys.CURRENT_USER, user, USER_CACHE_TTL);
+    await setCache(CacheKeys.CURRENT_USER, user);
     return user;
   } catch (error) {
     console.error("Error fetching current user:", error);
@@ -69,16 +69,18 @@ export async function getCurrentUser() {
   }
 }
 
+// Cache projects for 9 * 13.5 = 121.5 hours / 5 days
 const PROJECT_CACHE_TTL_MS = CACHE_TTL_MS * 13.5;
+
 /**
  * Returns cached projects if available and not stale.
  * Otherwise fetches from GitLab and updates the cache in background.
  * @param {function(Array):void} [onUpdate] - Optional callback for live update
  */
 export async function getProjects(onUpdate) {
-  const cached = await getCache(CacheKeys.PROJECTS, PROJECT_CACHE_TTL_MS);
+  const cached = await getCache(CacheKeys.PROJECTS, PROJECT_CACHE_TTL_MS, []);
 
-  if (cached) {
+  if (cached && cached.length > 0) {
     // Add new projects to the cache if they are not already present
     const newProjects = await getNewProjects();
     if (newProjects.length > 0) {

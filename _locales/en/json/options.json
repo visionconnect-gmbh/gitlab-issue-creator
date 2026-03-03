@@ -1,11 +1,23 @@
 {
-  "ButtonSave": {
+  "OptionsButtonSave": {
     "message": "Save",
     "description": "Title of save buttons."
   },
-  "ButtonClearCache": {
+  "OptionsButtonResetAddon": {
+    "message": "Reset Add-on",
+    "description": "Title for reset addon button."
+  },
+  "OptionsButtonClearCache": {
     "message": "Clear Cache",
-    "description": "Title of save buttons."
+    "description": "Title of clear cache button."
+  },
+  "OptionsButtonEmptyProjects": {
+    "message": "Clear Projects",
+    "description": "Title for button empty projects."
+  },
+  "OptionsButtonEmptyAssignees": {
+    "message": "Clear Assignees List",
+    "description": "Title for button empty assignees."
   },
   "OptionsAlertAddGitLabUrl": {
     "message": "Please enter a valid GitLab URL.",
@@ -59,8 +71,12 @@
     "message": "Cache is now enabled.",
     "description": "Response for enabled cache."
   },
+  "OptionsAlertResetAddon": {
+    "message": "Are you sure you want to reset the add-on? This will clear all settings and cached data.",
+    "description": "Alert for resetting the add-on."
+  },
   "OptionsAlertClearCache": {
-    "message": "Are you sure you want to clear the cache? This will remove all cached data, including URL and Token.",
+    "message": "Are you sure you want to clear the cache? This will remove all cached data.",
     "description": "Alert for clearing cache."
   },
   "OptionsErrorOpening": {
@@ -86,6 +102,10 @@
   "OptionsErrorAssigneesSaved": {
     "message": "Error saving assignee setting!",
     "description": "Error for not saved assignees."
+  },
+  "OptionsErrorResetAddon": {
+    "message": "Error resetting add-on!",
+    "description": "Error for not reset addon."
   },
   "OptionsErrorCacheCleared": {
     "message": "Error clearing cache!",
@@ -154,14 +174,6 @@
   "OptionsTitleCleanup": {
     "message": "Reset Add-on",
     "description": "Title for cleanup section."
-  },
-  "OptionsButtonEmptyProjects": {
-    "message": "Clear Projects",
-    "description": "Title for button empty projects."
-  },
-  "OptionsButtonEmptyAsignees": {
-    "message": "Clear Assignees List",
-    "description": "Title for button empty assignees."
   },
   "OptionsMadeBy": {
     "message": "Developed by",

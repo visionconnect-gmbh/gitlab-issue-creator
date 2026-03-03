@@ -10,6 +10,7 @@ import {
 import {
   resetSpecificCache,
   clearCache,
+  resetAddon,
 } from "./logic/handler/cacheHandler.js";
 import {
   saveAssigneeToggle,
@@ -29,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     ["assigneesToggleBtn", "enableAssigneeLoading"],
     ["watermarkToggleBtn", "enableWatermark"],
     ["cachingToggleBtn", "disableCache"],
+    ["resetAddonBtn", "resetAddonBtn"],
     ["cacheClearButton", "clearCacheBtn"],
     ["clearProjectsButton", "clearProjectsBtn"],
     ["clearAssigneesButton", "clearAssigneesBtn"],
@@ -80,6 +82,15 @@ export const loadInitialSettings = async () => {
 export const setupEventListeners = () => {
   DOM.toggleBtn.addEventListener("click", toggleTokenVisibility);
   DOM.saveButton.addEventListener("click", saveGitlabOptions);
+
+  DOM.resetAddonBtn.addEventListener("click", async () => {
+    const message = browser.i18n.getMessage(
+      LocalizeKeys.OPTIONS.ALERTS.RESET_ADDON,
+    );
+    if (confirm(message)) {
+      await resetAddon(LocalizeKeys.OPTIONS.ALERTS.RESET_ADDON, LocalizeKeys.OPTIONS.ERRORS.RESET_ADDON);
+    }
+  });
 
   DOM.cacheClearButton.addEventListener("click", async () => {
     if (

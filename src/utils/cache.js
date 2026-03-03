@@ -133,3 +133,12 @@ export async function getRawCache() {
   }
   return cache;
 }
+
+/**
+ * Resets all addon-related cache entries. This is used when the user wants to reset the addon to a clean state.
+ * This includes persistent settings
+ */
+export async function resetAddonCache() {
+  await browser.storage.local.clear();
+  console.warn("Addon cache and settings reset successfully.");
+}

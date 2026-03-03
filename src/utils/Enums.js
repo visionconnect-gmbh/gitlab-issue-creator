@@ -81,6 +81,7 @@ export const LocalizeKeys = Object.freeze({
       CACHE_DISABLED: "OptionsAlertCacheDisabled",
       CACHE_ENABLED: "OptionsAlertCacheEnabled",
       CLEAR_CACHE: "OptionsAlertClearCache",
+      RESET_ADDON: "OptionsAlertResetAddon",
     },
     ERRORS: {
       ERROR_OPENING: "OptionsErrorOpening",
@@ -89,6 +90,7 @@ export const LocalizeKeys = Object.freeze({
       OPTIONS_LOADED: "OptionsErrorOptionsLoaded",
       OPTIONS_SAVED: "OptionsErrorOptionsSaved",
       ASSIGNEES_SAVED: "OptionsErrorAssigneesSaved",
+      RESET_ADDON: "OptionsErrorResetAddon",
       CACHE_CLEARED: "OptionsErrorCacheCleared",
       PROJECTS_CLEARED: "OptionsErrorProjectsCleared",
       ASSIGNEES_CLEARED: "OptionsErrorAssigneesCleared",

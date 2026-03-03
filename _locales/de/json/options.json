@@ -1,11 +1,23 @@
 {
-  "ButtonSave": {
+  "OptionsButtonSave": {
     "message": "Speichern",
     "description": "Title of save buttons."
   },
-  "ButtonClearCache": {
+  "OptionsButtonResetAddon": {
+    "message": "Add-on zurücksetzen",
+    "description": "Title for reset addon button."
+  },
+  "OptionsButtonClearCache": {
     "message": "Cache leeren",
-    "description": "Title of save buttons."
+    "description": "Title of clear cache button."
+  },
+  "OptionsButtonEmptyProjects": {
+    "message": "Projekte leeren",
+    "description": "Title for button empty projects."
+  },
+  "OptionsButtonEmptyAssignees": {
+    "message": "Liste der Beauftragten leeren",
+    "description": "Title for button empty assignees."
   },
   "OptionsAlertAddGitLabUrl": {
     "message": "Bitte geben Sie eine gültige GitLab-URL ein.",
@@ -59,8 +71,12 @@
     "message": "Cache ist nun aktiviert.",
     "description": "Response for enabled cache."
   },
+  "OptionsAlertResetAddon": {
+    "message": "Möchten Sie das Add-on wirklich zurücksetzen? Dadurch werden alle Einstellungen und zwischengespeicherten Daten gelöscht.",
+    "description": "Alert for resetting the add-on."
+  },
   "OptionsAlertClearCache": {
-    "message": "Möchten Sie den Cache wirklich leeren? Dadurch werden alle zwischengespeicherten Daten, einschließlich URL und Token, entfernt.",
+    "message": "Möchten Sie den Cache wirklich leeren? Dadurch werden alle zwischengespeicherten Daten entfernt.",
     "description": "Alert for clearing cache."
   },
   "OptionsErrorOpening": {
@@ -86,6 +102,10 @@
   "OptionsErrorAssigneesSaved": {
     "message": "Fehler beim Speichern der Beauftragten-Einstellung!",
     "description": "Error for not saved assignees."
+  },
+  "OptionsErrorResetAddon": {
+    "message": "Fehler beim Zurücksetzen des Add-ons!",
+    "description": "Error for not reset addon."
   },
   "OptionsErrorCacheCleared": {
     "message": "Fehler beim Leeren des Caches!",
@@ -155,14 +175,7 @@
     "message": "Addon zurücksetzen",
     "description": "Title for cleanup section."
   },
-  "OptionsButtonEmptyProjects": {
-    "message": "Projekte leeren",
-    "description": "Title for button empty projects."
-  },
-  "OptionsButtonEmptyAsignees": {
-    "message": "Liste der Beauftragten leeren",
-    "description": "Title for button empty assignees."
-  },
+
   "OptionsMadeBy": {
     "message": "Entwickelt von",
     "description": "Infotext for made by."

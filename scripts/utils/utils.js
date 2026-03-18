@@ -1,16 +1,22 @@
-const fs = require("fs");
-const path = require("path");
-const archiver = require("archiver");
-const { rimrafSync } = require("rimraf");
-const { execSync } = require("child_process");
+/**
+ * @fileoverview Shared utilities for build scripts.
+ */
+
+import fs from "fs";
+import path from "path";
+import archiver from "archiver";
+import { rimrafSync } from "rimraf";
+import { execSync } from "child_process";
 
 /**
- * Executes a shell command synchronously and handles errors.
+ * Executes a shell command synchronously and returns its trimmed stdout.
+ * Exits the process with code 1 on failure.
+ *
  * @param {string} command
- * @param {string} errorMessage
+ * @param {string} errorMessage - Prefix shown before the error detail.
  * @returns {string}
  */
-function runCommand(command, errorMessage) {
+export function runCommand(command, errorMessage) {
   try {
     return execSync(command, { stdio: "pipe" }).toString().trim();
   } catch (err) {
@@ -20,10 +26,11 @@ function runCommand(command, errorMessage) {
 }
 
 /**
- * Deletes a directory and recreates it.
+ * Removes a directory (if it exists) and recreates it empty.
+ *
  * @param {string} dirPath
  */
-function cleanDirectory(dirPath) {
+export function cleanDirectory(dirPath) {
   if (fs.existsSync(dirPath)) {
     console.log(`Cleaning existing directory: ${dirPath}`);
     rimrafSync(dirPath);
@@ -32,11 +39,16 @@ function cleanDirectory(dirPath) {
 }
 
 /**
- * Checks if a file should be excluded based on patterns.
- * @param {string} filePath
+ * Returns true when `filePath` matches any of the given exclude patterns.
+ * Patterns are matched against the path relative to `process.cwd()`:
+ *  - exact match or directory prefix match: `"node_modules"`
+ *  - glob suffix match: `"*.zip"` (matches any file ending in `.zip`)
+ *
+ * @param {string}   filePath
  * @param {string[]} patterns
+ * @returns {boolean}
  */
-function shouldExclude(filePath, patterns) {
+export function shouldExclude(filePath, patterns) {
   const relativePath = path.relative(process.cwd(), filePath);
   return patterns.some((pattern) => {
     if (relativePath === pattern || relativePath.startsWith(`${pattern}/`))
@@ -51,12 +63,14 @@ function shouldExclude(filePath, patterns) {
 }
 
 /**
- * Recursively copy a folder respecting exclude patterns.
- * @param {string} src
- * @param {string} dest
- * @param {string[]} excludePatterns
+ * Recursively copies `src` to `dest`, skipping any paths that match
+ * `excludePatterns`.
+ *
+ * @param {string}   src
+ * @param {string}   dest
+ * @param {string[]} [excludePatterns=[]]
  */
-function copyRecursive(src, dest, excludePatterns = []) {
+export function copyRecursive(src, dest, excludePatterns = []) {
   if (shouldExclude(src, excludePatterns)) return;
 
   const stats = fs.statSync(src);
@@ -66,7 +80,7 @@ function copyRecursive(src, dest, excludePatterns = []) {
       copyRecursive(
         path.join(src, item),
         path.join(dest, item),
-        excludePatterns
+        excludePatterns,
       );
     }
   } else {
@@ -75,12 +89,13 @@ function copyRecursive(src, dest, excludePatterns = []) {
 }
 
 /**
- * Creates a zip archive of a directory.
- * @param {string} sourceDir
- * @param {string} outPath
+ * Creates a zip archive of `sourceDir` at `outPath`.
+ *
+ * @param {string} sourceDir - Directory whose contents to zip.
+ * @param {string} outPath   - Destination `.zip` file path.
  * @returns {Promise<void>}
  */
-function createZipArchive(sourceDir, outPath) {
+export function createZipArchive(sourceDir, outPath) {
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(outPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
@@ -95,18 +110,10 @@ function createZipArchive(sourceDir, outPath) {
       else reject(err);
     });
 
-    archive.on("error", (err) => reject(err));
+    archive.on("error", reject);
 
     archive.pipe(output);
     archive.directory(sourceDir, false);
     archive.finalize();
   });
 }
-
-module.exports = {
-  runCommand,
-  cleanDirectory,
-  shouldExclude,
-  copyRecursive,
-  createZipArchive,
-};

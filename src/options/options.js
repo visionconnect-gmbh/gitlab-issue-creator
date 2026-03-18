@@ -20,7 +20,6 @@ import {
 import { isUrlReachable, normalizeUrl } from "./logic/handler/urlHandler.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Map DOM elements
   const map = [
     ["urlInput", "gitlabUrl"],
     ["tokenInput", "gitlabToken"],
@@ -88,7 +87,10 @@ export const setupEventListeners = () => {
       LocalizeKeys.OPTIONS.ALERTS.RESET_ADDON,
     );
     if (confirm(message)) {
-      await resetAddon(LocalizeKeys.OPTIONS.ALERTS.RESET_ADDON, LocalizeKeys.OPTIONS.ERRORS.RESET_ADDON);
+      await resetAddon(
+        LocalizeKeys.OPTIONS.ALERTS.RESET_ADDON,
+        LocalizeKeys.OPTIONS.ERRORS.RESET_ADDON,
+      );
     }
   });
 
@@ -100,46 +102,79 @@ export const setupEventListeners = () => {
     }
   });
 
-  DOM.clearProjectsButton.addEventListener(
-    "click",
-    async () =>
-      await resetSpecificCache(
-        CacheKeys.PROJECTS,
-        LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED,
-        LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED,
-      ),
+  DOM.clearProjectsButton.addEventListener("click", async () =>
+    resetSpecificCache(
+      CacheKeys.PROJECTS,
+      LocalizeKeys.OPTIONS.ALERTS.PROJECTS_CLEARED,
+      LocalizeKeys.OPTIONS.ERRORS.PROJECTS_CLEARED,
+    ),
   );
 
-  DOM.clearAssigneesButton.addEventListener(
-    "click",
-    async () =>
-      await resetSpecificCache(
-        CacheKeys.ASSIGNEES,
-        LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED,
-        LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED,
-      ),
+  DOM.clearAssigneesButton.addEventListener("click", async () =>
+    resetSpecificCache(
+      CacheKeys.ASSIGNEES,
+      LocalizeKeys.OPTIONS.ALERTS.ASSIGNEES_CLEARED,
+      LocalizeKeys.OPTIONS.ERRORS.ASSIGNEES_CLEARED,
+    ),
   );
 
-  DOM.assigneesToggleBtn.addEventListener(
-    "change",
-    async (e) => await saveAssigneeToggle(e.target.checked),
+  DOM.assigneesToggleBtn.addEventListener("change", async (e) =>
+    saveAssigneeToggle(e.target.checked),
   );
 
-  DOM.watermarkToggleBtn.addEventListener(
-    "change",
-    async (e) => await saveWatermarkToggle(e.target.checked),
+  DOM.watermarkToggleBtn.addEventListener("change", async (e) =>
+    saveWatermarkToggle(e.target.checked),
   );
 
-  DOM.cachingToggleBtn.addEventListener(
-    "change",
-    async (e) => await saveDisableCacheSetting(e.target.checked, DOM),
+  DOM.cachingToggleBtn.addEventListener("change", async (e) =>
+    saveDisableCacheSetting(e.target.checked, DOM),
   );
 };
 
-/** * Saves GitLab URL and token to local storage. */
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Sends a SETTINGS_UPDATED message to the background script.
+ *
+ * Silently absorbs the "Receiving end does not exist" rejection that occurs
+ * when the background script has no active listener (e.g. the popup is closed
+ * or the extension is idle). Any other error is re-thrown.
+ *
+ * @param {object} [payload={}] - Extra fields merged into the message object.
+ * @returns {Promise<void>}
+ */
+async function notifyBackground(payload = {}) {
+  try {
+    await browser.runtime.sendMessage({
+      type: MessageTypes.SETTINGS_UPDATED,
+      ...payload,
+    });
+  } catch (err) {
+    if (!/Receiving end does not exist/i.test(err?.message ?? "")) {
+      throw err;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Save handler
+// ---------------------------------------------------------------------------
+
+/**
+ * Validates and saves the GitLab URL + token, notifies the background script,
+ * then closes the options tab.
+ *
+ * The background notification is awaited before calling window.close().
+ * Closing the window first destroys the extension context while the message's
+ * Promise is still in flight, which produces:
+ *   "Actor 'Conduits' destroyed before query 'RuntimeMessage' was resolved"
+ */
 const saveGitlabOptions = async () => {
   const token = DOM.tokenInput.value.trim();
   const normalizedUrl = normalizeUrl(DOM.urlInput.value);
+
   if (!normalizedUrl)
     return alertMessage(LocalizeKeys.OPTIONS.ERRORS.INVALID_URL);
   if (!(await isUrlReachable(normalizedUrl)))
@@ -148,14 +183,12 @@ const saveGitlabOptions = async () => {
     showTokenHelpLink(normalizedUrl, token);
     return alertMessage(LocalizeKeys.OPTIONS.ALERTS.ADD_GITLAB_TOKEN);
   }
+
   try {
     await setSetting(CacheKeys.GITLAB_SETTINGS, { url: normalizedUrl, token });
     showTokenHelpLink(normalizedUrl, token);
     alertMessage(LocalizeKeys.OPTIONS.ALERTS.OPTIONS_SAVED);
-    browser.runtime.sendMessage({
-      type: MessageTypes.SETTINGS_UPDATED,
-      url: normalizedUrl,
-    });
+    await notifyBackground({ url: normalizedUrl });
     window.close();
   } catch (error) {
     handleError(LocalizeKeys.OPTIONS.ERRORS.OPTIONS_SAVED, error);

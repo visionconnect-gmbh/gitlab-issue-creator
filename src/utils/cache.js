@@ -1,84 +1,117 @@
-import { CacheKeys } from "./Enums";
+/**
+ * @fileoverview Browser storage abstraction for settings and API response caching.
+ *
+ * Two distinct layers are provided:
+ *
+ * **Settings** (persistent, no TTL)
+ *   Stored directly under their key, e.g. `"gitlab_settings"`.
+ *   Use `getSetting` / `setSetting` for credentials and user preferences.
+ *
+ * **Cache** (temporary, TTL-aware)
+ *   Stored under a `cache_` prefix, e.g. `"cache_projects"`.
+ *   Each entry is a `{ data, timestamp }` envelope so callers can request a
+ *   maximum age via `ttlMs`.  When caching is disabled in settings, `setCache`
+ *   is a no-op so the UI still works but nothing is persisted.
+ *
+ * All functions are async because `browser.storage.local` is async.
+ */
 
-const cachePrefix = "cache_";
+import { CacheKeys } from "./Enums.js";
 
-// --- PERSISTENT SETTINGS (Bypass Caching Logic) ---
+/** Prefix prepended to every cache key to separate cache from settings. */
+const CACHE_PREFIX = "cache_";
 
-/** * Saves a persistent user setting.
- * @param {string} key The setting key.
- * @param {*} value The value to store.
+// ---------------------------------------------------------------------------
+// Settings (persistent, no TTL)
+// ---------------------------------------------------------------------------
+
+/**
+ * Saves a persistent user setting to `browser.storage.local`.
+ *
+ * @param {string} key   - Storage key (use a value from `CacheKeys`).
+ * @param {*}      value - Any JSON-serialisable value.
+ * @returns {Promise<void>}
  */
 export async function setSetting(key, value) {
   await browser.storage.local.set({ [key]: value });
 }
 
-/** * Retrieves a persistent user setting.
- * @param {string} key The setting key.
- * @param {*} fallback Value if setting is missing.
+/**
+ * Retrieves a persistent user setting from `browser.storage.local`.
+ *
+ * @param {string} key            - Storage key.
+ * @param {*}      [fallback=null] - Returned when the key is absent.
+ * @returns {Promise<*>}
  */
 export async function getSetting(key, fallback = null) {
-  const res = await browser.storage.local.get(key);
-  return res[key] !== undefined ? res[key] : fallback;
+  const result = await browser.storage.local.get(key);
+  return result[key] !== undefined ? result[key] : fallback;
 }
 
-// --- TEMPORARY CACHE (API Data) ---
+// ---------------------------------------------------------------------------
+// Cache (temporary, TTL-aware)
+// ---------------------------------------------------------------------------
 
-/** * Checks if caching is disabled in the settings.
+/**
+ * Returns true when the user has disabled API response caching in settings.
+ *
  * @returns {Promise<boolean>}
  */
 async function isCachingDisabled() {
-  // We use getSetting here so it doesn't check the cache for the cache status
-  return await getSetting(CacheKeys.DISABLE_CACHE, false);
+  // Use getSetting (not getCache) to avoid a circular dependency.
+  return getSetting(CacheKeys.DISABLE_CACHE, false);
 }
 
-/** * Sets a cache entry.
- * @param {string} key The cache key.
- * @param {*} data The data to cache.
+/**
+ * Writes a value to the temporary cache.
+ * When caching is disabled, this is a no-op (the value is simply not stored).
+ *
+ * @param {string} key  - Cache key (without the `cache_` prefix).
+ * @param {*}      data - Any JSON-serialisable value.
+ * @returns {Promise<void>}
  */
 export async function setCache(key, data) {
-  // Logic: If caching is disabled, we ONLY allow Gitlab Settings (credentials) to be saved.
-  if ((await isCachingDisabled())) {
-    return;
-  }
+  if (await isCachingDisabled()) return;
 
-  const entry = { 
-    data, 
-    timestamp: Date.now() 
-  };
-  
-  await browser.storage.local.set({ 
-    [`${cachePrefix}${key}`]: entry 
-  });
+  const entry = { data, timestamp: Date.now() };
+  await browser.storage.local.set({ [`${CACHE_PREFIX}${key}`]: entry });
 }
 
-/** * Gets a cache entry.
- * @param {string} key The cache key.
- * @param {number|null} ttlMs Time to live in ms.
- * @param {*} fallback Fallback value.
+/**
+ * Reads a value from the temporary cache.
+ *
+ * @param {string}      key           - Cache key (without the `cache_` prefix).
+ * @param {number|null} [ttlMs]       - Maximum acceptable age in milliseconds.
+ *                                      Pass `null` or omit to skip freshness check.
+ * @param {*}           [fallback=null] - Returned when the key is absent or stale.
+ * @returns {Promise<*>} Cached data, or `fallback` when missing/stale.
  */
 export async function getCache(key, ttlMs, fallback = null) {
-  const entryObj = await browser.storage.local.get(`${cachePrefix}${key}`);
-  const entry = entryObj[`${cachePrefix}${key}`];
-  
+  const raw = await browser.storage.local.get(`${CACHE_PREFIX}${key}`);
+  const entry = raw[`${CACHE_PREFIX}${key}`];
+
   if (!entry) return fallback;
 
-  if (ttlMs) {
-    const isFresh = Date.now() - entry.timestamp < ttlMs;
-    return isFresh ? entry.data : fallback;
+  if (ttlMs != null) {
+    const isStale = Date.now() - entry.timestamp >= ttlMs;
+    if (isStale) return fallback;
   }
 
   return entry.data;
 }
 
 /**
- * Adds new items to a cached array.
- * @param {string} key The cache key.
- * @param {Array} newItems The new items to add.
- * @param {string} uniqueKey The unique key to identify items.
- * @param {number|null} ttlMs Time to live in milliseconds.
+ * Appends new items to a cached array, deduplicating by `uniqueKey`.
+ * If the cache is empty or expired, the new items become the entire cache entry.
+ *
+ * @param {string}   key                   - Cache key.
+ * @param {object[]} newItems              - Items to merge in.
+ * @param {string}   [uniqueKey="id"]      - Property used to detect duplicates.
+ * @param {number}   [ttlMs=TTL_9H_MS]     - TTL used when reading the existing cache.
+ * @returns {Promise<void>}
  */
-export async function addToCacheArray(key, newItems, uniqueKey = "id", ttlMs = 32400000) {
-  const existing = await getCache(key, ttlMs); 
+export async function addToCacheArray(key, newItems, uniqueKey = "id", ttlMs = 9 * 60 * 60 * 1000) {
+  const existing = await getCache(key, ttlMs);
 
   if (!Array.isArray(existing)) {
     await setCache(key, newItems);
@@ -86,59 +119,71 @@ export async function addToCacheArray(key, newItems, uniqueKey = "id", ttlMs = 3
   }
 
   const existingIds = new Set(existing.map((item) => item[uniqueKey]));
-  const filtered = newItems.filter((item) => !existingIds.has(item[uniqueKey]));
+  const deduped = newItems.filter((item) => !existingIds.has(item[uniqueKey]));
 
-  if (filtered.length > 0) {
-    await setCache(key, [...existing, ...filtered]);
+  if (deduped.length > 0) {
+    await setCache(key, [...existing, ...deduped]);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Cache management utilities
+// ---------------------------------------------------------------------------
+
+/**
+ * Removes a single cache entry.
+ *
+ * @param {string} key - Cache key (without the `cache_` prefix).
+ * @returns {Promise<void>}
+ */
+export async function resetCache(key) {
+  await browser.storage.local.remove(`${CACHE_PREFIX}${key}`);
 }
 
 /**
- * Resets a specific cache entry.
- * @param {string} key The cache key.
- */
-export async function resetCache(key) {
-  await browser.storage.local.remove(`${cachePrefix}${key}`);
-}
-
-/** * Clears all entries that start with the cache prefix.
+ * Removes all cache entries (keys that start with `cache_`).
+ * Settings stored without the prefix are unaffected.
+ *
+ * @returns {Promise<void>}
  */
 export async function clearAllCache() {
   const all = await browser.storage.local.get(null);
-  const keysToRemove = Object.keys(all).filter((key) => key.startsWith(cachePrefix));
-  if (keysToRemove.length > 0) {
-    await browser.storage.local.remove(keysToRemove);
+  const cacheKeys = Object.keys(all).filter((k) => k.startsWith(CACHE_PREFIX));
+  if (cacheKeys.length > 0) {
+    await browser.storage.local.remove(cacheKeys);
   }
-  console.warn("Cache cleared successfully.");
+  console.warn("Cache cleared.");
 }
 
-/** * Gets all keys currently in the cache.
+/**
+ * Returns the storage keys of all current cache entries.
+ *
  * @returns {Promise<string[]>}
  */
 export async function getCacheKeys() {
   const all = await browser.storage.local.get(null);
-  return Object.keys(all).filter((key) => key.startsWith(cachePrefix));
-}
-
-/** * Gets the raw cache object.
- * @returns {Promise<Object>}
- */
-export async function getRawCache() {
-  const all = await browser.storage.local.get(null);
-  const cache = {};
-  for (const key of Object.keys(all)) {
-    if (key.startsWith(cachePrefix)) {
-      cache[key] = all[key];
-    }
-  }
-  return cache;
+  return Object.keys(all).filter((k) => k.startsWith(CACHE_PREFIX));
 }
 
 /**
- * Resets all addon-related cache entries. This is used when the user wants to reset the addon to a clean state.
- * This includes persistent settings
+ * Returns the raw cache object (all entries with their `{ data, timestamp }` envelopes).
+ *
+ * @returns {Promise<Record<string, { data: unknown, timestamp: number }>>}
+ */
+export async function getRawCache() {
+  const all = await browser.storage.local.get(null);
+  return Object.fromEntries(
+    Object.entries(all).filter(([k]) => k.startsWith(CACHE_PREFIX))
+  );
+}
+
+/**
+ * Wipes **all** add-on data from storage, including settings.
+ * Use only for a full factory reset.
+ *
+ * @returns {Promise<void>}
  */
 export async function resetAddonCache() {
   await browser.storage.local.clear();
-  console.warn("Addon cache and settings reset successfully.");
+  console.warn("Add-on data and settings wiped.");
 }

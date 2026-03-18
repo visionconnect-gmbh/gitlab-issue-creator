@@ -2,6 +2,7 @@
   "name": "gitlab-issue-creator",
   "version": "6.2.4",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
+  "type": "module",
   "main": "background.js",
   "scripts": {
     "version:patch": "node scripts/bump-version.js patch",
@@ -9,7 +10,9 @@
     "version:major": "node scripts/bump-version.js major",
     "build:dev": "npm i && rollup -c",
     "build": "npm i && node scripts/build.js",
-    "packSrc": "node scripts/pack-src.js"
+    "packSrc": "node scripts/pack-src.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
   },
   "keywords": [],
   "author": "kirchner@visionconnect.de",
@@ -18,7 +21,8 @@
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup": "^4.52.2",
-    "rollup-plugin-copy": "^3.5.0"
+    "rollup-plugin-copy": "^3.5.0",
+    "jest": "^29.7.0"
   },
   "dependencies": {
     "archiver": "^7.0.1",

@@ -1,115 +1,137 @@
-# Add-on Options: GitLab Ticket Creator
+# Options – GitLab Issue Creator
 
-**GERMAN VERSION:** [OPTIONS](./OPTIONS.md)
+> **Deutsche Version:** [OPTIONS.md](./OPTIONS.md)
 
-This page describes the configuration options of the Thunderbird add-on **GitLab Ticket Creator**. These settings are required for the add-on to communicate correctly with your GitLab instance. Some options also help optimize the user experience.
-
----
-
-## GitLab URL
-
-**Field:** `GitLab URL`
-**Type:** Text field
-**Example:** `https://gitlab.visionconnect.de`
-
-Enter the URL of your GitLab instance here. It must be valid and publicly accessible; otherwise, the connection will fail.
-
-**Note:**
-If you forget the protocol (`https://`), it will be added automatically. Invalid inputs are caught and result in a notification.
+This page covers every setting on the **Options** page (`Add-ons and Themes → GitLab Issue Creator → Options`).  
+All values are stored in `browser.storage.local` on the local machine — nothing is synced automatically.
 
 ---
 
-## GitLab Access Token
+## Required settings
 
-**Field:** `GitLab Token`
-**Type:** Password field (toggleable visibility)
+These two fields must be filled in before the add-on can do anything.
 
-The add-on requires a personal access token to create issues on your behalf. This token is **stored locally** and **not shared with third parties**.
+### GitLab URL
 
-**Required permissions:**
-The token must have at least the following scope:
+| | |
+|---|---|
+| **Storage key** | `gitlab_settings.url` |
+| **Type** | Text field |
+| **Example** | `https://gitlab.example.com` |
 
-* `api` – for creating issues
+The base URL of your GitLab instance.  
+The `https://` protocol prefix is added automatically if you omit it. Invalid or unreachable URLs are caught on save and shown as an error.
 
-**Creating a token:**
-The “Create Access Token” button appears automatically once a valid GitLab URL is entered but no token has been set. It links directly to the relevant GitLab page.
-
----
-
-## Load Assignees
-
-**Option:** `Load assignees automatically`
-**Type:** Checkbox
-
-If enabled, the add-on automatically loads the list of possible assignees from the selected GitLab project. This feature is optional but useful if you want to assign issues to a responsible developer directly.
-
-**Note:**
-This may result in longer loading times for very large groups.
+> ℹ️ Self-hosted instances work exactly the same as gitlab.com — just enter your own domain.
 
 ---
 
-## Add Watermark
+### Personal Access Token
 
-**Option:** `Enable watermark`
-**Type:** Checkbox
+| | |
+|---|---|
+| **Storage key** | `gitlab_settings.token` |
+| **Type** | Password field (eye icon toggles visibility) |
+| **Required scope** | `api` |
 
-When enabled, an invisible watermark is added to the ticket upon creation.
-This allows easy filtering of issues created via this add-on.
+The token used to authenticate every API call.  
+It is stored locally and never transmitted anywhere except your GitLab instance.
 
----
+**How to create one:**  
+The **"Create Access Token"** button appears automatically once a valid GitLab URL is saved but no token is present yet. It opens your GitLab's token-creation page directly.  
+You can also go there manually: `<your-gitlab-url>/-/user_settings/personal_access_tokens`.
 
-## Disable Cache
-
-**Option:** `Disable cache`
-**Type:** Checkbox
-
-If enabled, data will not be stored in the cache but always loaded fresh.
-This should only be activated if problems occur, as it significantly affects the add-on.
-
-**Note:**
-This may cause longer load times.
+> ⚠️ The `api` scope is the only one required. Do not grant more permissions than necessary.
 
 ---
 
-## Cleanup / Clear Cache
+## Optional settings
 
-These buttons are mainly relevant for developers or debugging. They delete locally stored data without affecting GitLab itself.
+These are off by default. Each setting is saved individually when you toggle it — there is no separate Save button for checkboxes.
 
-### “Clear cache”
+### Load assignees automatically
 
-Clears all cached data of the add-on, including project lists, assignee data, and saved metadata. Useful, for example, if projects have changed.
+| | |
+|---|---|
+| **Storage key** | `enable_assignee_loading` |
+| **Default** | `false` (off) |
 
-### “Reset projects”
+When enabled, the popup fetches the member list of the selected GitLab project so you can assign the issue to someone directly.  
+This adds one extra API call per project when it is first selected. Results are cached (~9 h TTL) so subsequent opens are instant.
 
-Clears only the GitLab project list cache. Useful if new projects were added that do not appear.
-
-### “Reset assignees”
-
-Clears the locally stored list of possible assignees. It will be reloaded next time (if the feature is enabled).
-
----
-
-## Storage Location of Settings
-
-All settings are stored locally in Thunderbird (`browser.storage.local`). Synchronization across devices is not automatic.
+> ℹ️ Leave this off if you work with very large groups (hundreds of members) or don't need assignees.
 
 ---
 
-## Error Handling
+### Watermark
 
-Error messages are displayed directly in the add-on window via `alert()`. For issues with GitLab connectivity or misconfiguration, clear feedback is provided so you can identify what is missing or incorrect.
+| | |
+|---|---|
+| **Storage key** | `enable_watermark` |
+| **Default** | `true` (on) |
+
+Appends a hidden HTML comment to every issue description:
+
+```
+<!-- created with gitlab-issue-creator (vX.Y.Z) -->
+```
+
+This comment is invisible in GitLab's rendered Markdown but lets you filter issues created by this add-on (e.g. with a GitLab search or script).
 
 ---
 
-## Summary
+### Disable cache
 
-| Setting                   | Description                                |
-| ------------------------- | ------------------------------------------ |
-| **GitLab URL**            | URL of your GitLab instance                |
-| **GitLab Token**          | Personal access token with API permissions |
-| **Assignee Autocomplete** | Enables automatic loading of assignees     |
-| **Enable watermark**      | Adds an invisible watermark to the ticket  |
-| **Disable cache**         | Prevents storing data in the cache         |
-| **Clear cache**           | Deletes all stored metadata                |
-| **Reset projects**        | Deletes only the project list              |
-| **Reset assignees**       | Deletes only the list of assignees         |
+| | |
+|---|---|
+| **Storage key** | `disable_cache` |
+| **Default** | `false` (off) |
+
+Forces every API call to skip the local cache and always fetch fresh data.
+
+> ⚠️ Only enable this for debugging or if you're seeing stale data. It makes every popup open noticeably slower.
+
+---
+
+## Cache management buttons
+
+These buttons delete locally stored data. They do **not** affect GitLab itself.
+
+| Button | What it deletes | When to use it |
+|---|---|---|
+| **Clear Cache** | All cached API responses (projects + assignees + user) | Full reset; new data will be fetched on next use |
+| **Clear Projects** | Only the cached project list | A project you just created isn't showing up |
+| **Clear Assignees List** | Only the cached assignee map | A new team member isn't appearing in the list |
+| **Reset Add-on** | Everything including settings | Starting fresh / switching GitLab instances |
+
+> ℹ️ After clearing, the popup will re-fetch data from GitLab the next time it opens. This may take a few extra seconds.
+
+---
+
+## Storage reference
+
+All settings live in Thunderbird's `browser.storage.local`. The keys used by this add-on are:
+
+| Key | Contents |
+|---|---|
+| `gitlab_settings` | `{ url, token }` object |
+| `enable_assignee_loading` | boolean |
+| `enable_watermark` | boolean |
+| `disable_cache` | boolean |
+| `cache_projects` | `{ data, timestamp }` – project list cache |
+| `cache_assignees_ALL` | `{ data, timestamp }` – assignee map cache |
+| `cache_current_user` | `{ data, timestamp }` – authenticated user cache |
+
+> 📎 Key names are defined in `src/utils/Enums.js → CacheKeys`. That file is the authoritative source if you ever see a discrepancy here.
+
+---
+
+## Error messages reference
+
+| Message | Cause | Fix |
+|---|---|---|
+| *"Please enter a valid GitLab URL"* | URL field is empty or malformed | Enter a full URL, e.g. `https://gitlab.example.com` |
+| *"Please enter a valid GitLab token"* | Token field is empty | Create and paste a token with `api` scope |
+| *"GitLab URL is not reachable"* | Server didn't respond | Check network / VPN |
+| *"Invalid GitLab token"* | 401 from the API | Token expired, revoked, or missing `api` scope |
+| *"GitLab settings are missing"* | Token or URL not configured | Open Options and fill in both fields |

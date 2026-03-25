@@ -42,7 +42,10 @@ export function handleIncomingMessage(msg) {
         console.warn("Unknown message type:", msg.type);
     }
   } catch (error) {
-    console.error(`Error handling message of type ${msg.type}: ${error}. Message:`, msg);
+    console.error(
+      `Error handling message of type ${msg.type}: ${error}. Message:`,
+      msg,
+    );
   }
 }
 
@@ -84,7 +87,7 @@ function handleAssigneeData(msg) {
     return;
   }
 
-  if (!projectId == selectedProjectId) {
+  if (projectId !== selectedProjectId) {
     // Data is for a different project, ignore
     return;
   }
@@ -103,13 +106,15 @@ export function handleProjectSearchInput() {
 
   setFilteredProjects(
     projects.filter((p) =>
-      (p.name_with_namespace || p.name || "").toLowerCase().includes(searchTerm)
-    )
+      (p.name_with_namespace || p.name || "")
+        .toLowerCase()
+        .includes(searchTerm),
+    ),
   );
   renderProjectSuggestions();
 
   const exactMatch = projects.find(
-    (p) => (p.name_with_namespace || p.name || "").toLowerCase() === searchTerm
+    (p) => (p.name_with_namespace || p.name || "").toLowerCase() === searchTerm,
   );
   setSelectedProjectId(exactMatch?.id ?? null);
 
@@ -123,7 +128,7 @@ export function handleProjectSearchInput() {
 export function handleProjectSearchChange() {
   const inputValue = elements.projectSearch.value;
   const match = projects.find(
-    (p) => (p.name_with_namespace || p.name) === inputValue
+    (p) => (p.name_with_namespace || p.name) === inputValue,
   );
   setSelectedProjectId(match?.id ?? null);
 

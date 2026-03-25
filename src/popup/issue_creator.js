@@ -1,11 +1,13 @@
-import { Popup_MessageTypes } from "../utils/Enums.js";
+import { Popup_MessageTypes, CacheKeys } from "../utils/Enums.js";
 import { localizeHtmlPage } from "../utils/localize.js";
 import { getCurrentUser } from "../gitlab/gitlab.js";
+import { getSetting } from "../utils/cache.js";
 import {
   elements,
   setSelectedAssigneeId,
   setCurrentAssignees,
   setIssueEndDate,
+  setIsAssigneeLoadingEnabled,
 } from "./logic/popupState.js";
 import {
   loadAttachmentsPreview,
@@ -33,6 +35,14 @@ async function init() {
   await resetEditor();
   localizeHtmlPage();
 
+  // Read the assignee-loading toggle from persistent settings so the popup
+  // reflects what the user configured in the Options page.
+  const assigneeLoadingEnabled = await getSetting(
+    CacheKeys.ASSIGNEES_LOADING,
+    true,
+  );
+  setIsAssigneeLoadingEnabled(assigneeLoadingEnabled);
+
   const currentTab = await browser.tabs.getCurrent();
 
   const {
@@ -53,10 +63,10 @@ async function init() {
     attachmentsButton,
     attachmentSelectorBackdrop,
     closeAttachmentSelectorBtn,
-    loadAttachmentsPreviewBtn
+    loadAttachmentsPreviewBtn,
   );
   createBtn.addEventListener("click", handleCreateButtonClick);
-  
+
   browser.runtime.sendMessage({
     type: Popup_MessageTypes.POPUP_READY,
     tabId: currentTab.windowId,
@@ -115,7 +125,7 @@ function setupAttachmentHandling(
   attachmentsButton,
   backdrop,
   closeBtn,
-  previewBtn
+  previewBtn,
 ) {
   attachmentsButton.addEventListener("click", handleAttachmentButtonClick);
 

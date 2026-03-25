@@ -1,5 +1,5 @@
 import { CacheKeys, LocalizeKeys } from "../../../utils/Enums.js";
-import { getCache } from "../../../utils/cache.js";
+import { getCache, getSetting } from "../../../utils/cache.js";
 import {
   resetState,
   setIsAssigneeLoadingEnabled,
@@ -15,8 +15,11 @@ import { updateAssigneeSelectVisibility } from "../ui.js";
 export async function resetEditor() {
   resetState();
 
-  const enableAssigneeLoading = await getCache(CacheKeys.ASSIGNEES_LOADING, undefined, false);
-  setIsAssigneeLoadingEnabled(enableAssigneeLoading || false);
+  const enableAssigneeLoading = await getSetting(
+    CacheKeys.ASSIGNEES_LOADING,
+    true,
+  );
+  setIsAssigneeLoadingEnabled(enableAssigneeLoading);
   updateAssigneeSelectVisibility(isAssigneeLoadingEnabled);
 
   const noAssigneesFoundMessage =

@@ -1,5 +1,5 @@
 import { CacheKeys, LocalizeKeys } from "../../../utils/Enums.js";
-import { getCache, getSetting } from "../../../utils/cache.js";
+import { getSetting } from "../../../utils/cache.js";
 import {
   resetState,
   setIsAssigneeLoadingEnabled,

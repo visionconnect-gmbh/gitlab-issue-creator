@@ -1,6 +1,6 @@
 import { LocalizeKeys, CacheKeys, MessageTypes, Popup_MessageTypes } from "../../../utils/Enums.js";
 import { displayLocalizedNotification, getAddonVersion } from "../../../utils/utils.js";
-import { getCache } from "../../../utils/cache.js";
+import { getCache, getSetting } from "../../../utils/cache.js";
 import { uploadAttachmentToGitLab } from "../../../gitlab/gitlab.js";
 import {
   easyMDE,
@@ -63,7 +63,7 @@ async function createTicketDescription() {
     description += await generateAttachmentsMarkdown(selectedAttachments);
   }
 
-  if (await getCache(CacheKeys.ENABLE_WATERMARK, undefined, true)) {
+  if (await getSetting(CacheKeys.ENABLE_WATERMARK, true)) {
     const WATERMARK = `created with gitlab-issue-creator (${await getAddonVersion()})`;
     description += `\n\n<!-- ${WATERMARK} -->`;
   }

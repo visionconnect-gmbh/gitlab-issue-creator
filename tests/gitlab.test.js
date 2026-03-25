@@ -38,7 +38,7 @@ function wireStorageMocks() {
     return result;
   });
   browser.storage.local.set.mockImplementation(async (obj) =>
-    Object.assign(_store, obj)
+    Object.assign(_store, obj),
   );
   browser.storage.local.remove.mockImplementation(async (keys) => {
     for (const k of Array.isArray(keys) ? keys : [keys]) delete _store[k];
@@ -62,6 +62,8 @@ jest.unstable_mockModule("../src/gitlab/api.js", () => ({
   apiGet: mockApiGet,
   apiPost: mockApiPost,
   doRequest: mockDoRequest,
+  // invalidateBaseUrl is not needed here since api.js is fully mocked
+  invalidateBaseUrl: jest.fn(),
 }));
 
 // Mock notification helpers so they don't try to call browser.notifications.
@@ -77,8 +79,16 @@ jest.unstable_mockModule("../src/utils/utils.js", () => ({
 // Dynamic imports – must come AFTER unstable_mockModule() calls.
 // ---------------------------------------------------------------------------
 
-const { getGitLabSettings, getCurrentUser, getProjects, getAssignees, createGitLabIssue } =
-  await import("../src/gitlab/gitlab.js");
+const {
+  getGitLabSettings,
+  getCurrentUser,
+  getProjects,
+  getAssignees,
+  createGitLabIssue,
+} = await import("../src/gitlab/gitlab.js");
+
+// Import cache module resets so module-level state doesn't bleed between tests.
+const { invalidateCachingDisabledFlag } = await import("../src/utils/cache.js");
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -89,11 +99,13 @@ beforeEach(() => {
   jest.clearAllMocks();
   // Re-wire storage after clearAllMocks() has reset all implementations.
   wireStorageMocks();
+  // Reset module-level in-memory flags so no state leaks between tests.
+  invalidateCachingDisabledFlag();
 });
 
 /** Writes valid GitLab settings directly into the mock store. */
 function seedSettings(overrides = {}) {
-  _store["gitlab_settings"] = {
+  _store["s:gitlab_settings"] = {
     url: "https://gitlab.example.com",
     token: "test-token",
     ...overrides,
@@ -115,14 +127,14 @@ describe("getGitLabSettings", () => {
   });
 
   test("returns null and notifies when token is missing", async () => {
-    _store["gitlab_settings"] = { url: "https://gitlab.example.com" };
+    _store["s:gitlab_settings"] = { url: "https://gitlab.example.com" };
     const result = await getGitLabSettings();
     expect(result).toBeNull();
     expect(mockDisplayLocalizedNotification).toHaveBeenCalled();
   });
 
   test("returns null and notifies when url is missing", async () => {
-    _store["gitlab_settings"] = { token: "abc" };
+    _store["s:gitlab_settings"] = { token: "abc" };
     const result = await getGitLabSettings();
     expect(result).toBeNull();
     expect(mockDisplayLocalizedNotification).toHaveBeenCalled();
@@ -275,7 +287,7 @@ describe("createGitLabIssue", () => {
         assignee_ids: [3],
         due_date: "2024-12-31",
       },
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 
@@ -288,7 +300,7 @@ describe("createGitLabIssue", () => {
     expect(mockApiPost).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({ due_date: null }),
-      expect.any(Object)
+      expect.any(Object),
     );
   });
 

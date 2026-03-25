@@ -9,7 +9,7 @@
  * All public functions throw on non-OK responses so callers can use try/catch.
  */
 
-import { getCache } from "../utils/cache.js";
+import { getSetting } from "../utils/cache.js";
 import { LocalizeKeys, CacheKeys } from "../utils/Enums.js";
 import {
   closePopup,
@@ -24,6 +24,14 @@ import {
 /** @type {string|null} */
 let _apiBaseUrl = null;
 
+/**
+ * Resets the cached base URL so the next request re-reads it from storage.
+ * Useful in tests or when the user changes the GitLab URL in settings.
+ */
+export function invalidateBaseUrl() {
+  _apiBaseUrl = null;
+}
+
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
@@ -37,11 +45,13 @@ let _apiBaseUrl = null;
 async function resolveBaseUrl() {
   if (_apiBaseUrl) return _apiBaseUrl;
 
-  const settings = await getCache(CacheKeys.GITLAB_SETTINGS, undefined, {});
+  const settings = await getSetting(CacheKeys.GITLAB_SETTINGS, {});
   _apiBaseUrl = settings.url || null;
 
   if (!_apiBaseUrl) {
-    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GITLAB_URL_NOT_CONFIGURED);
+    displayLocalizedNotification(
+      LocalizeKeys.NOTIFICATION.GITLAB_URL_NOT_CONFIGURED,
+    );
     openOptionsPage();
     closePopup();
   }
@@ -91,11 +101,16 @@ export async function doRequest(endpoint, options = {}, addContentType = true) {
     ...(options.headers ?? {}),
   };
 
-  const response = await fetch(`${baseUrl}${endpoint}`, { ...options, headers });
+  const response = await fetch(`${baseUrl}${endpoint}`, {
+    ...options,
+    headers,
+  });
 
   if (!response.ok) {
     if (response.status === 401) {
-      displayLocalizedNotification(LocalizeKeys.NOTIFICATION.INVALID_GITLAB_TOKEN);
+      displayLocalizedNotification(
+        LocalizeKeys.NOTIFICATION.INVALID_GITLAB_TOKEN,
+      );
       openOptionsPage();
       closePopup();
       return;

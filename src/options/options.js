@@ -1,6 +1,6 @@
 import { CacheKeys, LocalizeKeys, MessageTypes } from "../utils/Enums.js";
 import { localizeHtmlPage } from "../utils/localize.js";
-import { getCache, getSetting, setSetting } from "../utils/cache.js";
+import { getSetting, setSetting } from "../utils/cache.js";
 import { DOM } from "./logic/optionsState.js";
 import { alertMessage, handleError } from "./logic/handler/alertHandler.js";
 import {
@@ -18,6 +18,7 @@ import {
   saveWatermarkToggle,
 } from "./logic/handler/toggleHandler.js";
 import { isUrlReachable, normalizeUrl } from "./logic/handler/urlHandler.js";
+import { getGitLabSettings } from "../gitlab/gitlab.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const map = [
@@ -48,11 +49,7 @@ export const loadInitialSettings = async () => {
   try {
     localizeHtmlPage();
 
-    const gitlabSettings = await getCache(
-      CacheKeys.GITLAB_SETTINGS,
-      undefined,
-      {},
-    );
+    const gitlabSettings = await getGitLabSettings();
     DOM.tokenInput.value = gitlabSettings.token || "";
     DOM.urlInput.value = gitlabSettings.url || "";
 

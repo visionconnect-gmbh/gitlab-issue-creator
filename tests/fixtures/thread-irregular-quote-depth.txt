@@ -1,0 +1,293 @@
+Hallo,
+
+Mindestlaufzeit beim Anbieter 36 Monate. Das ist also keine Option.
+Dazu müssen wir nächste Woche noch mal sprechen. Alternativanbieter etc. ??
+
+
+
+--
+
+
+
+Freundliche Grüße
+
+Nora Keller
+
+
+
+Geschäftsführerin
+
+
+
+NordLicht GmbH
+
+Musterstr. 12
+
+20095 Beispielstadt
+
+
+
+fon +49 (0)40 123 45-100
+
+fax +49 (0)40 123 45-101
+
+keller@nordlicht-software.example
+
+www.nordlicht-software.example
+
+
+
+NordLicht GmbH - Musterstr. 12 - 20095 Beispielstadt
+
+Geschäftsführung: Nora Keller, Peter Sand
+
+Sitz der Gesellschaft: Beispielstadt-HRB 12345
+
+Ust-IdNr. DE 111222333, Gerichtsstand: Beispielstadt
+
+
+
+******************************************************************
+
+Datenschutz: Informationen gemäß Art. 13 DSGVO zur Erhebung
+
+von personenbezogenen Daten entnehmen Sie bitte unserer Website:
+
+https://www.nordlicht-software.example/kontakt/datenschutz
+
+Betreff: Re: Serverkonfiguration
+Datum: Fr 25. September 2026 14:30
+Von: "Marek Voss" <marek.voss@serverforge.example>
+An: "NordLicht GmbH Nora Keller" <keller@nordlicht-software.example>
+
+> Hallo Frau Keller,
+>
+> leider ist der Hardware-Preis für diese Konfiguration seit Ende letzten Jahres über 50% gestiegen, so dass wir monatlich eher bei 1.198 € netto wären. Es handelt sich auch nicht um Bestandsware, wir bestellen die Systeme nach Auftragseingang. Auch haben wir eine Mindestlaufzeit von 36 Monaten aufgrund der hohen Anschaffungskosten (bei 12 Monaten Laufzeit wäre die monatliche Gebühr knapp 2.000 € netto).
+>
+> Die Bereitstellung würde ca. 3-4 Wochen nach Bestellungseingang erfolgen.
+>
+> Wir haben mittlerweile auch zeitgemäßere Konfigurationen im Angebot, die sich allerdings preislich in noch höheren Regionen ansiedeln.
+>
+> Kommt ein Angebot mit dieser Laufzeit für Sie in Frage?
+>
+> Beste Grüße
+> Marek Voss
+>
+>
+>
+>
+>>> Wenn Sie für die ein oder andere Variante ein offizielles Angebot wünschen, mache ich es gern fertig.
+>>>
+>>> Beste Grüße
+>>> Marek Voss
+>>> On 9/1/2026 12:50 PM, NordLicht GmbH Nora Keller wrote:
+>>>>
+>>>> Hallo Herr Voss,
+>>>>
+>>>> könnten wir zu den genannten Produkten noch die Preise bekommen?
+>>>>
+>>>> Gruß Nora Keller
+>>>> Am 18.08.2026 um 11:33 schrieb Marek Voss:
+>>>>>
+>>>>> Hallo Frau Keller,
+>>>>>
+>>>>> bitte entschuldigen Sie die späte Antwort.
+>>>>>
+>>>>> Aufgrund von nötigen RZ-Anpassungen, werden wir fertige KIaaS-Lösungen  (LLM, GPU, Vektordatenbanken) in voraussichtlich 6 Monaten anbieten können.
+>>>>>
+>>>>> Aktuell können wir individuelle, dedizierte KI-Server anbieten. Hierzu wäre es gut, wenn wir Ihre Anforderungen dazu hätten (zwei GPUs, die wir üblicherweise anbieten sind die Beispiel RTX Pro 6000 mit 96 GB VRAM und die Beispiel RTX Pro 4000 mit 24 GB VRAM).
+>>>>>
+>>>>> Sollten Sie erstmal nur ein POC zum testen benötigen, könnten wir schauen, dass wir Ihnen dahingehend etwas anbieten.
+>>>>>
+>>>>> Beste Grüße
+>>>>> Marek Voss
+>>>>>
+>>>>> On 8/4/2026 11:13 AM, Nora Keller NordLicht GmbH wrote:
+>>>>>>
+>>>>>> Hallo Herr Voss,
+>>>>>>
+>>>>>> bei dem Technologietag in Ihrem Hause sprachen Sie von neuen Angeboten speziell für KI. Wie sieht es damit aus?
+>>>>>> --
+>>>>>>
+>>>>>> Freundliche Grüße
+>>>>>> Nora Keller
+>>>>>>
+>>>>>> Geschäftsführerin
+>>>>>>
+>>>>>> NordLicht GmbH
+>>>>>> Musterstr. 12
+>>>>>> 20095 Beispielstadt
+>>>>>>
+>>>>>> fon +49 (0)40 123 45-100
+>>>>>> fax +49 (0)40 123 45-101
+>>>>>> keller@nordlicht-software.example
+>>>>>> www.nordlicht-software.example
+>>>>>>
+>>>>>> ****************************************
+>>>>>> Acme CMS v9 "Built for the Future"
+>>>>>> Die Zukunft des Content Managements.
+>>>>>> https://www.nordlicht-software.example/acmecms
+>>>>>> ****************************************
+>>>>>>
+>>>>>> NordLicht GmbH - Musterstr. 12 - 20095 Beispielstadt
+>>>>>> Geschäftsführung: Nora Keller, Peter Sand
+>>>>>> Sitz der Gesellschaft: Beispielstadt-HRB 12345
+>>>>>> Ust-IdNr. DE 111222333, Gerichtsstand: Beispielstadt
+>>>>>>
+>>>>>>
+>>>>>> ******************************************************************
+>>>>>> Datenschutz: Informationen gemäß Art. 13 DSGVO zur Erhebung
+>>>>>> von personenbezogenen Daten entnehmen Sie bitte unserer Website:
+>>>>>> https://www.nordlicht-software.example/kontakt/datenschutz
+>>>>> --
+>>>>> ServerForge GmbH
+>>>>> ehemals Hostplace Deutschland
+>>>>>
+>>>>> Dr. Marek Voss
+>>>>> Senior Key Account Consultant
+>>>>>
+>>>>> Am Musterfelde 29
+>>>>> D - 20519 Beispielstadt - Germany
+>>>>>
+>>>>> Fon: +49 (0)40 71260 241
+>>>>> Fax: +49 (0)40 71260 199
+>>>>>
+>>>>> eMail: marek.voss@serverforge.example
+>>>>> URL: http://www.serverforge.example/
+>>>>> LinkedIn: https://www.linkedin.com/in/example-marekvoss/
+>>>>>
+>>>>> Zertifiziert nach ISO 27001:BSI auf Basis von IT Grundschutz
+>>>>>
+>>>>> =====================================
+>>>>>
+>>>>> Geschäftsführung:
+>>>>> Elena Fuchs
+>>>>> Tom Reiter
+>>>>>
+>>>>> Datenschutzbeauftragter lt. BDSG:
+>>>>> Simon Wagner
+>>>>>
+>>>>> Zuständiges Handelsregister:
+>>>>> Amtsgericht Beispielstadt HRB 202097
+>>>>>
+>>>>> Zuständiges Finanzamt:
+>>>>> Finanzamt Beispielstadt
+>>>>> USt-IdNr. DE204915504
+>>>>>
+>>>>> ============================================
+>>>>>
+>>>>> HINWEIS: Diese Email und etwaige Anlagen beinhalten vertrauliche und/oder rechtlich geschützte Informationen und sind nur für den Adressaten bestimmt. Sollten Sie nicht der beabsichtigte Empfänger der Nachricht sein, oder diese Nachricht versehentlich erhalten haben, sind Sie nicht berechtigt, den Inhalt der Nachricht weiterzuleiten, kopieren oder den Inhalt auf eine andere Art zu verbreiten. Wenn Sie diese Nachricht versehentlich erhalten haben,benachrichtigen Sie bitte den Absender und löschen Sie umgehend und dauerhaft die Nachricht mitsamt den Anlagen von Ihrem System.
+>>>>>
+>>>>> NOTICE: This email and any file transmitted are confidential and/or legally privileged and intended only for the person(s) directly addressed. If you are not the intended recipient, any use, copying, transmission, distribution, or other forms of dissemination is strictly prohibited. If you have received this email in error, please notify the sender immediately and permanently delete the email and files, if any.
+>>>> --
+>>>>
+>>>> Freundliche Grüße
+>>>> Nora Keller
+>>>>
+>>>> Geschäftsführerin
+>>>>
+>>>> NordLicht GmbH
+>>>> Musterstr. 12
+>>>> 20095 Beispielstadt
+>>>>
+>>>> fon +49 (0)40 123 45-100
+>>>> fax +49 (0)40 123 45-101
+>>>> keller@nordlicht-software.example
+>>>> www.nordlicht-software.example
+>>>>
+>>>> ****************************************
+>>>> Acme CMS v9 "Built for the Future"
+>>>> Die Zukunft des Content Managements.
+>>>> https://www.nordlicht-software.example/acmecms
+>>>> ****************************************
+>>>>
+>>>> NordLicht GmbH - Musterstr. 12 - 20095 Beispielstadt
+>>>> Geschäftsführung: Nora Keller, Peter Sand
+>>>> Sitz der Gesellschaft: Beispielstadt-HRB 12345
+>>>> Ust-IdNr. DE 111222333, Gerichtsstand: Beispielstadt
+>>>>
+>>>>
+>>>> ******************************************************************
+>>>> Datenschutz: Informationen gemäß Art. 13 DSGVO zur Erhebung
+>>>> von personenbezogenen Daten entnehmen Sie bitte unserer Website:
+>>>> https://www.nordlicht-software.example/kontakt/datenschutz
+>>> --
+>>> ServerForge GmbH
+>>> ehemals Hostplace Deutschland
+>>>
+>>> Dr. Marek Voss
+>>> Senior Key Account Consultant
+>>>
+>>> Am Musterfelde 29
+>>> D - 20519 Beispielstadt - Germany
+>>>
+>>> Fon: +49 (0)40 71260 241
+>>> Fax: +49 (0)40 71260 199
+>>>
+>>> eMail: marek.voss@serverforge.example
+>>> URL: http://www.serverforge.example/
+>>> LinkedIn: https://www.linkedin.com/in/example-marekvoss/
+>>>
+>>> Zertifiziert nach ISO 27001:BSI auf Basis von IT Grundschutz
+>>>
+>>> =====================================
+>>>
+>>> Geschäftsführung:
+>>> Elena Fuchs
+>>> Tom Reiter
+>>>
+>>> Datenschutzbeauftragter lt. BDSG:
+>>> Simon Wagner
+>>>
+>>> Zuständiges Handelsregister:
+>>> Amtsgericht Beispielstadt HRB 202097
+>>>
+>>> Zuständiges Finanzamt:
+>>> Finanzamt Beispielstadt
+>>> USt-IdNr. DE204915504
+>>>
+>>> ============================================
+>>>
+>>> HINWEIS: Diese Email und etwaige Anlagen beinhalten vertrauliche und/oder rechtlich geschützte Informationen und sind nur für den Adressaten bestimmt. Sollten Sie nicht der beabsichtigte Empfänger der Nachricht sein, oder diese Nachricht versehentlich erhalten haben, sind Sie nicht berechtigt, den Inhalt der Nachricht weiterzuleiten, kopieren oder den Inhalt auf eine andere Art zu verbreiten. Wenn Sie diese Nachricht versehentlich erhalten haben,benachrichtigen Sie bitte den Absender und löschen Sie umgehend und dauerhaft die Nachricht mitsamt den Anlagen von Ihrem System.
+>>>
+>>> NOTICE: This email and any file transmitted are confidential and/or legally privileged and intended only for the person(s) directly addressed. If you are not the intended recipient, any use, copying, transmission, distribution, or other forms of dissemination is strictly prohibited. If you have received this email in error, please notify the sender immediately and permanently delete the email and files, if any.
+> --
+> ServerForge GmbH
+> ehemals Hostplace Deutschland
+>
+> Dr. Marek Voss
+> Senior Key Account Consultant
+>
+> Am Musterfelde 29
+> D - 20519 Beispielstadt - Germany
+>
+> Fon: +49 (0)40 71260 241
+> Fax: +49 (0)40 71260 199
+>
+> eMail: marek.voss@serverforge.example
+> URL: http://www.serverforge.example/
+> LinkedIn: https://www.linkedin.com/in/example-marekvoss/
+>
+> Zertifiziert nach ISO 27001:BSI auf Basis von IT Grundschutz
+>
+> =====================================
+>
+> Geschäftsführung:
+> Elena Fuchs
+> Tom Reiter
+>
+> Datenschutzbeauftragter lt. BDSG:
+> Simon Wagner
+>
+> Zuständiges Handelsregister:
+> Amtsgericht Beispielstadt HRB 202097
+>
+> Zuständiges Finanzamt:
+> Finanzamt Beispielstadt
+> USt-IdNr. DE204915504
+>
+> ============================================
+>
+> HINWEIS: Diese Email und etwaige Anlagen beinhalten vertrauliche und/oder rechtlich geschützte Informationen und sind nur für den Adressaten bestimmt. Sollten Sie nicht der beabsichtigte Empfänger der Nachricht sein, oder diese Nachricht versehentlich erhalten haben, sind Sie nicht berechtigt, den Inhalt der Nachricht weiterzuleiten, kopieren oder den Inhalt auf eine andere Art zu verbreiten. Wenn Sie diese Nachricht versehentlich erhalten haben,benachrichtigen Sie bitte den Absender und löschen Sie umgehend und dauerhaft die Nachricht mitsamt den Anlagen von Ihrem System.
+>
+> NOTICE: This email and any file transmitted are confidential and/or legally privileged and intended only for the person(s) directly addressed. If you are not the intended recipient, any use, copying, transmission, distribution, or other forms of dissemination is strictly prohibited. If you have received this email in error, please notify the sender immediately and permanently delete the email and files, if any.

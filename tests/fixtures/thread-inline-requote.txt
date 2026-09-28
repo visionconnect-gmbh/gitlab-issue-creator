@@ -1,0 +1,171 @@
+Betreff:
+Re: WG: Ehrenkarte
+Von:
+Jonas Berg <berg@nordlicht-software.example>
+Datum:
+24.09.2026, 09:09
+An:
+Finn Adler <adler@devservices.example>
+Kopie (CC):
+'Nora Keller' <keller@nordlicht-software.example>, 'Mira Vogt' <vogt@nordlicht-software.example>, Karl Brenner <karl.brenner@regioticket.example>, Sam Weiler <weiler@nordlicht-software.example>
+
+Moin Finn,
+
+war mir nicht klar,
+dass wir das vorab entscheiden sollten.
+
+
+> Steht der Wert auf true, handelt es sich um eine Ehrenkarte. In diesem Fall kann das Gültigkeitsdatum entweder leer bleiben
+> oder den Wert 01.01.9999 im entsprechenden Format enthalten. Welche Variante ihr verwendet, könnt ihr selbst entscheiden.
+Für den Fall bitte das Gültigkeitsdatum "leer lassen" bzw. dort NULL eintragen.
+
+
+Bitte gib uns kurz Bescheid, sobald das in der API gelandet ist,
+und mit welchem Account wir das testen können.
+
+
+
+Danke und beste Grüße
+Jonas
+
+
+
+Am 23.09.2026 um 17:42 schrieb Karl Brenner:
+>
+> Hallo Mira,
+>
+>
+>
+> du kannst die Ehrenkarte noch nicht in die App laden.
+>
+>
+>
+> Der Grund ist, dass die API-Schnittstelle durch Finn noch nicht erweitert wurde.
+>
+> Finn wartet darauf, dass Jonas ihm sagt, welche Parameter er haben möchte.
+>
+>
+>
+> Der Satz aus dem Mail unten: „Welche Variante ihr verwendet, könnt ihr selbst entscheiden.“
+>
+> ist in diesem Sinne so zu verstehen, dass wenn Ihr oder Jonas es entschieden habt, ihr es Finn mitteilen müsst.
+>
+>
+>
+> @Jonas: Bitte mitteilen!!!
+>
+>
+>
+> Kommunikation ist ein besonders schwierige Welt.
+>
+>
+>
+> Für  Rückfragen stehe ich gerne zur Verfügung.
+>
+>
+>
+> Beste Grüße,
+>
+> Karl
+>
+>
+>
+> Geschäftsführer
+> Regioticket Beispiel mbH
+>
+> Musterstraße 6
+>
+> 20171 Beispielstadt
+>
+> Fon:    +49 40 85 62 07-18
+>
+> Email: karl.brenner@regioticket.example
+>
+>
+>
+>
+>
+> Von: Finn Adler <adler@devservices.example>
+> Gesendet: Mittwoch, 23. September 2026 17:36
+> An: Karl Brenner <karl.brenner@regioticket.example>
+> Betreff: Fwd: Ehrenkarte
+>
+>
+>
+>
+>
+>
+>
+> -------- Weitergeleitete Nachricht --------
+>
+> Betreff:
+>
+>
+> Ehrenkarte
+>
+> Datum:
+>
+>
+> Wed, 9 Sep 2026 20:21:19 +0200
+>
+> Von:
+>
+>
+> Finn Adler <adler@devservices.example>
+>
+> An:
+>
+>
+> Jonas Berg <berg@nordlicht-software.example>
+>
+> Kopie (CC):
+>
+>
+> Karl Brenner <karl.brenner@regioticket.example>, 'Mira Vogt' <vogt@nordlicht-software.example>, weiler@nordlicht-software.example
+>
+>
+>
+> Hallo Jonas,
+>
+> Bezüglich der Ehrenkarte wird das Datenobjekt um einen weiteren Wert erweitert.
+>
+> Bei diesem Wert handelt es sich um einen Boolean mit der Bezeichnung „Ehrenkarte“.
+>
+>     Steht der Wert auf true, handelt es sich um eine Ehrenkarte. In diesem Fall kann das Gültigkeitsdatum entweder leer bleiben
+>     oder den Wert 01.01.9999 im entsprechenden Format enthalten. Welche Variante ihr verwendet, könnt ihr selbst entscheiden.
+>     Steht der Wert auf false, handelt es sich um eine normale Karte.
+>
+> --
+>
+> Mit freundlichen Grüßen / Kind regards
+>
+>
+> Finn Adler
+>
+> Web-Development | DevServices Beispiel GmbH
+> Musterstraße 6 | 20171 Beispielstadt
+> Fon +49 (0)40 - 85 03 04 93 | Fax +49 (0)40 - 85 03 04 99
+> adler@devservices.example | www.devservices.example
+> Geschäftsführung: Ralf Bloom, Michael Bussmann
+> AG Beispielstadt: HRB 201903 | USt.-ID DE255397079
+>
+
+--
+****************************************
+Acme CMS v9 "Built for the Future"
+Die Zukunft des Content Managements.
+https://www.nordlicht-software.example/acmecms
+****************************************
+____________________________________
+Jonas Berg
+
+Fachinformatiker
+für Anwendungsentwicklung
+
+NordLicht GmbH
+Musterstr. 12
+20095 Beispielstadt
+
+fon: (+49)40/123 45-210
+berg@nordlicht-software.example
+https://www.nordlicht-software.example

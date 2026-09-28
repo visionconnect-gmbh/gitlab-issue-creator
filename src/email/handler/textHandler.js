@@ -93,24 +93,40 @@ export function removeSignature(text) {
 // ---------------------------------------------------------------------------
 
 /**
+ * Sentinel pushed into `quotedLines` between two separate runs of quoted
+ * lines that are interrupted by non-quoted (latest-message) text, e.g. when
+ * a reply inline-quotes a fragment for context and then continues with its
+ * own text before the real quoted reply chain starts. `extractQuotedMessages`
+ * treats it as a hard boundary so the two runs are never merged into a
+ * single reconstructed message just because they share a quote level.
+ */
+const RUN_BREAK = Symbol("quote-run-break");
+
+/**
  * Splits an email body into the latest (non-quoted) message and the quoted lines.
  *
  * Lines beginning with `>` are considered quoted; all other lines belong to the
- * latest message.
+ * latest message. Non-adjacent runs of quoted lines (interrupted by latest-message
+ * text in between) are separated by a `RUN_BREAK` sentinel so they aren't later
+ * mistaken for one contiguous quoted block.
  *
  * @param {string} emailBody - The full raw email body.
- * @returns {{ latestMessage: string, quotedLines: string[] }}
+ * @returns {{ latestMessage: string, quotedLines: Array<string|symbol> }}
  */
 export function splitQuotedAndLatest(emailBody) {
   const latestLines = [];
   const quotedLines = [];
+  let wasQuoted = false;
 
   for (const line of emailBody.split("\n")) {
-    if (line.startsWith(">")) {
+    const isQuoted = line.startsWith(">");
+    if (isQuoted) {
+      if (!wasQuoted && quotedLines.length > 0) quotedLines.push(RUN_BREAK);
       quotedLines.push(line);
     } else {
       latestLines.push(line);
     }
+    wasQuoted = isQuoted;
   }
 
   return { latestMessage: latestLines.join("\n").trim(), quotedLines };
@@ -131,38 +147,58 @@ export function getQuoteLevel(line) {
 /**
  * Reconstructs individual quoted messages from an array of `>`-prefixed lines.
  *
- * The algorithm walks backwards through the lines and groups them by their
- * minimum quote level, yielding one "message" per level transition.
+ * Walks forward through the lines maintaining a stack of open messages, one
+ * per quote level currently nested into: a level deeper than the current top
+ * opens a new message, a level shallower closes messages back down to it,
+ * and an equal level appends to the current one. Because quote depth doesn't
+ * always increase by exactly one per level (mail clients sometimes jump by
+ * more than one `>` per reply), boundaries are detected by comparing to the
+ * currently open level rather than assuming a fixed step.
  *
- * @param {string[]} quotedLines - Lines that begin with one or more `>` characters.
+ * A `RUN_BREAK` sentinel (see `splitQuotedAndLatest`) forces all currently
+ * open messages closed, so two non-adjacent runs of quoted lines at the same
+ * level are never merged into one reconstructed message. Closes are always
+ * unshifted to the front of the result: content that stays open longer
+ * (deeper nesting, or simply appearing later in the document, e.g. after a
+ * `RUN_BREAK`) is closed later and so ends up earlier in the output, which
+ * is what lets `remapDateAndAuthorLines` attach a header line found earlier
+ * in the document to the message that actually follows it there, even when
+ * an unrelated, unnested fragment (e.g. an inline requote) closes sooner.
+ *
+ * @param {Array<string|symbol>} quotedLines - Lines that begin with one or more
+ *   `>` characters, possibly interspersed with `RUN_BREAK` sentinels.
  * @returns {string[]} Array of de-prefixed message strings.
  */
 export function extractQuotedMessages(quotedLines) {
   const messages = [];
-  let buffer = [];
-  let currentMinLevel = -1;
+  const stack = [];
 
-  for (let i = quotedLines.length - 1; i >= 0; i--) {
-    const line = quotedLines[i];
+  const closeTop = () => {
+    const { buffer } = stack.pop();
+    messages.unshift(buffer.join("\n").trim());
+  };
+
+  for (const line of quotedLines) {
+    if (line === RUN_BREAK) {
+      while (stack.length) closeTop();
+      continue;
+    }
+
     const level = getQuoteLevel(line);
     const content = line.slice(level).trim();
 
-    if (buffer.length === 0) {
-      buffer.unshift(content);
-      currentMinLevel = level;
-    } else if (level < currentMinLevel) {
-      messages.unshift(buffer.join("\n").trim());
-      buffer = [content];
-      currentMinLevel = level;
-    } else {
-      buffer.unshift(content);
-      currentMinLevel = Math.min(currentMinLevel, level);
+    while (stack.length && level < stack[stack.length - 1].level) {
+      closeTop();
     }
+
+    if (!stack.length || level > stack[stack.length - 1].level) {
+      stack.push({ level, buffer: [] });
+    }
+
+    stack[stack.length - 1].buffer.push(content);
   }
 
-  if (buffer.length > 0) {
-    messages.unshift(buffer.join("\n").trim());
-  }
+  while (stack.length) closeTop();
 
   return messages;
 }

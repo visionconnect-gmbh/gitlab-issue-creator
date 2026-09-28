@@ -1,0 +1,117 @@
+ich sehe das als Freigabe deiner Mail
+
+--
+
+Freundliche Grüße
+Nora Keller
+
+Geschäftsführerin
+
+NordLicht GmbH
+Musterstr. 12
+20095 Beispielstadt
+
+fon +49 (0)40 123 45-100
+fax +49 (0)40 123 45-101
+keller@nordlicht-software.example
+www.nordlicht-software.example
+
+****************************************
+Acme CMS v9 "Built for the Future"
+Die Zukunft des Content Managements.
+https://www.nordlicht-software.example/acmecms
+****************************************
+
+NordLicht GmbH - Musterstr. 12 - 20095 Beispielstadt
+Geschäftsführung: Nora Keller, Peter Sand
+Sitz der Gesellschaft: Beispielstadt-HRB 12345
+Ust-IdNr. DE 111222333, Gerichtsstand: Beispielstadt
+
+
+******************************************************************
+Datenschutz: Informationen gemäß Art. 13 DSGVO zur Erhebung
+von personenbezogenen Daten entnehmen Sie bitte unserer Website:
+https://www.nordlicht-software.example/kontakt/datenschutz
+
+Am 28.09.2026 um 09:14 schrieb Mira Vogt:
+> Gute Frage.
+>
+> Nora, was meinst du? Wenn Sie schreibt, wir sind einverstanden mit Zeitplan und Entwicklerkonto…. wie interpretierst du das?
+>
+> ****************************************
+> Acme CMS v9 "Built for the Future"
+> Die Zukunft des Content Managements.
+> https://www.nordlicht-software.example/acmecms
+> ****************************************
+>
+> Freundliche Grüße,
+> Mira Vogt
+>
+> Dipl.-Des.(FH) Mira Vogt
+> ArtDirector
+>
+> NordLicht GmbH
+> Musterstraße 12
+> 20095 Beispielstadt
+> Germany
+>
+> fon   +49 (0)40 123 45-108
+> fax   +49 (0)40 123 45-101
+> vogt@nordlicht-software.example
+> http://www.nordlicht-software.example
+> _______________________________________________________
+>
+> NordLicht GmbH - Musterstr. 12 - 20095 Beispielstadt
+> Geschäftsführung: Nora Keller, Peter Sand
+> Sitz der Gesellschaft: Beispielstadt-HRB 12345
+> Ust-IdNr. DE 111222333, Gerichtsstand: Beispielstadt
+> *******************************************************************************
+> Datenschutz: Informationen gemäß Art. 13 DSGVO zur Erhebung
+> von personenbezogenen Daten entnehmen Sie bitte unserer Website:
+> https://www.nordlicht-software.example/datenschutz
+> *******************************************************************************
+>
+>> Am 28.09.2026 um 09:13 schrieb Jonas Berg <berg@nordlicht-software.example>:
+>>
+>> Guten Morgen Mira,
+>>
+>> aber ist das damit auch eine Freigabe für unsere Aufwandsschätzung, damit wir beginnen können?
+>>
+>> Beste Grüße
+>> Jonas
+>>
+>> Am 28.09.2026 um 09:02 schrieb Mira Vogt:
+>>> Guten Morgen,
+>>> kurze Rückmeldung von Frau Lindmann:
+>>>
+>>>> Anfang der weitergeleiteten Nachricht:
+>>>>
+>>>> Von: "Lindmann, Petra" <petra.lindmann@stadtwerke-beispiel.example>
+>>>> Betreff: AW: Reaktivierung Thema App-Tracking der Beispiel App
+>>>> Datum: 25. September 2026 um 15:37:51 MESZ
+>>>> An: 'Mira Vogt' <vogt@nordlicht-software.example>
+>>>>
+>>>> Hallo Frau Vogt,
+>>>>
+>>>> danke für diesen Zwischenstand, ich habe das bei uns intern bereits weitergegeben und hoffe auf eine baldige Rückmeldung, was das Thema App Store / Entwicklerkonto angeht. Die Zeitplanung für Umsetzung und Test-Release passen für uns :)
+>>>>
+>>>> Viele Grüße und einen schönen Feierabend!
+>>>>
+>>>>
+>>>> Mit freundlichen Grüßen
+>>>>
+>>>> i. A. Petra Lindmann
+>>>> ____________________________
+>>>>
+>>>> Stadtwerke Beispiel
+>>>> Zweckverband
+>>>> Abfallwirtschaft Region Beispiel
+>>>> Unternehmenskommunikation
+>>>> Musterallee 60 c
+>>>> 20999 Beispielstadt
+>>>>
+>>>> T  (040) 99 11-346 03
+>>>> F  (040) 99 11-479 82
+>>>> M (0151) 743 049 37
+>>>> petra.lindmann@stadtwerke-beispiel.example
+>>>> www.stadtwerke-beispiel.example

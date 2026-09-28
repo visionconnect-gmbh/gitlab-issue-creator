@@ -51,13 +51,21 @@ function extractName(line) {
 
 /**
  * Extracts the date and author line from an email message.
+ *
+ * When a message block contains more than one such line (e.g. its own
+ * attribution line plus the attribution line for the next, deeper-nested
+ * quote), the LAST one is returned: that trailing line is the header for
+ * the following message in the conversation, which is what the caller
+ * (`remapDateAndAuthorLines`) needs to attach to the next block.
+ *
  * @param {string} message - The email message text.
  * @returns {string|null} The extracted date and author line, or null if not found.
  */
 export function extractDateAndAuthorLine(message) {
   const genericRegex =
     /(?:\d{1,2}[./-]){2}\d{2,4}[\s,]+(?:um\s)?\d{1,2}:\d{2}(?:\s?(?:AM|PM))?[,:\s-]+.+?:/i;
-  return message.split("\n").find((line) => genericRegex.test(line)) || null;
+  const lines = message.split("\n").filter((line) => genericRegex.test(line));
+  return lines.length ? lines[lines.length - 1] : null;
 }
 
 /** Removes date and author lines from an email message.

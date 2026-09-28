@@ -61,6 +61,19 @@ describe("extractDateAndAuthorLine", () => {
     expect(result).not.toBeNull();
     expect(result).toContain("01.01.2024");
   });
+
+  test("returns the LAST header line when a block contains its own header plus a trailing header for the next nested quote", () => {
+    // This mirrors Thunderbird's nesting: a block can contain its own
+    // attribution line at the top and the attribution line for the next,
+    // deeper-nested message at the bottom.
+    const message = [
+      "Am 01.01.2024 um 10:00 schrieb Jane Doe:",
+      "This is Jane's reply.",
+      "Am 01.01.2024 um 09:00 schrieb John Smith:",
+    ].join("\n");
+    const result = extractDateAndAuthorLine(message);
+    expect(result).toContain("John Smith");
+  });
 });
 
 // ---------------------------------------------------------------------------

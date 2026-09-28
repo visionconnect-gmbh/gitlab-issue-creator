@@ -213,4 +213,29 @@ describe("extractQuotedMessages", () => {
     const [msg] = extractQuotedMessages(lines);
     expect(msg).toBe("Hello");
   });
+
+  test("handles quote depth jumping by more than one level at once", () => {
+    // Some clients jump straight from level 1 to level 3 (skipping level 2).
+    const lines = ["> newest", ">>> older", ">>>> oldest"];
+    const messages = extractQuotedMessages(lines);
+    expect(messages).toHaveLength(3);
+    expect(messages[0]).toBe("newest");
+    expect(messages[1]).toBe("older");
+    expect(messages[2]).toBe("oldest");
+  });
+
+  test("keeps two same-level runs separate when interrupted by a RUN_BREAK", () => {
+    // splitQuotedAndLatest inserts RUN_BREAK when quoted lines are interrupted
+    // by non-quoted (latest-message) text, e.g. an inline requote followed
+    // later by the real quoted reply chain, both at the same quote level.
+    // The run that closes later (the one appearing later in the document)
+    // ends up first, matching remapDateAndAuthorLines' expectation that a
+    // header line found in the preceding text belongs to whatever message
+    // comes right after it in the source, not to an earlier, unrelated run.
+    const { quotedLines } = splitQuotedAndLatest(
+      "reply text\n> inline requote\nmore reply text\n> real quoted reply"
+    );
+    const messages = extractQuotedMessages(quotedLines);
+    expect(messages).toEqual(["real quoted reply", "inline requote"]);
+  });
 });

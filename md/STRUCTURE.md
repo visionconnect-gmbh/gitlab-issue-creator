@@ -128,9 +128,12 @@ Thunderbird
 ├── scripts/
 │   ├── build.js                  Produktion-Build: Rollup ausführen, Dateien staging, zip → builds/
 │   ├── bump-version.js           Version in package.json + manifest.json atomar erhöhen
-│   ├── pack-src.js               Quellcode als Zip verpacken (AMO-Anforderung)
-│   ├── publish.js                AMO-Upload-Helfer
-│   └── utils/utils.js            Hilfsfunktionen für Build-Skripte
+│   ├── pack-src.js               Quellcode als Zip verpacken (ATN-Anforderung)
+│   ├── publish.js                ATN-Upload-Helfer (addons.thunderbird.net)
+│   └── utils/
+│       ├── utils.js              Hilfsfunktionen für Build-Skripte
+│       ├── atn.js                ATN-API-Client (v4 Signing-Endpoint)
+│       └── changelog.js          CHANGELOG.md-Parsing + ATN-HTML-Renderer
 │
 ├── dist/                         Bundled Output — generiert, nicht committed
 │   ├── bundled-background.js     + .map

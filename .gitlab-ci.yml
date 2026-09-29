@@ -2,16 +2,38 @@ stages:
   - build
   - deploy
 
+image: node:22
+
 build_thunderbird_extension:
   stage: build
   script:
+    - npm ci
+    - npm test
     - npm run build
+    - npm run packSrc
+  artifacts:
+    paths:
+      - builds/
+      - src_zips/
+    expire_in: 1 month
   rules:
     - if: $CI_COMMIT_TAG
 
-upload_thunderbird_extension_to_mozilla:
+upload_thunderbird_extension_to_atn:
   stage: deploy
+  needs:
+    - build_thunderbird_extension
   script:
-    - echo TODO
+    - npm ci
+    - node scripts/publish.js --skip-build
+  artifacts:
+    paths:
+      - builds/release-notes.html
+    expire_in: 1 month
   rules:
     - if: $CI_COMMIT_TAG
+  # ATN_API_KEY / ATN_API_SECRET must be set as masked, protected CI/CD
+  # variables (Settings > CI/CD > Variables). Release notes cannot be set
+  # through ATN's API (it only exposes GET on version resources), so this
+  # job uploads and signs the .xpi and leaves the rendered HTML changelog
+  # as a job artifact — paste it at the devhub edit_url printed in the log.

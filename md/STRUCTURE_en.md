@@ -128,9 +128,12 @@ Thunderbird
 ├── scripts/
 │   ├── build.js                  Production build: runs rollup, stages files, zips to builds/
 │   ├── bump-version.js           Bumps version in package.json + manifest.json atomically
-│   ├── pack-src.js               Packs source into a zip (required by addons.mozilla.org)
-│   ├── publish.js                AMO upload helper
-│   └── utils/utils.js            Shared helpers for the build scripts
+│   ├── pack-src.js               Packs source into a zip (required by addons.thunderbird.net)
+│   ├── publish.js                ATN upload helper (addons.thunderbird.net)
+│   └── utils/
+│       ├── utils.js              Shared helpers for the build scripts
+│       ├── atn.js                ATN API client (v4 signing endpoint)
+│       └── changelog.js          CHANGELOG.md parsing + ATN HTML renderer
 │
 ├── dist/                         Bundled output — generated, not committed
 │   ├── bundled-background.js     + .map

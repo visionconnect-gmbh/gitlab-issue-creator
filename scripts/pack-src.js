@@ -32,6 +32,13 @@ const EXCLUDE_PATTERNS = [
   SRC_ZIP_DIR,
   ".git",
   "*.zip",
+  "*.xpi",
+  // Credential / local-tooling files — see the matching comment in build.js.
+  // Without this, an .env created for local publishing would be zipped into
+  // the source archive uploaded to ATN reviewers.
+  ".env",
+  ".env.*",
+  ".remember",
 ];
 
 async function packSource() {

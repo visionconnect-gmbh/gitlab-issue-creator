@@ -1,4 +1,7 @@
 .env
+.env.*
+!.env.example
+.claude/settings.local.json
 node_modules/
 dist/
 src_temp/
@@ -6,5 +9,5 @@ src_zips/
 builds/
 *_prototype.js
 *.zip
-package-lock.json
+*.xpi
 messages.json

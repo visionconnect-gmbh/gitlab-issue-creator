@@ -32,6 +32,7 @@ const EXCLUDE_PATTERNS = [
   "scripts",
   "tests",
   "*.zip",
+  "*.xpi",
   BUILD_DIR,
   DEST_DIR,
   "src_zips",
@@ -45,6 +46,14 @@ const EXCLUDE_PATTERNS = [
   "jest.config.mjs",
   "build.js",
   ".gitlab-ci.yml",
+  // Credential / local-tooling files that must never end up in a
+  // distributable add-on. Both build.js and pack-src.js exclude these —
+  // without it, whichever one runs after an .env exists would ship the
+  // ATN API key/secret to users (build.js) or to reviewers (pack-src.js).
+  ".env",
+  ".env.*",
+  ".remember",
+  "*.map",
 ];
 
 async function buildAddon() {
@@ -82,8 +91,12 @@ async function buildAddon() {
     }
   }
 
-  fs.mkdirSync(DEST_DIR, { recursive: true });
-  const zipFilePath = path.join(DEST_DIR, `${ADDON_NAME}-v${version}.zip`);
+  // Clean builds/ on every run so stale zips from previous versions never
+  // linger — publish.js picks the artifact by exact versioned filename, but
+  // an old file with a matching name (a re-run of the same version) should
+  // still be replaced rather than silently kept.
+  cleanDirectory(DEST_DIR);
+  const zipFilePath = path.join(DEST_DIR, `${ADDON_NAME}-v${version}.xpi`);
   await createZipArchive(BUILD_DIR, zipFilePath);
 
   console.log("Cleaning temporary build directory...");

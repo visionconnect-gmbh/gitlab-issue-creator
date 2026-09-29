@@ -14,10 +14,14 @@ v5.3.0–v7.1.1 entries are backfilled verbatim from the existing
 
 ## [Unreleased]
 
+## [7.1.2] - 2026-09-29
+
 ### Added
+
 - Nested-quote and attribution-line handling in email parsing
 
 ### Changed
+
 - Replaced `getCache` with `getSetting` for watermark configuration
 
 ## [7.1.1] - 2026-05-19

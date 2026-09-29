@@ -10,8 +10,8 @@
  *
  * Release notes cannot be set through this API (verified: the versions
  * endpoints only allow GET/HEAD/OPTIONS). This script instead renders the
- * ATN-safe HTML changelog and prints it — along with the version's
- * developer-hub edit URL — for a one-time manual paste.
+ * ATN-safe HTML changelog and prints it — along with a link to the
+ * developer-hub versions overview — for a one-time manual paste.
  *
  * Pipeline:
  *   1. Read the version from manifest.json
@@ -23,7 +23,7 @@
  *   5. Attaching a source zip is NOT supported by the v4 API (that was an
  *      AMO-only endpoint) — the reviewable source zip is left in
  *      src_zips/ for manual attachment if ATN ever asks for it
- *   6. Print the release notes HTML + devhub edit_url for pasting
+ *   6. Print the release notes HTML + a link to the devhub versions page
  *
  * Required environment variables:
  *   ATN_API_KEY     – API key from https://addons.thunderbird.net/en-US/developers/addon/api/key/
@@ -202,11 +202,16 @@ async function main() {
     console.log("  this may still be pending even though the upload succeeded.");
   }
 
-  console.log(`\n  Edit this version's release notes here:\n  ${result.edit_url}`);
+  // The signing-status payload (this poll) doesn't carry an edit_url —
+  // that field only appears on the separate, read-only version-listing
+  // endpoint, and a pending-review version doesn't show up there yet
+  // either. The versions overview page always works, listed or not.
+  const devhubUrl = `https://addons.thunderbird.net/en-US/developers/addon/${ADDON_SLUG}/versions/`;
+  console.log(`\n  Edit this version's release notes here:\n  ${devhubUrl}`);
 
   console.log("\n══════════════════════════════════════════");
   console.log(` Uploaded v${version} successfully!`);
-  console.log(" >>> Paste the release notes above at the edit_url to publish them. <<<");
+  console.log(" >>> Paste the release notes above at that page to publish them. <<<");
   console.log("══════════════════════════════════════════\n");
 }
 

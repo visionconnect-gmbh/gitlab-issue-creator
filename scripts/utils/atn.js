@@ -168,7 +168,11 @@ export async function uploadVersion({ guid, version, xpiPath, channel, issuer, s
 /**
  * Polls a version's status until it has been processed, or the timeout
  * elapses. Resolves with the final version payload; the caller inspects
- * `files[0].status` / `automated_signing` to judge outcome.
+ * `valid` / `automated_signing` / `files[0]` to judge outcome. Note this
+ * signing-status payload does NOT include an `edit_url` (that field only
+ * appears on the separate, read-only /addons/addon/{slug}/versions/
+ * listing) — build a devhub link from the slug instead of expecting one
+ * on the returned object.
  *
  * Important: for *listed* versions, automated validation and human review
  * are separate stages. This only waits for automated processing —
@@ -193,7 +197,13 @@ export async function pollVersion({
   timeoutMs = 5 * 60 * 1000,
   intervalMs = 5000,
 }) {
-  const url = `${API_BASE}/addons/addon/${encodeURIComponent(guid)}/versions/${encodeURIComponent(version)}/`;
+  // Deliberately the same path shape as uploadVersion's PUT (no "/addon/"
+  // segment) — that is the signing-status endpoint, keyed by guid+version.
+  // The similarly-shaped GET /addons/addon/{slug}/versions/{version}/ is a
+  // different, read-only endpoint that only lists already-reviewed
+  // versions; a pending-review version 404s there forever, which is what
+  // made this poll run out the clock instead of ever seeing `processed`.
+  const url = `${API_BASE}/addons/${encodeURIComponent(guid)}/versions/${encodeURIComponent(version)}/`;
   const deadline = Date.now() + timeoutMs;
 
   while (true) {
@@ -203,8 +213,10 @@ export async function pollVersion({
 
     if (res.ok) {
       const data = await res.json();
-      const file = (data.files ?? [])[0];
-      if (file) return data;
+      // `processed` is the documented completion signal; also accept a
+      // populated files[] as a fallback in case a given ATN response
+      // omits `processed` but has already attached the file.
+      if (data.processed || (data.files ?? []).length > 0) return data;
     }
 
     if (Date.now() > deadline) {

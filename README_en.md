@@ -161,8 +161,9 @@ thunderbird-gitlab-issue/
 ├── scripts/                      Build and release scripts
 │   ├── build.js                  Production build (rollup + zip)
 │   ├── bump-version.js           Semver bumper for package.json + manifest.json
-│   ├── pack-src.js               Packs the source into a zip (required by AMO)
-│   └── publish.js                AMO upload helper
+│   ├── pack-src.js               Packs the source into a zip (required by addons.thunderbird.net)
+│   ├── publish.js                ATN upload helper (addons.thunderbird.net)
+│   └── utils/                    atn.js (API client), changelog.js (release notes renderer)
 │
 ├── dist/                         Bundled output (generated, not committed)
 ├── icons/                        Extension icons (SVG + PNG at 16/32/48/64 px)

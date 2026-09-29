@@ -11,6 +11,7 @@
     "build:dev": "npm i && rollup -c",
     "build": "npm i && node scripts/build.js",
     "packSrc": "node scripts/pack-src.js",
+    "publish": "node scripts/publish.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
   },
@@ -22,12 +23,13 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "rollup": "^4.52.2",
     "rollup-plugin-copy": "^3.5.0",
-    "jest": "^29.7.0"
-  },
-  "dependencies": {
+    "jest": "^29.7.0",
     "archiver": "^7.0.1",
-    "easymde": "^2.20.0",
     "jsonwebtoken": "^9.0.2",
     "rimraf": "^6.0.1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "easymde": "^2.20.0"
   }
 }

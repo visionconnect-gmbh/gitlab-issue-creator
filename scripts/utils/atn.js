@@ -112,9 +112,14 @@ export async function getLatestPublishedVersion(slug) {
 /**
  * Uploads and signs a new version via the v4 signing API.
  *
- * Not retried on failure: a signing PUT is not safely idempotent to
- * blindly resend (a timed-out-but-accepted request retried would hit a
- * 409, which callers must treat as a soft success rather than an error).
+ * Retried on 429/5xx like any other call: a signing PUT is not generally
+ * safe to blindly resend, but it is safe *here* specifically because the
+ * caller (publish.js) already treats a resulting 409 ("version already
+ * exists") as a soft success rather than an error — so a retry that lands
+ * on a request the server actually processed just degrades to that same
+ * 409 path instead of failing the whole run. ATN's upload endpoint has
+ * been observed to return a transient 502 from its own gateway, which is
+ * exactly the case this retry exists for.
  *
  * @param {object} params
  * @param {string} params.guid - The add-on's gecko id (browser_specific_settings.gecko.id).
@@ -137,15 +142,18 @@ export async function uploadVersion({ guid, version, xpiPath, channel, issuer, s
 
   const url = `${API_BASE}/addons/${encodeURIComponent(guid)}/versions/${encodeURIComponent(version)}/`;
 
-  const res = await fetchWithRetry(
-    url,
-    {
-      method: "PUT",
-      headers: { Authorization: `JWT ${createToken(issuer, secret)}` },
-      body: form,
-    },
-    0,
-  );
+  // One token is minted up front and reused across every retry attempt
+  // below, rather than a fresh one per attempt (unlike getLatestPublishedVersion
+  // and pollVersion, which mint per call since they may be called far apart
+  // in time). That's fine here: the default retry backoff totals well under
+  // 60s, comfortably inside this token's lifetime.
+  const authHeader = `JWT ${createToken(issuer, secret)}`;
+
+  const res = await fetchWithRetry(url, {
+    method: "PUT",
+    headers: { Authorization: authHeader },
+    body: form,
+  });
 
   let body = null;
   try {

@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
+.claude/settings.local.json
 node_modules/
 dist/
 src_temp/

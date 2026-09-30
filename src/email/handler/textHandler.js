@@ -71,7 +71,11 @@ export function getSignatureIndex(text) {
 
   for (const pattern of patterns) {
     const match = normalised.match(pattern);
-    if (match) return normalised.indexOf(match[0]);
+    // Use the match's own position, not `indexOf(match[0])`: for a short,
+    // generic match like "--\n" the same text can occur earlier in the
+    // string by coincidence (e.g. inside a "--------" separator line),
+    // which would truncate the message well before the real signature.
+    if (match) return match.index;
   }
   return -1;
 }

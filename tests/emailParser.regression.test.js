@@ -38,7 +38,19 @@ describe("emailParser regression fixtures", () => {
     expect(result[3]).toMatchObject({ from: "Mira Vogt", date: "28.09.2026", time: "09:02" });
     expect(result[3].message).toContain("kurze Rückmeldung von Frau Lindmann");
 
-    expect(result[4].message).toContain("Anfang der weitergeleiteten Nachricht");
+    // This nested block is a genuine forward (not just another quoted
+    // reply): a non-dashed "Anfang der weitergeleiteten Nachricht:" trigger
+    // followed by a structured "Von:/Betreff:/Datum:/An:" header. It must be
+    // recognised and surfaced as a `forwardedMessage`, not dumped as raw,
+    // unparsed header text.
+    expect(result[4].message).not.toContain("Anfang der weitergeleiteten Nachricht");
+    expect(result[4].forwardedMessage).not.toBeNull();
+    expect(result[4].forwardedMessage.message).not.toContain("Von:");
+    expect(result[4].forwardedMessage.message).not.toContain("Betreff:");
+    expect(result[4].forwardedMessage.message).toContain("Hallo Frau Vogt");
+    expect(result[4].forwardedMessage.message).toContain(
+      "danke für diesen Zwischenstand"
+    );
   });
 
   // ---------------------------------------------------------------------------
@@ -82,6 +94,12 @@ describe("emailParser regression fixtures", () => {
 
     expect(result).toHaveLength(3);
 
+    // A structured "Betreff:/Von:/Datum:/An:" block pasted at the very top
+    // of the body is this message's own (self-referential) header, not a
+    // forward — it must be parsed into from/date/time and stripped, not
+    // leaked into the message text.
+    expect(result[0]).toMatchObject({ from: "Jonas Berg", date: "24.09.2026", time: "09:09" });
+    expect(result[0].message).not.toContain("Betreff:");
     expect(result[0].message).toContain("Moin Finn");
 
     expect(result[1]).toMatchObject({ from: "Karl Brenner", date: "23.09.2026", time: "17:42" });
@@ -89,8 +107,18 @@ describe("emailParser regression fixtures", () => {
     // This is the fragment Jonas inline-quoted for context; it must not leak
     // into Karl's actual message.
     expect(result[1].message).not.toContain("Steht der Wert auf true");
+
+    // Karl's message embeds a two-level forward chain (Finn forwarded Jonas's
+    // original mail, then Karl forwarded/replied on top of that): each level
+    // must surface as its own entry instead of leaking raw "Von:/Betreff:"
+    // header lines into a message's text.
     expect(result[1].forwardedMessage).not.toBeNull();
-    expect(result[1].forwardedMessage.message).toContain("Bezüglich der Ehrenkarte");
+    expect(result[1].forwardedMessage.from).toBe("Finn Adler");
+    expect(result[1].forwardedMessage.message).not.toContain("Von:");
+    expect(result[1].forwardedMessage.forwardedMessage).not.toBeNull();
+    expect(result[1].forwardedMessage.forwardedMessage.message).toContain(
+      "Bezüglich der Ehrenkarte"
+    );
 
     // The inline requote itself surfaces as its own (unattributed) fragment
     // instead of silently corrupting message[1].

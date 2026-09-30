@@ -17,6 +17,8 @@ import {
   extractDateAndAuthorLine,
   remapDateAndAuthorLines,
   removeDateAndAuthorLines,
+  extractLeadingStructuredHeader,
+  extractName,
 } from "./handler/dateAuthorHandler.js";
 import {
   extractForwardedMessage,
@@ -136,12 +138,25 @@ export function emailParser(emailBody) {
 function parseRawMessage(rawMessage) {
   // The first line (if any) is the date/author header after remapping.
   const headerLine = rawMessage.split("\n")[0];
-  const { from, date, time } = parseDateAndAuthorLine(headerLine);
+  let { from, date, time } = parseDateAndAuthorLine(headerLine);
+
+  // Some clients (Outlook, Apple Mail) use a structured "Von:/Datum:/
+  // Betreff:/An:" block instead of a single compact line, either as this
+  // message's own self-header (pasted at the very top) or — after
+  // `remapDateAndAuthorLines` — as the header remapped here from the
+  // previous block because it introduces this one. Read it from the raw,
+  // not-yet-stripped message so its (often textual) date/time survive;
+  // `removeDateAndAuthorLines` below strips the block itself regardless of
+  // whether it ends up used here.
+  if (!from && !date) {
+    const leading = extractLeadingStructuredHeader(rawMessage);
+    if (leading) ({ from, date, time } = leading);
+  }
 
   // Extract the forwarded block (if present) before cleaning the outer message.
   const forwardedText = extractForwardedMessage(rawMessage);
 
-  // Remove the date/author header and forwarded block from the outer message.
+  // Remove the date/author header(s) and forwarded block from the outer message.
   const withoutHeader = removeDateAndAuthorLines(rawMessage);
   const withoutForwarded = removeForwardedMessage(withoutHeader);
   const cleanedOuter = removeSignature(removeEmptyLines(withoutForwarded));
@@ -163,13 +178,26 @@ function parseRawMessage(rawMessage) {
 function parseForwardedBlock(forwardedText) {
   const { author, date: forwardedDate } = extractForwardedAuthorAndDate(forwardedText);
   const withoutHeader = removeForwardedHeader(forwardedText);
-  const cleaned = removeEmptyLines(removeSignature(withoutHeader));
+
+  // A forwarded block can itself contain a further forwarded/original
+  // message (e.g. A forwards to B, who forwards on to C) — recurse so each
+  // level surfaces as its own entry instead of dumping raw headers into the
+  // parent's message text.
+  const nestedForwardedText = extractForwardedMessage(withoutHeader);
+  const bodyText = nestedForwardedText
+    ? removeForwardedMessage(withoutHeader)
+    : withoutHeader;
+  const forwardedMessage = nestedForwardedText
+    ? parseForwardedBlock(nestedForwardedText)
+    : null;
+
+  const cleaned = removeEmptyLines(removeSignature(bodyText));
 
   return {
-    from: author,
+    from: author ? extractName(author) || author : author,
     date: forwardedDate,
     time: null,
     message: cleaned,
-    forwardedMessage: null,
+    forwardedMessage,
   };
 }

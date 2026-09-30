@@ -14,6 +14,10 @@ v5.3.0–v7.1.1 entries are backfilled verbatim from the existing
 
 ## [Unreleased]
 
+## [7.1.3] - 2026-09-30
+
+- Internal updates and minor improvements.
+
 ## [7.1.2] - 2026-09-29
 
 ### Added

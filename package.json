@@ -1,6 +1,6 @@
 {
   "name": "gitlab-issue-creator",
-  "version": "7.1.3",
+  "version": "8.0.0",
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "type": "module",
   "main": "background.js",

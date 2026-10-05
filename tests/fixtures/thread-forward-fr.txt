@@ -1,0 +1,15 @@
+Merci pour l'info.
+
+Début du message transféré :
+
+De : Alice Dupont <alice@example.com>
+Envoyé : 1 octobre 2026 à 10:00
+À : Bob Martin <bob@example.com>
+Objet : Question sur le projet
+
+Bonjour,
+
+Pouvez-vous valider ce point ?
+
+Cordialement,
+Alice Dupont

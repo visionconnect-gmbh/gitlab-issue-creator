@@ -7,6 +7,7 @@
 
 import {
   findTextPart,
+  findHtmlPart,
   removeEmptyLines,
   getSignatureIndex,
   removeSignature,
@@ -59,18 +60,59 @@ describe("findTextPart", () => {
 });
 
 // ---------------------------------------------------------------------------
+// findHtmlPart
+// ---------------------------------------------------------------------------
+
+describe("findHtmlPart", () => {
+  test("returns null for null input", () => {
+    expect(findHtmlPart(null)).toBeNull();
+  });
+
+  test("finds a direct text/html part", () => {
+    const parts = [{ contentType: "text/html", body: "<p>hi</p>" }];
+    expect(findHtmlPart(parts)).toBe(parts[0]);
+  });
+
+  test("ignores text/html parts with empty body", () => {
+    const parts = [
+      { contentType: "text/html", body: "" },
+      { contentType: "text/html", body: "<p>actual content</p>" },
+    ];
+    expect(findHtmlPart(parts)).toBe(parts[1]);
+  });
+
+  test("recurses into nested parts", () => {
+    const target = { contentType: "text/html", body: "<p>nested</p>" };
+    const parts = [
+      {
+        contentType: "multipart/alternative",
+        parts: [{ contentType: "text/plain", body: "hi" }, target],
+      },
+    ];
+    expect(findHtmlPart(parts)).toBe(target);
+  });
+
+  test("returns null when no text/html part exists", () => {
+    const parts = [{ contentType: "text/plain", body: "only plain" }];
+    expect(findHtmlPart(parts)).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // removeEmptyLines
 // ---------------------------------------------------------------------------
 
 describe("removeEmptyLines", () => {
-  test("removes blank lines", () => {
+  // Issue E: collapses RUNS of blank lines to one, preserving real paragraph
+  // breaks, instead of deleting every blank line and destroying them.
+  test("collapses runs of blank lines to a single blank, preserving paragraph breaks", () => {
     const input = "line1\n\nline2\n\n\nline3";
-    expect(removeEmptyLines(input)).toBe("line1\nline2\nline3");
+    expect(removeEmptyLines(input)).toBe("line1\n\nline2\n\nline3");
   });
 
-  test("removes lines that are only whitespace", () => {
+  test("treats whitespace-only lines as blank when collapsing runs", () => {
     const input = "line1\n   \nline2";
-    expect(removeEmptyLines(input)).toBe("line1\nline2");
+    expect(removeEmptyLines(input)).toBe("line1\n\nline2");
   });
 
   test("trims leading/trailing whitespace from the result", () => {
@@ -114,6 +156,42 @@ describe("getSignatureIndex", () => {
     const idx = getSignatureIndex(text);
     expect(idx).toBeGreaterThanOrEqual(0);
   });
+
+  // Issue B: valediction closings have no explicit separator before them.
+  test.each([
+    "Mit freundlichen Grüßen",
+    "Beste Grüße",
+    "Viele Grüße",
+    "Freundliche Grüße",
+    "Liebe Grüße",
+    "Best regards",
+    "Kind regards",
+    "Regards",
+    "Sincerely",
+  ])("detects the valediction '%s' with no explicit separator", (closing) => {
+    const text = `Body text\n\n${closing}\nJane Doe`;
+    const idx = getSignatureIndex(text);
+    expect(idx).toBe(text.indexOf(closing));
+  });
+
+  test("detects a valediction followed by trailing punctuation", () => {
+    const text = "Body text\n\nBeste Grüße,\nJane Doe";
+    expect(getSignatureIndex(text)).toBe(text.indexOf("Beste Grüße,"));
+  });
+
+  test("an explicit separator still wins over a valediction when both are present", () => {
+    const text = "Body\n\nViele Grüße\nJane\n-- \nJane Doe\njane@example.com";
+    expect(getSignatureIndex(text)).toBe(text.indexOf("-- "));
+  });
+
+  test("uses the LAST valediction occurrence, not the first, in a multi-message body", () => {
+    // Simulates a merged multi-paragraph block where an earlier, quoted
+    // paragraph happens to end on a greeting-like line of its own:
+    // truncating at the first occurrence would cut off everything after it.
+    const text = "Regards\n\nReal content that must survive.\n\nBest regards\nJane";
+    const idx = getSignatureIndex(text);
+    expect(idx).toBe(text.lastIndexOf("Best regards"));
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -121,9 +199,9 @@ describe("getSignatureIndex", () => {
 // ---------------------------------------------------------------------------
 
 describe("removeSignature", () => {
-  test("removes everything from the separator onward", () => {
+  test("removes everything from the separator onward, trimming trailing whitespace at the cut", () => {
     const text = "Hello\n-- \nMy Name\nmy.email@example.com";
-    expect(removeSignature(text)).toBe("Hello\n");
+    expect(removeSignature(text)).toBe("Hello");
   });
 
   test("returns the original string when no signature is present", () => {

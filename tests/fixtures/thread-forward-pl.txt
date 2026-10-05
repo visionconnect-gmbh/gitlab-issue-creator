@@ -1,0 +1,15 @@
+Dzięki za informację.
+
+Przekazana wiadomość:
+
+Od : Łukasz Kowalski <lukasz@example.com>
+Wysłano : 01.10.2026 10:00
+Do : Piotr Nowak <piotr@example.com>
+Temat : Pytanie o projekt
+
+Cześć,
+
+Czy możesz potwierdzić ten punkt?
+
+Z poważaniem,
+Łukasz Kowalski

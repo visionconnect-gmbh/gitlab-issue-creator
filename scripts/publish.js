@@ -2,7 +2,7 @@
 /**
  * @fileoverview ATN (addons.thunderbird.net) publish script.
  *
- * ATN is NOT the same service as addons.mozilla.org and has no v5 API —
+ * ATN is NOT the same service as addons.mozilla.org and has no v5 API:
  * this script uses the legacy v4 signing endpoint, the only write path ATN
  * exposes:
  *
@@ -10,18 +10,18 @@
  *
  * Release notes cannot be set through this API (verified: the versions
  * endpoints only allow GET/HEAD/OPTIONS). This script instead renders the
- * ATN-safe HTML changelog and prints it — along with a link to the
- * developer-hub versions overview — for a one-time manual paste.
+ * ATN-safe HTML changelog and prints it, along with a link to the
+ * developer-hub versions overview, for a one-time manual paste.
  *
  * Pipeline:
  *   1. Read the version from manifest.json
- *   2. Build the extension (npm run build) + pack the source (npm run packSrc)
- *      — skippable with --skip-build when CI already produced these artifacts
+ *   2. Build the extension (pnpm run build) + pack the source (pnpm run packSrc);
+ *      skippable with --skip-build when CI already produced these artifacts
  *   3. Render release notes: CHANGELOG.md section for this version, or
  *      commits since the last version actually published on ATN
  *   4. Upload + sign the build via the v4 API, poll until processed
  *   5. Attaching a source zip is NOT supported by the v4 API (that was an
- *      AMO-only endpoint) — the reviewable source zip is left in
+ *      AMO-only endpoint), so the reviewable source zip is left in
  *      src_zips/ for manual attachment if ATN ever asks for it
  *   6. Print the release notes HTML + a link to the devhub versions page
  *
@@ -67,7 +67,7 @@ if (!DRY_RUN && (!process.env.ATN_API_KEY || !process.env.ATN_API_SECRET)) {
 }
 
 if (!["listed", "unlisted"].includes(CHANNEL)) {
-  console.error(`Invalid --channel "${CHANNEL}" — must be "listed" or "unlisted".`);
+  console.error(`Invalid --channel "${CHANNEL}": must be "listed" or "unlisted".`);
   process.exit(1);
 }
 
@@ -88,10 +88,10 @@ function readManifest() {
   }
 }
 
-function runStep(label, npmScript) {
+function runStep(label, pnpmScript) {
   console.log(`\n── ${label}`);
   try {
-    execFileSync("npm", ["run", npmScript], { stdio: "inherit" });
+    execFileSync("pnpm", ["run", pnpmScript], { stdio: "inherit" });
   } catch {
     console.error(`${label} failed.`);
     process.exit(1);
@@ -155,7 +155,7 @@ async function main() {
 
   if (DRY_RUN) {
     console.log("\n══════════════════════════════════════════");
-    console.log(" Dry run complete — nothing was uploaded.");
+    console.log(" Dry run complete: nothing was uploaded.");
     console.log("══════════════════════════════════════════\n");
     return;
   }
@@ -171,7 +171,7 @@ async function main() {
   });
 
   if (status === 409) {
-    console.log(`  Version v${version} already exists on ATN — treating as already published.`);
+    console.log(`  Version v${version} already exists on ATN, treating as already published.`);
   } else if (status !== 201 && status !== 202) {
     console.error(`  Upload failed: HTTP ${status}`);
     console.error(JSON.stringify(body, null, 2));
@@ -191,18 +191,18 @@ async function main() {
     });
   } catch (err) {
     console.error(`\n  ${err.message}`);
-    console.error("  This does not necessarily mean the upload failed — check the devhub.");
+    console.error("  This does not necessarily mean the upload failed: check the devhub.");
     process.exit(1);
   }
 
   const file = (result.files ?? [])[0];
   console.log(`\n  Status: ${file?.status ?? "unknown"}`);
   if (CHANNEL === "listed") {
-    console.log("  Listed versions go through human review after automated validation —");
+    console.log("  Listed versions go through human review after automated validation;");
     console.log("  this may still be pending even though the upload succeeded.");
   }
 
-  // The signing-status payload (this poll) doesn't carry an edit_url —
+  // The signing-status payload (this poll) doesn't carry an edit_url:
   // that field only appears on the separate, read-only version-listing
   // endpoint, and a pending-review version doesn't show up there yet
   // either. The versions overview page always works, listed or not.

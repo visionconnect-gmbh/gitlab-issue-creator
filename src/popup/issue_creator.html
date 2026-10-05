@@ -7,7 +7,7 @@
     </title>
     <link rel="stylesheet" href="../theme.css" />
     <link rel="stylesheet" href="popup.css" />
-    <link rel="stylesheet" href="../../dist/libs/easymde.min.css" />
+    <link rel="stylesheet" href="editor.css" />
   </head>
 
   <body>
@@ -20,13 +20,40 @@
               <label for="projectSearch" data-message="localize">
                 __MSG_PopupLabelSelectProject__:
               </label>
-              <input
-                type="text"
-                id="projectSearch"
-                list="projectSuggestions"
-                data-i18n-attr="placeholder:PopupPlaceholderSelectProject"
-              />
-              <datalist id="projectSuggestions"></datalist>
+              <div class="combobox">
+                <input
+                  type="text"
+                  id="projectSearch"
+                  role="combobox"
+                  aria-expanded="false"
+                  aria-controls="projectSuggestions"
+                  aria-autocomplete="list"
+                  autocomplete="off"
+                  data-i18n-attr="placeholder:PopupPlaceholderSelectProject"
+                />
+                <ul
+                  id="projectSuggestions"
+                  class="combobox-listbox"
+                  role="listbox"
+                  data-i18n-attr="aria-label:PopupComboboxAriaLabel"
+                  hidden
+                ></ul>
+              </div>
+              <span
+                id="projectSelectedState"
+                class="combobox-state"
+                aria-live="polite"
+                data-message="localize"
+                >__MSG_PopupComboboxNoProjectSelected__</span
+              >
+              <span
+                id="projectsStaleNotice"
+                class="projects-stale-notice"
+                aria-live="polite"
+                data-message="localize"
+                hidden
+                >__MSG_PopupProjectsStale__</span
+              >
             </div>
           </div>
 
@@ -60,10 +87,15 @@
               </div>
             </div>
 
-            <div class="select-container">
+            <div class="select-container picker-triggers">
               <button id="attachmentsButton" data-message="localize">
                 <span data-message="localize"
                   >__MSG_PopupLabelAttachmentsButton__</span
+                >
+              </button>
+              <button id="labelsButton" data-message="localize" hidden>
+                <span data-message="localize"
+                  >__MSG_PopupLabelLabelsButton__</span
                 >
               </button>
             </div>
@@ -76,28 +108,36 @@
         </label>
         <textarea id="issueDescription"></textarea>
       </div>
-      <button id="create" data-message="localize">
+      <button id="create" data-message="localize" disabled>
         __MSG_PopupButtonSubmit__
       </button>
+      <span
+        id="createError"
+        class="create-error"
+        aria-live="polite"
+        data-message="localize"
+        hidden
+        >__MSG_PopupIssueCreateError__</span
+      >
     </div>
 
-    <div id="attachment-selector-backdrop" style="display: none">
-      <div id="attachment-selector-container">
-        <div class="attachment-selector-header">
-          <h2>
-            <span data-message="localize">__MSG_PopupTitleAttachments__</span>
-          </h2>
-          <button id="close-attachment-selector">&times;</button>
+    <div id="picker-backdrop" hidden>
+      <div id="picker-container" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+        <div class="picker-header">
+          <h2 id="picker-title"></h2>
+          <button id="picker-close" aria-label="Close">&times;</button>
         </div>
-        <button id="load-attachments-preview" style="display: none;">
-          <span data-message="localize"
-            >__MSG_PopupButtonLoadAttachments__</span
-          >
-        </button>
-        <div id="attachment-list"></div>
+        <input
+          type="search"
+          id="picker-search"
+          data-i18n-attr="placeholder:PopupPickerSearchPlaceholder"
+          autocomplete="off"
+        />
+        <p id="picker-hint" class="picker-hint" hidden></p>
+        <button id="picker-action" hidden></button>
+        <div id="picker-list"></div>
       </div>
     </div>
-    <script src="../../dist/libs/easymde.min.js"></script>
-    <script type="module" src="../../dist/bundled-issue_creator.js"></script>
+    <script type="module" src="issue_creator.js"></script>
   </body>
 </html>

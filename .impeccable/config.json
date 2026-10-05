@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "3px solid var(--color-border)",
+        "files": [
+          "src/popup/editor.css"
+        ],
+        "createdAt": "2026-10-05T08:47:00.903Z",
+        "reason": "blockquote left-border is standard Markdown quote styling (matches GitHub/GitLab preview rendering), not a decorative card accent; pre-existing code, unrelated to this session's changes"
+      }
+    ]
+  }
+}

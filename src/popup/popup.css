@@ -7,6 +7,10 @@ body {
   font-size: 1rem;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 label {
   display: block !important;
 }
@@ -22,39 +26,6 @@ label {
   flex: 1 1 48%;
 }
 
-.CodeMirror,
-.EasyMDEContainer {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.CodeMirror-fullscreen {
-  z-index: 99999;
-}
-
-.editor-toolbar {
-  border: 1px solid #ccc;
-  border-bottom: none;
-  border-radius: 4px 4px 0 0;
-}
-
-.editor-toolbar button {
-  width: auto;
-  padding: 6px 10px;
-  margin-top: 0;
-  font-size: 1em;
-  background: none;
-  color: inherit;
-}
-
-.editor-toolbar button.active {
-  background-color: #e0e0e0;
-}
-
-.editor-toolbar button:hover {
-  background-color: #f0f0f0;
-}
-
 .grid {
   display: grid;
   grid: auto / 60% 40%;
@@ -62,6 +33,89 @@ label {
 
 .grid-item {
   padding: 0 20px;
+}
+
+/* Project combobox */
+.combobox {
+  position: relative;
+}
+
+.combobox-listbox {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  background-color: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.combobox-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.combobox-option:hover,
+.combobox-option[aria-selected="true"] {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.combobox-option-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.combobox-option-path {
+  font-size: 0.8em;
+  opacity: 0.65;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.combobox-option:hover .combobox-option-path,
+.combobox-option[aria-selected="true"] .combobox-option-path {
+  opacity: 0.85;
+}
+
+.combobox-state {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  opacity: 0.65;
+  white-space: pre-line;
+}
+
+.combobox-state.committed {
+  color: var(--color-secondary);
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* Shown when the project list is being served from cache because a
+ * background refresh couldn't reach GitLab: amber, not red, the data
+ * isn't wrong, just possibly no longer current. */
+.projects-stale-notice {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #b8860b;
+}
+.projects-stale-notice[hidden] {
+  display: none;
 }
 
 #create {
@@ -74,6 +128,25 @@ label {
 }
 #create:hover {
   background-color: var(--color-secondary-hover);
+}
+
+.create-error {
+  display: block;
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  z-index: 99;
+  max-width: 260px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background-color: var(--color-bg);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+  font-size: 0.85rem;
+  color: #c0392b;
+  text-align: right;
+}
+.create-error[hidden] {
+  display: none;
 }
 
 /* Date input styling */
@@ -119,9 +192,15 @@ input[type="date"]::-moz-calendar-picker-indicator {
   cursor: pointer;
 }
 
-/* Overlay background */
-#attachment-selector-backdrop {
-  display: none; /* Hidden by default */
+/* Attachments/Labels trigger buttons */
+.picker-triggers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Overlay background, shared by the attachment and label pickers */
+#picker-backdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -134,14 +213,18 @@ input[type="date"]::-moz-calendar-picker-indicator {
   justify-content: center;
 }
 
+#picker-backdrop[hidden] {
+  display: none;
+}
+
 /* Modal content box */
-#attachment-selector-container h2,
-#attachment-selector-container #attachment-list {
+#picker-container h2,
+#picker-container #picker-list {
   margin: 0;
   padding: 0;
 }
 
-#attachment-selector-container {
+#picker-container {
   background-color: var(--color-bg);
   padding: 20px;
   border-radius: 8px;
@@ -149,43 +232,99 @@ input[type="date"]::-moz-calendar-picker-indicator {
   height: auto;
   max-height: 80%;
   overflow-y: auto;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.attachment-selector-header {
+.picker-header {
   display: flex;
   align-items: center; /* vertically centers title and button */
   justify-content: space-between; /* pushes title to start, button to end */
   padding: 0.5rem 1rem; /* optional spacing */
 }
 
-.attachment-selector-header h2 {
+.picker-header h2 {
   margin: 0; /* remove default margin */
   font-size: 1.5rem;
 }
 
-#close-attachment-selector {
+#picker-close {
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
   width: 32px !important;
   padding: 0;
+  color: var(--color-text);
 }
 
-#attachment-list div {
+#picker-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+}
+
+#picker-search:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 6px var(--color-shadow);
+  outline: none;
+}
+
+.picker-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.picker-empty {
   padding: 8px;
+  opacity: 0.7;
 }
 
-.attachment-item {
-  border-bottom: 1px solid #eee;
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.attachment-label {
+.picker-item[draggable="true"] {
+  cursor: grab;
+}
+
+.picker-item.dragging {
+  opacity: 0.5;
+}
+
+.picker-item-color {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.picker-item-label {
   display: inline !important;
   margin-top: 0 !important;
-  margin-left: 8px;
-  margin-right: 10px;
   font-size: 1em;
   vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Drag-and-drop target highlight on the description textarea */
+.md-textarea.drop-target {
+  outline: 2px dashed var(--color-primary);
+  outline-offset: -2px;
 }

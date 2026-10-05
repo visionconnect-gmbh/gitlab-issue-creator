@@ -22,9 +22,7 @@
     "menus"
   ],
   "background": {
-    "scripts": [
-      "dist/bundled-background.js"
-    ]
+    "page": "background.html"
   },
   "browser_action": {
     "allowed_spaces": [

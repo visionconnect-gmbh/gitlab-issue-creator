@@ -1,25 +1,58 @@
 import { LocalizeKeys, CacheKeys, MessageTypes, Popup_MessageTypes } from "../../../utils/Enums.js";
 import { displayLocalizedNotification, getAddonVersion } from "../../../utils/utils.js";
-import { getCache, getSetting } from "../../../utils/cache.js";
-import { uploadAttachmentToGitLab } from "../../../gitlab/gitlab.js";
+import { getSetting } from "../../../utils/cache.js";
 import {
-  easyMDE,
+  editor,
   messageData,
   selectedProjectId,
   selectedAssigneeId,
   issueEndDate as selectedIssueEndDate,
-  selectedAttachments,
+  selectedLabels,
+  setSelectedLabels,
+  labelsCache,
   elements,
+  uploadRegistry,
 } from "../popupState.js";
-import { createAttachmentList, showButtonLoadingState } from "../ui.js";
+import {
+  openAttachmentPicker,
+  openLabelPicker,
+  showButtonLoadingState,
+  hideCreateError,
+} from "../ui.js";
 import { generateBaseDescription } from "./descriptionHandler.js";
 
-/** Handles the click event on the attachment button.
- * Displays the attachment selector backdrop and creates the attachment list.
+/** Handles the click event on the attachment button: opens the shared
+ * picker modal configured for the email's attachments.
  */
 export function handleAttachmentButtonClick() {
-  elements.attachmentSelectorBackdrop.style.display = "flex";
-  createAttachmentList(messageData?.attachments || []);
+  openAttachmentPicker(messageData?.attachments || []);
+}
+
+/** Handles the click event on the labels button: opens the shared picker
+ * modal configured for the committed project's labels. Does nothing
+ * (rather than opening an empty picker) when no project is selected yet.
+ */
+export function handleLabelsButtonClick() {
+  if (!selectedProjectId) {
+    displayLocalizedNotification(LocalizeKeys.NOTIFICATION.NO_PROJECT_SELECTED);
+    return;
+  }
+
+  const cached = labelsCache[selectedProjectId];
+  const labels = cached?.labels ?? [];
+  const emptyText =
+    cached?.status === "error"
+      ? browser.i18n.getMessage(LocalizeKeys.POPUP.MESSAGES.LABELS_LOAD_ERROR) ||
+        "(Could not load labels; reselect the project to retry)"
+      : undefined;
+
+  openLabelPicker(labels, selectedLabels, (label, checked) => {
+    setSelectedLabels(
+      checked
+        ? [...selectedLabels, label]
+        : selectedLabels.filter((l) => l.id !== label.id),
+    );
+  }, emptyText);
 }
 
 /** Handles the click event on the create issue button.
@@ -27,9 +60,21 @@ export function handleAttachmentButtonClick() {
  * Sends a message to create the issue and shows a loading state.
  */
 export async function handleCreateButtonClick() {
+  hideCreateError(); // clear any previous attempt's error before this one runs
+
   if (!selectedProjectId) {
     return displayLocalizedNotification(
       LocalizeKeys.NOTIFICATION.NO_PROJECT_SELECTED
+    );
+  }
+
+  // Run any pending/in-flight uploads (and project migrations) to
+  // completion before reading the description, otherwise the issue could
+  // be created with an unresolved `pending-upload:` placeholder still in it.
+  await uploadRegistry.flush();
+  if (uploadRegistry.hasUnresolved()) {
+    return displayLocalizedNotification(
+      LocalizeKeys.NOTIFICATION.UPLOAD_ATTACHMENT_ERROR
     );
   }
 
@@ -42,26 +87,14 @@ export async function handleCreateButtonClick() {
   }
 }
 
-/** Generates the issue description including attachments and watermark if enabled.
+/** Generates the issue description, with the watermark appended if
+ * enabled. Attachments need no assembly here: they're already inline in
+ * the editor text (placeholder swapped for real markdown by
+ * `uploadRegistry` as each upload resolves), exactly like local images.
  * @returns {Promise<string>} The complete issue description.
  */
 async function createTicketDescription() {
-  let description = easyMDE.value().trim() || generateBaseDescription();
-
-  // Always strip out the internal [attachments] preview block if present
-  description = description.replace(
-    /\n*\[attachments\][\s\S]*?\[\/attachments\]\s*/m,
-    ""
-  );
-
-  if (selectedAttachments.length > 0) {
-    const ticketAttachmentsTitle =
-      browser.i18n.getMessage(LocalizeKeys.ISSUE.ATTACHMENTS_TITLE) ||
-      "Attachments";
-
-    description += `\n\n**${ticketAttachmentsTitle}:**\n\n`;
-    description += await generateAttachmentsMarkdown(selectedAttachments);
-  }
+  let description = editor.value().trim() || generateBaseDescription();
 
   if (await getSetting(CacheKeys.ENABLE_WATERMARK, true)) {
     const WATERMARK = `created with gitlab-issue-creator (${await getAddonVersion()})`;
@@ -71,40 +104,11 @@ async function createTicketDescription() {
   return description.trim();
 }
 
-/** Generates the Markdown for the selected attachments.
- * Uploads each attachment to GitLab and formats the links in Markdown.
- * @returns {Promise<string>} The Markdown string for the attachments.
- */
-async function generateAttachmentsMarkdown() {
-  const lines = [];
-
-  for (const attachment of selectedAttachments) {
-    try {
-      const file = await getAttachmentFileOrNotify(attachment);
-      if (!file) {
-        console.warn(`Attachment file ${attachment.name} not found`);
-        continue; // skip instead of throwing
-      }
-
-      const uploadResult = await uploadAttachmentOrNotify(file, attachment.name);
-
-      if (uploadResult?.markdown) {
-        // Use bullet list formatting for cleaner Markdown
-        lines.push(`- **${attachment.name}**\n\n  ${uploadResult.markdown}`);
-      }
-    } catch (err) {
-      console.error(`Failed to handle attachment ${attachment.name}:`, err);
-    }
-  }
-
-  return lines.join("\n\n");
-}
-
 /** Retrieves the attachment file or displays a notification if not found.
  * @param {Object} attachment - The attachment object.
  * @returns {Promise<File|null>} The attachment file or null if not found.
  */
-async function getAttachmentFileOrNotify(attachment) {
+export async function getAttachmentFileOrNotify(attachment) {
   try {
     const file = await getAttachmentFile(
       messageData?.id || -1,
@@ -123,23 +127,6 @@ async function getAttachmentFileOrNotify(attachment) {
   }
 }
 
-/** Uploads the attachment to GitLab or displays a notification on failure.
- * @param {File} file - The attachment file to upload.
- * @param {string} attachmentName - The name of the attachment for error messages.
- * @returns {Promise<Object>} The upload result from GitLab.
- */
-async function uploadAttachmentOrNotify(file, attachmentName) {
-  try {
-    return await uploadAttachmentToGitLab(selectedProjectId, file);
-  } catch (error) {
-    console.error(`Error uploading attachment ${attachmentName}:`, error);
-    displayLocalizedNotification(
-      LocalizeKeys.NOTIFICATION.UPLOAD_ATTACHMENT_ERROR
-    );
-    throw error;
-  }
-}
-
 /** Sends a message to the background script to create a GitLab issue.
  * @param {string} description - The complete issue description.
  * @returns {Promise<any>} The response from the background script.
@@ -152,6 +139,7 @@ function sendCreateIssueMessage(description) {
     endDate: selectedIssueEndDate,
     title: elements.issueTitle.value,
     description,
+    labels: selectedLabels.map((l) => l.name),
   });
 }
 

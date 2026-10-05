@@ -1,0 +1,14 @@
+First paragraph of the reply.
+
+Second paragraph of the reply.
+
+
+Third paragraph, after a double blank line.
+
+> Am 05.05.2026 um 12:00 schrieb Nora Albrecht:
+> First quoted paragraph.
+>
+> Second quoted paragraph.
+>
+>
+> Third quoted paragraph, after a double-blank quoted run.

@@ -9,7 +9,7 @@
  *   a  abbr  acronym  b  blockquote  code  em  i  li  ol  strong  ul
  *
  * with attributes a[href|title|rel], abbr[title], acronym[title]. Notably
- * <p>, <br> and <h3> are NOT allowed — they get stripped/escaped by ATN,
+ * <p>, <br> and <h3> are NOT allowed: they get stripped/escaped by ATN,
  * which is visible in the add-on's real v7.1.1 notes (a literal "&lt;br&gt;"
  * shows up verbatim where a <br> was submitted). Every renderer here must
  * therefore only ever emit tags from that list, always balanced, and must
@@ -136,7 +136,7 @@ export function escapeHtml(text) {
  * Renders a minimal, deliberately restricted Markdown subset used inside
  * a single changelog line to ATN-allowed HTML: `**bold**` -> <strong>,
  * `` `code` `` -> <code>, `[text](url)` -> <a href>. Everything else is
- * escaped. This is intentionally not a general Markdown renderer — it
+ * escaped. This is intentionally not a general Markdown renderer: it
  * only needs to cover what CHANGELOG.md entries actually use.
  *
  * @param {string} text

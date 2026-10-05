@@ -1,0 +1,21 @@
+Neue Antwort
+
+> Am 02.01.2026 um 10:00 schrieb Anna Muster:
+> Danke fuer die Weiterleitung.
+>
+> Anfang der weitergeleiteten Nachricht:
+>
+> Von: Ben Beispiel <ben@example.invalid>
+> Datum: 1. Januar 2026 um 09:00:00 MEZ
+> Betreff: AW: Test
+>
+> Body Ben
+>
+> Von: Clara Fischer <clara@example.invalid>
+> Gesendet: Montag, 30. Dezember 2025 08:00
+> Betreff: Re: Test
+>
+> Body Clara
+>
+>> Am 29.12.2025 um 07:00 schrieb David Klein <david@example.invalid>:
+>> Body David

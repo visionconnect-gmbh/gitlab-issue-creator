@@ -1,16 +1,31 @@
 stages:
+  - test
   - build
   - deploy
 
 image: node:22
 
+default:
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@11.18.0 --activate
+
+test:
+  stage: test
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm test
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
 build_thunderbird_extension:
   stage: build
   script:
-    - npm ci
-    - npm test
-    - npm run build
-    - npm run packSrc
+    - pnpm install --frozen-lockfile
+    - pnpm test
+    - pnpm run build
+    - npx addons-linter builds/*.xpi
+    - pnpm run packSrc
   artifacts:
     paths:
       - builds/
@@ -24,7 +39,7 @@ upload_thunderbird_extension_to_atn:
   needs:
     - build_thunderbird_extension
   script:
-    - npm ci
+    - pnpm install --frozen-lockfile
     - node scripts/publish.js --skip-build
   artifacts:
     paths:

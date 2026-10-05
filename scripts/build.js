@@ -1,82 +1,61 @@
 /**
  * @fileoverview Production build script.
  *
- * 1. Runs Rollup to bundle the extension source.
- * 2. Copies all distributable files into a temporary staging directory.
- * 3. Packages the staging directory into a versioned .zip in `builds/`.
+ * 1. Merges the per-topic locale JSON files into `_locales/<lang>/messages.json`.
+ * 2. Copies an explicit allowlist of distributable files/dirs into a
+ *    temporary staging directory. (No bundler: every shipped .js file is
+ *    hand-written, read exactly as it is in the repo. This is also what
+ *    keeps the add-on out of AMO/ATN's source-code-submission requirement.)
+ * 3. Packages the staging directory into a versioned .xpi in `builds/`.
  * 4. Removes the temporary staging directory.
  *
- * Usage: node scripts/build.js  (or: npm run build)
+ * Usage: node scripts/build.js  (or: pnpm run build)
  */
 
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
 import { rimrafSync } from "rimraf";
-import {
-  cleanDirectory,
-  copyRecursive,
-  createZipArchive,
-} from "./utils/utils.js";
+import { cleanDirectory, copyRecursive, createZipArchive } from "./utils/utils.js";
+import { mergeLocales } from "./merge-locales.js";
 
 const BUILD_DIR = "temp_build";
 const DEST_DIR = "builds";
 const ADDON_NAME = "gitlab-issue-creator";
 
 /**
- * Files and directories that must not end up in the distributable zip.
- * Patterns follow the same rules as `shouldExclude` in utils.js.
+ * Exactly what ships in the add-on. Anything not listed here (tests, docs,
+ * dev tooling, the per-language `json` sources under `_locales` that the
+ * merge step reads, the credential files publish.js uses) never reaches
+ * the XPI, so there is no denylist to keep up to date as the project grows.
  */
-const EXCLUDE_PATTERNS = [
-  "node_modules",
-  "scripts",
-  "tests",
-  "*.zip",
-  "*.xpi",
-  BUILD_DIR,
-  DEST_DIR,
-  "src_zips",
-  "_locales/de/json",
-  "_locales/en/json",
-  ".git",
-  ".gitignore",
-  "package.json",
-  "package-lock.json",
-  "rollup.config.mjs",
-  "jest.config.mjs",
-  "build.js",
-  ".gitlab-ci.yml",
-  // Credential / local-tooling files that must never end up in a
-  // distributable add-on. Both build.js and pack-src.js exclude these —
-  // without it, whichever one runs after an .env exists would ship the
-  // ATN API key/secret to users (build.js) or to reviewers (pack-src.js).
-  ".env",
-  ".env.*",
-  ".remember",
-  "*.map",
+const INCLUDE_PATHS = [
+  "manifest.json",
+  "background.html",
+  "background.js",
+  "icons",
+  "src",
+  "_locales",
 ];
+
+/** Excluded even though it lives under an included directory. */
+const EXCLUDE_PATTERNS = ["_locales/de/json", "_locales/en/json"];
 
 async function buildAddon() {
   console.log("Starting add-on packaging...");
 
   cleanDirectory(BUILD_DIR);
 
-  console.log("Building with Rollup...");
-  try {
-    execSync("npx rollup -c rollup.config.mjs", { stdio: "inherit" });
-  } catch (err) {
-    console.error("Rollup build failed:", err);
-    process.exit(1);
-  }
+  console.log("Merging locale JSON files...");
+  mergeLocales();
 
-  console.log("Copying static files...");
-  for (const item of fs.readdirSync(process.cwd())) {
-    if ([BUILD_DIR, DEST_DIR, "rollup.config.mjs"].includes(item)) continue;
-    copyRecursive(
-      path.join(process.cwd(), item),
-      path.join(BUILD_DIR, item),
-      EXCLUDE_PATTERNS,
-    );
+  console.log("Copying distributable files...");
+  for (const item of INCLUDE_PATHS) {
+    const src = path.join(process.cwd(), item);
+    if (!fs.existsSync(src)) {
+      console.error(`Expected distributable path missing: ${item}`);
+      process.exit(1);
+    }
+    copyRecursive(src, path.join(BUILD_DIR, item), EXCLUDE_PATTERNS);
   }
 
   // Read the version from the staged manifest so the zip name is always correct.
@@ -92,7 +71,7 @@ async function buildAddon() {
   }
 
   // Clean builds/ on every run so stale zips from previous versions never
-  // linger — publish.js picks the artifact by exact versioned filename, but
+  // linger: publish.js picks the artifact by exact versioned filename, but
   // an old file with a matching name (a re-run of the same version) should
   // still be replaced rather than silently kept.
   cleanDirectory(DEST_DIR);

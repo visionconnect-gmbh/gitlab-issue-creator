@@ -199,7 +199,7 @@ Thunderbird
 | Direction | Message type | Payload |
 |---|---|---|
 | Popup → Background | `popup-ready` | `tabId` |
-| Popup → Background | `request-initial-data` | — |
+| Popup → Background | `request-initial-data` | none |
 | Background → Popup | `initial-data` | `{ email, projects }` |
 | Popup → Background | `request-assignees` | `projectId` |
 | Background → Popup | `assignees-list` | `{ projectId, assignees }` |

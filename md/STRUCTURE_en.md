@@ -2,7 +2,7 @@
 
 > **Deutsche Version:** [STRUCTURE.md](./STRUCTURE.md)
 
-This document explains **how the add-on is built and why** — intended for developers who need to understand, extend, or debug it. For user-facing settings, see [OPTIONS_en.md](./OPTIONS_en.md).
+This document explains **how the add-on is built and why**, intended for developers who need to understand, extend, or debug it. For user-facing settings, see [OPTIONS_en.md](./OPTIONS_en.md).
 
 ---
 
@@ -22,13 +22,16 @@ Thunderbird
   ├─ Background script  (always running, one instance)
   │    ├─ Reads selected email via messenger.mailTabs API
   │    ├─ Parses email content
-  │    ├─ Manages project/assignee cache
+  │    ├─ Manages project/assignee/label cache
   │    └─ Opens the popup window and communicates via runtime messages
   │
   └─ Popup window  (opened on demand, destroyed on close)
        ├─ Renders the issue-creation form
-       ├─ Talks to background via sendMessage
-       └─ Does NOT call GitLab API directly — delegates to background
+       ├─ Talks to background via sendMessage for projects, project search,
+       │  assignees, and issue creation
+       └─ Calls the GitLab API directly for the current user and
+          attachment upload/delete, since those don't need background's
+          cross-popup in-memory cache
 ```
 
 **Message flow** (all via `browser.runtime.sendMessage`):
@@ -36,13 +39,15 @@ Thunderbird
 | Direction | Message type | Payload | Defined in |
 |---|---|---|---|
 | Popup → Background | `popup-ready` | `tabId` | `Enums.js → Popup_MessageTypes` |
-| Popup → Background | `request-initial-data` | — | |
+| Popup → Background | `request-initial-data` | none | |
 | Background → Popup | `initial-data` | `{ email, projects }` | `Enums.js → MessageTypes` |
 | Popup → Background | `request-assignees` | `projectId` | |
-| Background → Popup | `assignees-list` | `{ projectId, assignees }` | |
-| Popup → Background | `create-gitlab-issue` | `{ projectId, assignee, title, description, endDate, attachments }` | |
+| Background → Popup | `assignees-list` | `{ projectId, assignees, status }` | |
+| Popup → Background | `request-labels` | `projectId` | |
+| Background → Popup | `labels-list` | `{ projectId, labels, status }` | |
+| Popup → Background | `create-gitlab-issue` | `{ projectId, assignee, title, description, endDate, labels }` | |
 
-> 📎 All message type strings are defined in `src/utils/Enums.js`. If you add a new message, add it there first — do not use raw strings.
+> 📎 All message type strings are defined in `src/utils/Enums.js`. If you add a new message, add it there first: do not use raw strings.
 
 ---
 
@@ -50,9 +55,9 @@ Thunderbird
 
 ```
 .
-├── background.js                 Extension entry point — imports src/background/
+├── background.js                 Extension entry point; imports src/background/
+├── background.html               Loads background.js as a module (manifest's background.page)
 ├── manifest.json                 WebExtension manifest (v2)
-├── rollup.config.mjs             Bundler config; also merges split _locales JSON files
 ├── jest.config.mjs               Test runner config
 ├── package.json
 │
@@ -73,8 +78,8 @@ Thunderbird
 │   │
 │   ├── gitlab/
 │   │   ├── api.js                Low-level HTTP client (fetch wrappers, 401 handling)
-│   │   └── gitlab.js             High-level ops: validate settings, fetch projects/assignees,
-│   │                             create issues, upload attachments
+│   │   └── gitlab.js             High-level ops: validate settings, fetch projects/assignees/
+│   │                             labels, create issues, upload attachments
 │   │
 │   ├── options/
 │   │   ├── options.html          Options page markup
@@ -90,13 +95,36 @@ Thunderbird
 │   │   ├── issue_creator.html    Popup markup
 │   │   ├── issue_creator.js      Entry point; sends popup-ready, wires up handlers
 │   │   ├── popup.css
+│   │   ├── editor.css            Styles for the native Markdown editor (editor/ below)
 │   │   └── logic/
-│   │       ├── popupState.js     Shared mutable state + EasyMDE editor instance
-│   │       ├── ui.js             DOM helpers: render project list, assignees, attachments
+│   │       ├── popupState.js     Shared mutable state + the editor/uploadRegistry/pickerModal
+│   │       │                     instances
+│   │       ├── uploadRegistry.js DOM-free reconciler: eager-uploads editor images AND email
+│   │       │                     attachments (same lifecycle for both, each carries a text
+│   │       │                     placeholder), swaps placeholders for real links, deletes from
+│   │       │                     GitLab on removal/project change. Fully dependency-injected,
+│   │       │                     so this is the one popup/ module with real unit tests.
+│   │       ├── pickerModal.js    Shared searchable-multiselect modal behind the attachment and
+│   │       │                     label pickers; configuration-driven, drag-and-drop optional
+│   │       ├── attachmentDragDrop.js  Drop target on the description textarea: places an
+│   │       │                     attachment at the exact pixel dropped, via editor/caretPosition.js
+│   │       ├── ui.js             DOM helpers: render project combobox, assignees, the two pickers
+│   │       ├── editor/           In-house Markdown editor (replaces the old EasyMDE dependency)
+│   │       │   ├── editor.js     DOM adapter: toolbar, keyboard shortcuts, preview wiring,
+│   │       │   │                 autosave. Exposes the same `.value()` get/set the rest of
+│   │       │   │                 the app uses: this is the whole seam.
+│   │       │   ├── commands.js   Pure functions: (text, selStart, selEnd) -> replacement.
+│   │       │   │                 No DOM; this is what's unit-tested directly.
+│   │       │   ├── markdown.js   Small Markdown-subset parser for the preview pane only,
+│   │       │   │                 not CommonMark, deliberately. Also exports `isSafeUrl`.
+│   │       │   ├── preview.js    Renders parsed blocks to DOM via createElement/textContent
+│   │       │   │                 only (no innerHTML): the one real security boundary here.
+│   │       │   └── caretPosition.js  Maps a drop's pixel position to a character offset in
+│   │       │                     the textarea (mirror-div + caretPositionFromPoint)
 │   │       └── handler/
-│   │           ├── descriptionHandler.js  Builds Markdown issue body from parsed email
-│   │           ├── issueHandler.js        "Create issue" button: attachment upload + API call
-│   │           ├── projectHandler.js      Project search input and selection
+│   │           ├── descriptionHandler.js  Builds the base Markdown issue body from parsed email
+│   │           ├── issueHandler.js        "Create issue" button: flushes pending uploads + API call
+│   │           ├── projectHandler.js      Project combobox: filtering, keyboard nav, selection
 │   │           └── resetHandler.js        Resets popup form state
 │   │
 │   └── utils/
@@ -107,7 +135,7 @@ Thunderbird
 │
 ├── _locales/
 │   ├── en/
-│   │   ├── messages.json         Generated — do not edit directly (see Localization below)
+│   │   ├── messages.json         Generated; do not edit directly (see Localization below)
 │   │   └── json/                 Source files; merged into messages.json at build time
 │   │       ├── extension.json
 │   │       ├── fallback.json
@@ -117,33 +145,50 @@ Thunderbird
 │   └── de/                       Same structure as en/
 │
 ├── tests/                        Jest unit tests
+│   ├── api.test.js               HTTP layer: timeout, retry/backoff, dedup, 304 (node env)
 │   ├── attachmentHandler.test.js
 │   ├── cache.test.js
+│   ├── changelog.test.js
 │   ├── dateAuthorHandler.test.js
+│   ├── editorCommands.test.js    Pure editor command functions (node env)
+│   ├── editorDom.test.js         Toolbar/keyboard/preview wiring (jsdom env)
 │   ├── emailParser.test.js
+│   ├── emailParser.regression.test.js
 │   ├── forwardedHandler.test.js
 │   ├── gitlab.test.js
-│   └── textHandler.test.js
+│   ├── htmlHandler.test.js
+│   ├── markdown.test.js          The preview's Markdown-subset parser
+│   ├── pickerModal.test.js       Shared attachment/label picker (jsdom)
+│   ├── requestCount.test.js      Measured request counts against the GitLab probe fixture
+│   ├── transformToMarkdown.test.js
+│   ├── textHandler.test.js
+│   └── uploadRegistry.test.js    Eager-upload/placeholder/delete reconciler (node env, no DOM)
 │
 ├── scripts/
-│   ├── build.js                  Production build: runs rollup, stages files, zips to builds/
+│   ├── probe-gitlab.mjs          Probes pagination/ETag/rate-limit behavior of a real
+│   │                             GitLab instance; writes a fixture to tests/fixtures/gitlab/
+│   ├── build.js                  Production build: merges locales, copies an explicit
+│   │                             allowlist of files, zips to builds/; no bundler
+│   ├── merge-locales.js          Merges _locales/<lang>/json/*.json into messages.json
 │   ├── bump-version.js           Bumps version in package.json + manifest.json atomically
-│   ├── pack-src.js               Packs source into a zip (required by addons.thunderbird.net)
+│   ├── pack-src.js               Packs source into a zip (kept available on request; no
+│   │                             longer required since the XPI ships unbundled source)
 │   ├── publish.js                ATN upload helper (addons.thunderbird.net)
 │   └── utils/
 │       ├── utils.js              Shared helpers for the build scripts
 │       ├── atn.js                ATN API client (v4 signing endpoint)
 │       └── changelog.js          CHANGELOG.md parsing + ATN HTML renderer
 │
-├── dist/                         Bundled output — generated, not committed
-│   ├── bundled-background.js     + .map
-│   ├── bundled-issue_creator.js  + .map
-│   ├── bundled-options.js        + .map
-│   └── libs/                     easymde.min.js + easymde.min.css (copied by rollup)
-│
-├── builds/                       Distributable zips — generated, not committed
+├── builds/                       Distributable XPIs; generated, not committed
+├── REVIEWERS.md                  Testing instructions for addons.thunderbird.net reviewers
 └── icons/                        Extension icons: SVG source + PNG at 16/32/48/64 px
 ```
+
+There is no `dist/` and no bundler: the XPI ships the hand-written ES modules
+under `src/` directly (`manifest.json`'s `background.page` points at
+`background.html`, which loads `background.js` as an ES module; the popup
+and options pages load their entry scripts the same way). This keeps every
+shipped file readable without a separate source submission.
 
 ---
 
@@ -151,10 +196,10 @@ Thunderbird
 
 ### `src/utils/Enums.js`
 The single source of truth for:
-- **`MessageTypes`** — messages sent *from* the background to the popup
-- **`Popup_MessageTypes`** — messages sent *from* the popup to the background
-- **`CacheKeys`** — every key used in `browser.storage.local`
-- **`LocalizeKeys`** — every i18n key referenced in JS code
+- **`MessageTypes`**: messages sent *from* the background to the popup
+- **`Popup_MessageTypes`**: messages sent *from* the popup to the background
+- **`CacheKeys`**: every key used in `browser.storage.local`
+- **`LocalizeKeys`**: every i18n key referenced in JS code
 
 When you add a new feature that involves messaging, storage, or i18n, add constants here first.
 
@@ -175,14 +220,28 @@ Thin `fetch` wrappers. Responsibilities:
 - `doRequest` → `apiGet` / `apiPost` / `apiPut` / `apiDelete` are the four public helpers
 
 ### `src/gitlab/gitlab.js`
-High-level operations built on top of `api.js`. Each function is self-contained: validates settings, checks cache, calls the API, writes to cache. Returns `null` / `[]` on failure — **no throws reach the UI layer**.
+High-level operations built on top of `api.js`. Each function is self-contained: validates settings, checks cache, calls the API, writes to cache. Returns `null` / `[]` on failure: **no throws reach the UI layer**.
 
 ### `src/email/emailParser.js`
-Orchestrates the four email handlers into a single `parseEmail(message)` call.  
+Orchestrates the five email handlers (including `htmlHandler.js`, which
+flattens an HTML body into `>`-quoted text before parsing; it never renders
+HTML back into the UI) into a single `getEmailContent(message)` call.
 The output object is what gets sent to the popup as part of `initial-data`.
 
+### `src/popup/logic/editor/`
+Replaces the third-party EasyMDE (CodeMirror 5) dependency with a native
+`<textarea>` plus a small toolbar. Deliberately not a general rich-text
+editor: the description field was always Markdown *source*, consumed as a
+Markdown string by GitLab's issue API, so there is no HTML anywhere on this
+path. `commands.js` is pure and unit-tested directly; `editor.js` is the only
+module that touches the DOM for editing (building the toolbar, wiring
+`Ctrl+B`/`Ctrl+I`/`Ctrl+K`, applying edits via `execCommand("insertText")` so
+the browser's native undo keeps working); `markdown.js` + `preview.js` render
+an optional, intentionally small Markdown subset for the preview toggle,
+not a CommonMark implementation, and not meant to become one.
+
 ### `_locales` split-file convention
-Translation strings live in per-feature JSON files under `_locales/<lang>/json/`. At build time, `rollup.config.mjs` merges them into a single `_locales/<lang>/messages.json` that the browser reads. **Never edit `messages.json` directly** — your changes will be overwritten on the next build.
+Translation strings live in per-feature JSON files under `_locales/<lang>/json/`. At build time, `scripts/merge-locales.js` merges them into a single `_locales/<lang>/messages.json` that the browser reads. **Never edit `messages.json` directly**: your changes will be overwritten on the next build.
 
 ---
 
@@ -200,19 +259,16 @@ TTL constants are defined at the top of `src/gitlab/gitlab.js` (`TTL_9H_MS`, `TT
 
 ## Build system
 
-Rollup bundles three entry points into `dist/`:
-
-| Entry | Output |
-|---|---|
-| `background.js` | `dist/bundled-background.js` |
-| `src/popup/issue_creator.js` | `dist/bundled-issue_creator.js` |
-| `src/options/options.js` | `dist/bundled-options.js` |
-
-The `mergeLocalesJSONPlugin` in `rollup.config.mjs` runs once per build and merges the split locale JSON files.
+No bundler. The XPI is the repository's `src/` files plus `background.js`,
+`background.html`, `manifest.json`, `icons/`, and the merged
+`_locales/<lang>/messages.json`, copied verbatim by `scripts/build.js` from
+an explicit allowlist (`INCLUDE_PATHS`), not filtered out of everything via
+a denylist. Nothing is minified or transpiled.
 
 ```bash
-npm run build:dev   # Unminified, with source maps (for development)
-npm run build       # Minified + zipped into builds/ (for release)
+npm run build:dev   # Just merges locale JSON: for loading unpacked in Thunderbird
+npm run build       # Merges locales, stages the allowlist, zips into builds/
+npm run lint        # Builds, then runs addons-linter against the XPI
 ```
 
 ### Loading in Thunderbird for development
@@ -221,7 +277,10 @@ npm run build       # Minified + zipped into builds/ (for release)
 2. Thunderbird → **Tools** → **Add-ons and Themes** → gear ⚙️ → **Debug Add-ons** → **Load Temporary Add-on…**
 3. Select `manifest.json` in the project root.
 
-Reload the temporary add-on after each rebuild.
+Reload the temporary add-on after each change, same as before, but there is
+no rebuild step to wait on first: `src/` files are loaded directly, so only
+`npm run build:dev` (for a locale edit) or nothing at all needs to run
+before reloading.
 
 ### Versioning
 
@@ -254,9 +313,20 @@ Browser APIs (`browser.storage`, `browser.messages`, etc.) are mocked inside eac
 | `attachmentHandler.test.js` | MIME tree traversal, type filtering |
 | `dateAuthorHandler.test.js` | From/Date header parsing and remapping |
 | `forwardedHandler.test.js` | Forwarded block extraction |
+| `htmlHandler.test.js` | HTML body → quoted-text flattening |
 | `emailParser.test.js` | Full end-to-end email parsing |
-| `cache.test.js` | Settings CRUD, TTL logic, array merge helpers |
-| `gitlab.test.js` | Settings validation, project/assignee fetch, issue creation |
+| `emailParser.regression.test.js` | Fixed-fixture regression cases for past parser bugs |
+| `cache.test.js` | Settings CRUD, TTL/ETag freshness metadata, stale-but-not-deleted reads, array merge helpers |
+| `gitlab.test.js` | Settings validation, cache-first project/assignee/label fetch + ETag revalidation, pagination, server-side search, recently-used projects, issue creation (incl. the `labels` payload field), upload delete |
+| `api.test.js` | HTTP layer: timeout vs. caller cancellation, retry/backoff, `Retry-After`, GET deduplication, paginated/conditional (`304`) requests |
+| `requestCount.test.js` | Measured GitLab request counts for cold start, warm start, search, and assignee loading against the recorded probe fixture |
+| `uploadRegistry.test.js` | Eager-upload/placeholder-swap/delete reconciliation (images AND attachments, same lifecycle), project migration, convergence under churn |
+| `pickerModal.test.js` | Shared attachment/label picker modal: search filter, checkbox toggle, draggable-per-config, close paths (jsdom) |
+| `changelog.test.js` | CHANGELOG.md parsing and the ATN-safe HTML renderer |
+| `editorCommands.test.js` | Pure Markdown editing commands (bold/list/link/…) |
+| `editorDom.test.js` | Toolbar, keyboard shortcuts, preview toggle (jsdom) |
+| `markdown.test.js` | The preview's Markdown-subset parser, incl. unsafe-URL rejection |
+| `transformToMarkdown.test.js` | `<br>` insertion skips code fences, tables, and lists |
 
 ---
 
@@ -279,5 +349,5 @@ Browser APIs (`browser.storage`, `browser.messages`, etc.) are mocked inside eac
 
 1. Copy `_locales/en/json/` to `_locales/<locale_code>/json/`.
 2. Translate the `message` values (do **not** change the keys).
-3. Run a build — the merged `messages.json` for the new locale will be generated automatically.
+3. Run a build: the merged `messages.json` for the new locale will be generated automatically.
 4. Test by setting Thunderbird's display language to the new locale.

@@ -5,7 +5,7 @@
  * then notifies the background script so it can react without a page reload.
  *
  * `notifyBackground` absorbs the "Receiving end does not exist" rejection that
- * fires when no background listener is active — this is expected whenever the
+ * fires when no background listener is active: this is expected whenever the
  * popup is closed or the background script is idle.
  */
 

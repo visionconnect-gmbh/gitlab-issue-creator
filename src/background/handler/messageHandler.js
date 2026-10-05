@@ -7,15 +7,19 @@ import { State } from "../backgroundState.js";
 import {
   closePopup,
   isPopup,
+  notifyIssueCreateFailed,
   sendAssigneesToPopup,
+  sendLabelsToPopup,
   sendInitialDataToPopup,
   sendProjectsToPopup,
+  sendProjectSearchResult,
 } from "./popupHandler.js";
 import {
   createGitLabIssue,
   getCurrentUser,
 } from "../../gitlab/gitlab.js";
 import { displayLocalizedNotification } from "../../utils/utils.js";
+import { transformToMarkdown } from "../../utils/markdownLineBreaks.js";
 
 /** Handles incoming messages from the popup.
  * @param {Object} msg - The incoming message object.
@@ -40,9 +44,21 @@ export async function handleMessage(msg) {
       case Popup_MessageTypes.REQUEST_PROJECTS:
         await sendProjectsToPopup();
         break;
-        
+
+      case Popup_MessageTypes.REQUEST_PROJECT_SEARCH:
+        await sendProjectSearchResult(msg.query, msg.seq);
+        break;
+
       case Popup_MessageTypes.REQUEST_ASSIGNEES:
-        await sendAssigneesToPopup(msg.projectId);
+        await sendAssigneesToPopup(msg.projectId, msg.project);
+        break;
+
+      case Popup_MessageTypes.REQUEST_LABELS:
+        await sendLabelsToPopup(msg.projectId);
+        break;
+
+      case Popup_MessageTypes.REPORT_UPLOADS:
+        State.setPendingUploads(msg.uploads ?? []);
         break;
 
       case Popup_MessageTypes.CREATE_GITLAB_ISSUE:
@@ -77,28 +93,26 @@ async function handleCreateIssue(msg) {
 
   try {
     const assignee = msg.assignee || (await getCurrentUser());
-    await createGitLabIssue(projectId, assignee, title, description, endDate);
-    closePopup();
+    // createGitLabIssue() always handles its own errors (notification +
+    // cache cleanup) and returns false rather than throwing, so its result,
+    // not a catch here, is what decides whether to close the popup.
+    const created = await createGitLabIssue(projectId, assignee, title, description, endDate, msg.labels || []);
+
+    if (created) {
+      // The uploads just referenced by this issue are no longer orphans:
+      // drop them before closePopup()'s own cleanup would otherwise delete them.
+      State.takePendingUploads();
+      closePopup();
+    } else {
+      await notifyIssueCreateFailed();
+    }
   } catch (err) {
+    // Reaches here only for a failure outside createGitLabIssue itself,
+    // e.g. getCurrentUser() or a malformed email with no subject.
     console.error("Issue creation failed:", err);
     displayLocalizedNotification(LocalizeKeys.NOTIFICATION.GENERIC_ERROR);
+    await notifyIssueCreateFailed();
   }
-}
-
-/**
- * Transforms plain text to markdown by replacing single newlines with <br>.
- * Consecutive newlines (i.e. paragraphs) are preserved.
- * @param {string} text - The input plain text.
- * @returns {string} - The transformed markdown text.
- */
-function transformToMarkdown(text) {
-  return (
-    text
-      // First normalize CRLF/CR → LF
-      .replace(/\r\n?/g, "\n")
-      // Replace single newline (not preceded/followed by another newline) with <br>
-      .replace(/([^\n])\n(?!\n)/g, "$1<br>\n")
-  );
 }
 
 /** Reloads the popup tab if it exists and is valid.

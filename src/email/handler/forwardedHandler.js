@@ -1,5 +1,9 @@
 import { getSignatureIndex } from "./textHandler.js";
-import { extractLeadingStructuredHeader } from "./dateAuthorHandler.js";
+import {
+  extractLeadingStructuredHeader,
+  extractLeadingStructuredHeaderFromLines,
+} from "./dateAuthorHandler.js";
+import { FORWARD_PHRASE_RE } from "../locales/emailLocales.js";
 
 // ---------------------------------------------------------------------------
 // Forward-boundary detection
@@ -9,9 +13,9 @@ import { extractLeadingStructuredHeader } from "./dateAuthorHandler.js";
  * "---------- Weitergeleitete Nachricht ----------". */
 const DASH_TRIGGER_RE = /^-{3,}.*?-{3,}$/m;
 
-/** A plain-text trigger phrase with no dashes, German and English. */
-const PHRASE_TRIGGER_RE =
-  /^(?:Anfang der weitergeleiteten Nachricht|Begin forwarded message|Weitergeleitete Nachricht|Forwarded message|Ursprüngliche Nachricht|Original Message)\s*:?\s*$/im;
+/** A plain-text trigger phrase with no dashes, any known language (see
+ * ../locales/emailLocales.js). */
+const PHRASE_TRIGGER_RE = FORWARD_PHRASE_RE;
 
 /**
  * Finds where a forwarded block begins inside `message`, trying every
@@ -19,7 +23,7 @@ const PHRASE_TRIGGER_RE =
  *  - a dashed separator line
  *  - a plain trigger phrase line ("Anfang der weitergeleiteten Nachricht:", ...)
  *  - a structured "Von:/Betreff:/Datum:/An:" header block (Outlook-style),
- *    which — unlike the other two — IS itself part of the forwarded
+ *    which, unlike the other two, IS itself part of the forwarded
  *    content, so it must not be consumed away.
  *
  * The structured-header style is only considered from the second line
@@ -59,11 +63,10 @@ function findForwardTrigger(message) {
   for (let k = 0; k < startLine && k < lines.length; k++) offset += lines[k].length + 1;
 
   for (let i = startLine; i < lines.length; i++) {
-    const rest = lines.slice(i).join("\n");
-    const parsed = extractLeadingStructuredHeader(rest);
+    const parsed = extractLeadingStructuredHeaderFromLines(lines, i);
     // Only a genuine forward: the header must introduce actual forwarded
     // content within THIS SAME block. A structured header with nothing (or
-    // only whitespace) after it isn't a forward — it's the header for the
+    // only whitespace) after it isn't a forward: it's the header for the
     // NEXT quoted message, which `dateAuthorHandler` remaps separately.
     if (parsed && parsed.remainder.trim()) {
       candidates.push({ lineStart: offset, contentStart: offset });
@@ -99,7 +102,7 @@ export function extractForwardedMessage(message) {
 export function extractForwardedAuthorAndDate(forwardedText) {
   const structured = extractLeadingStructuredHeader(forwardedText);
   if (structured) {
-    return { author: structured.from, date: structured.date };
+    return { author: structured.from, date: structured.date, time: structured.time };
   }
 
   const lines = forwardedText
@@ -122,7 +125,7 @@ export function extractForwardedAuthorAndDate(forwardedText) {
     if (author && date) break;
   }
 
-  return { author, date };
+  return { author, date, time: null };
 }
 
 /** Removes the header of the forwarded message, if present

@@ -7,9 +7,12 @@
  * Typical call flow:
  *   getEmailContent(message)
  *     └─ browser.messages.getFull(id)
- *          ├─ findTextPart       → extract plain-text body
- *          ├─ emailParser        → parse conversation history
- *          └─ findAttachmentParts → list attachments
+ *          ├─ findTextPart + emailParser              → parse plain-text body
+ *          ├─ findHtmlPart + htmlToQuotedText + emailParser → parse HTML body
+ *          │    (whichever recovers more of the conversation wins: see
+ *          │    htmlHandler.js for why the HTML alternative sometimes has
+ *          │    quoted history the plain-text part doesn't)
+ *          └─ findAttachmentParts                      → list attachments
  */
 
 import {
@@ -28,11 +31,13 @@ import {
 } from "./handler/forwardedHandler.js";
 import {
   findTextPart,
+  findHtmlPart,
   removeEmptyLines,
   removeSignature,
   splitQuotedAndLatest,
   extractQuotedMessages,
 } from "./handler/textHandler.js";
+import { htmlToQuotedText } from "./handler/htmlHandler.js";
 import { findAttachmentParts } from "./handler/attachmentHandler.js";
 
 // ---------------------------------------------------------------------------
@@ -58,6 +63,18 @@ import { findAttachmentParts } from "./handler/attachmentHandler.js";
  * @property {ParsedMessage[]} conversationHistory - Parsed conversation chain.
  */
 
+/**
+ * Counts entries in a parsed conversation history that have real content,
+ * used to judge which of the plain-text/HTML parses actually recovered
+ * more of the conversation (see `getEmailContent`).
+ *
+ * @param {ParsedMessage[]} history
+ * @returns {number}
+ */
+export function usableMessageCount(history) {
+  return history.filter((m) => m.message && m.message.trim() !== "").length;
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -75,8 +92,37 @@ export async function getEmailContent(message) {
   if (!message) return null;
 
   const rawMessage = await browser.messages.getFull(message.id);
+
   const textPart = findTextPart(rawMessage.parts);
-  const emailBody = textPart?.body ?? "";
+  const plainBody = textPart?.body ?? "";
+  const plainHistory = emailParser(plainBody);
+
+  // Some clients (Outlook, Apple Mail forwards) put the full conversation
+  // history only in the HTML alternative: the plain-text part can be just
+  // the new reply text, with the quoted history existing solely as nested
+  // <blockquote> elements. Convert the HTML to the same >-quoted shape and
+  // prefer whichever recovers more of the conversation; this also covers
+  // the (rarer) case where HTML recovers a level the plain-text side lost
+  // to an ambiguous quote marker. Always falls back to the plain-text
+  // result when there's no HTML part, or it parses to nothing useful.
+  //
+  // "More of the conversation" is judged by USABLE message count (entries
+  // with real content), not raw entry count: a parser bug that fragments
+  // one message into several empty/duplicate entries would otherwise look
+  // like it "recovered more," rewarding the fragmentation instead of
+  // detecting it.
+  const htmlPart = findHtmlPart(rawMessage.parts);
+  const htmlHistory = htmlPart ? emailParser(htmlToQuotedText(htmlPart.body)) : [];
+
+  const htmlQuality = usableMessageCount(htmlHistory);
+  const plainQuality = usableMessageCount(plainHistory);
+
+  const conversationHistory =
+    htmlQuality > plainQuality
+      ? htmlHistory
+      : plainQuality > 0
+        ? plainHistory
+        : htmlHistory; // both empty of real content, so fall back to whichever exists
 
   return {
     id: message.id,
@@ -84,7 +130,7 @@ export async function getEmailContent(message) {
     author: message.author,
     date: message.date,
     attachments: findAttachmentParts(rawMessage.parts),
-    conversationHistory: emailParser(emailBody),
+    conversationHistory,
   };
 }
 
@@ -105,8 +151,16 @@ export async function getEmailContent(message) {
 export function emailParser(emailBody) {
   if (!emailBody || typeof emailBody !== "string") return [];
 
+  // Normalize line endings ONCE, here, so every downstream function (all of
+  // which split on "\n" and some of which compute character offsets, e.g.
+  // `getSignatureIndex`) operates on a single consistent convention. Doing
+  // this locally inside individual helpers instead is what caused a real
+  // bug: an offset computed against a `\r\n`-stripped copy no longer lines
+  // up with the original (CRLF) string once you slice it.
+  const normalizedBody = emailBody.replace(/\r\n/g, "\n");
+
   // 1. Split the body into the top-level message and quoted lines.
-  const { latestMessage, quotedLines } = splitQuotedAndLatest(emailBody);
+  const { latestMessage, quotedLines } = splitQuotedAndLatest(normalizedBody);
 
   // 2. Reconstruct individual quoted messages from the `>` lines.
   const quotedMessages = extractQuotedMessages(quotedLines);
@@ -115,7 +169,15 @@ export function emailParser(emailBody) {
   const rawMessages = [latestMessage, ...quotedMessages].filter(Boolean);
 
   // 4. Extract the "From: / Date:" header line from each raw message block.
-  const headerLines = rawMessages.map(extractDateAndAuthorLine);
+  // Extract from the FORWARD-STRIPPED block, not the raw one: a header that
+  // introduces a forward embedded within this block (e.g. Apple Mail
+  // representing a forward chain as nested content within one quote level)
+  // belongs to that forward, not to the NEXT message: using the raw block
+  // would let that header "leak" past its own forward and get remapped onto
+  // the wrong following message, shadowing that message's own correct
+  // header. Mirrors the predicate `removeForwardedMessage`'s own forward
+  // detection already relies on.
+  const headerLines = rawMessages.map((m) => extractDateAndAuthorLine(removeForwardedMessage(m)));
 
   // 5. Remap: prepend the previous message's header line to each subsequent
   //    message (since the header belongs to the quoted block above it).
@@ -142,8 +204,8 @@ function parseRawMessage(rawMessage) {
 
   // Some clients (Outlook, Apple Mail) use a structured "Von:/Datum:/
   // Betreff:/An:" block instead of a single compact line, either as this
-  // message's own self-header (pasted at the very top) or — after
-  // `remapDateAndAuthorLines` — as the header remapped here from the
+  // message's own self-header (pasted at the very top), or after
+  // `remapDateAndAuthorLines` runs, as the header remapped here from the
   // previous block because it introduces this one. Read it from the raw,
   // not-yet-stripped message so its (often textual) date/time survive;
   // `removeDateAndAuthorLines` below strips the block itself regardless of
@@ -156,10 +218,15 @@ function parseRawMessage(rawMessage) {
   // Extract the forwarded block (if present) before cleaning the outer message.
   const forwardedText = extractForwardedMessage(rawMessage);
 
-  // Remove the date/author header(s) and forwarded block from the outer message.
-  const withoutHeader = removeDateAndAuthorLines(rawMessage);
-  const withoutForwarded = removeForwardedMessage(withoutHeader);
-  const cleanedOuter = removeSignature(removeEmptyLines(withoutForwarded));
+  // Remove the forwarded block first, from the ORIGINAL message: when a
+  // forward has no dashed/phrase trigger of its own (just a structured
+  // "Von:/Betreff:/..." header immediately followed by the forwarded body),
+  // the header block IS the forward boundary `removeForwardedMessage` needs
+  // to re-locate. Stripping header lines first would erase that boundary out
+  // from under it, so date/author cleanup runs on what's left afterward.
+  const withoutForwarded = removeForwardedMessage(rawMessage);
+  const withoutHeader = removeDateAndAuthorLines(withoutForwarded);
+  const cleanedOuter = removeSignature(removeEmptyLines(withoutHeader));
 
   // Parse the forwarded block, if any.
   const forwardedMessage = forwardedText
@@ -176,11 +243,15 @@ function parseRawMessage(rawMessage) {
  * @returns {ParsedMessage}
  */
 function parseForwardedBlock(forwardedText) {
-  const { author, date: forwardedDate } = extractForwardedAuthorAndDate(forwardedText);
+  const {
+    author,
+    date: forwardedDate,
+    time: forwardedTime,
+  } = extractForwardedAuthorAndDate(forwardedText);
   const withoutHeader = removeForwardedHeader(forwardedText);
 
   // A forwarded block can itself contain a further forwarded/original
-  // message (e.g. A forwards to B, who forwards on to C) — recurse so each
+  // message (e.g. A forwards to B, who forwards on to C), so recursion makes each
   // level surfaces as its own entry instead of dumping raw headers into the
   // parent's message text.
   const nestedForwardedText = extractForwardedMessage(withoutHeader);
@@ -196,7 +267,7 @@ function parseForwardedBlock(forwardedText) {
   return {
     from: author ? extractName(author) || author : author,
     date: forwardedDate,
-    time: null,
+    time: forwardedTime,
     message: cleaned,
     forwardedMessage,
   };

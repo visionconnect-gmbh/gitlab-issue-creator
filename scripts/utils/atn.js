@@ -1,7 +1,7 @@
 /**
  * @fileoverview addons.thunderbird.net (ATN) API v4 client.
  *
- * ATN runs an older fork of addons-server. It has no v5 API — the AMO
+ * ATN runs an older fork of addons-server. It has no v5 API: the AMO
  * two-step "upload, then create version" flow (`POST /addons/upload/`)
  * returns 404 on ATN. The only write endpoint is the legacy v4 signing API:
  *
@@ -10,7 +10,7 @@
  * which accepts just `upload` (the .xpi) and an optional `channel`. Release
  * notes, descriptions and other listing metadata are NOT writable through
  * this API (verified: `OPTIONS` on the versions endpoints returns only
- * `GET, HEAD, OPTIONS`) — they must be pasted in the developer hub by hand.
+ * `GET, HEAD, OPTIONS`); they must be pasted in the developer hub by hand.
  *
  * Docs: https://addons-server.readthedocs.io/en/latest/topics/api/v4_frozen/signing.html
  * Auth: https://mozilla.github.io/addons-server/topics/api/auth.html
@@ -27,7 +27,7 @@ const JWT_LIFETIME_SECONDS = 60;
 
 /**
  * Creates a fresh short-lived JWT for one API request.
- * A new token must be minted per request — reusing one across a slow
+ * A new token must be minted per request: reusing one across a slow
  * upload plus retries risks it expiring mid-flight.
  *
  * @param {string} issuer - ATN API key ("iss" claim).
@@ -75,7 +75,7 @@ async function fetchWithRetry(url, options, retries = 3) {
     if (attempt === retries) return res;
 
     console.warn(
-      `  HTTP ${res.status} from ${url} — retrying (${attempt + 1}/${retries})…`,
+      `  HTTP ${res.status} from ${url}, retrying (${attempt + 1}/${retries})…`,
     );
     await backoff(attempt);
   }
@@ -88,7 +88,7 @@ function backoff(attempt) {
 
 /**
  * Looks up the newest *listed* version already published on ATN for this
- * add-on. Unauthenticated — the versions listing is public.
+ * add-on. Unauthenticated: the versions listing is public.
  *
  * Used to compute the changelog range (last published → HEAD) instead of
  * relying on git tags, which can include tags that were never actually
@@ -115,7 +115,7 @@ export async function getLatestPublishedVersion(slug) {
  * Retried on 429/5xx like any other call: a signing PUT is not generally
  * safe to blindly resend, but it is safe *here* specifically because the
  * caller (publish.js) already treats a resulting 409 ("version already
- * exists") as a soft success rather than an error — so a retry that lands
+ * exists") as a soft success rather than an error, so a retry that lands
  * on a request the server actually processed just degrades to that same
  * 409 path instead of failing the whole run. ATN's upload endpoint has
  * been observed to return a transient 502 from its own gateway, which is
@@ -159,7 +159,7 @@ export async function uploadVersion({ guid, version, xpiPath, channel, issuer, s
   try {
     body = await res.json();
   } catch {
-    // Non-JSON body (e.g. an HTML error page) — leave body null.
+    // Non-JSON body (e.g. an HTML error page): leave body null.
   }
 
   return { status: res.status, body };
@@ -171,11 +171,11 @@ export async function uploadVersion({ guid, version, xpiPath, channel, issuer, s
  * `valid` / `automated_signing` / `files[0]` to judge outcome. Note this
  * signing-status payload does NOT include an `edit_url` (that field only
  * appears on the separate, read-only /addons/addon/{slug}/versions/
- * listing) — build a devhub link from the slug instead of expecting one
+ * listing); build a devhub link from the slug instead of expecting one
  * on the returned object.
  *
  * Important: for *listed* versions, automated validation and human review
- * are separate stages. This only waits for automated processing —
+ * are separate stages. This only waits for automated processing;
  * subsequent human review can take much longer than any reasonable CI
  * timeout, so a validated-but-not-yet-reviewed version must be treated as
  * a successful upload, not a failure.
@@ -198,7 +198,7 @@ export async function pollVersion({
   intervalMs = 5000,
 }) {
   // Deliberately the same path shape as uploadVersion's PUT (no "/addon/"
-  // segment) — that is the signing-status endpoint, keyed by guid+version.
+  // segment); that is the signing-status endpoint, keyed by guid+version.
   // The similarly-shaped GET /addons/addon/{slug}/versions/{version}/ is a
   // different, read-only endpoint that only lists already-reviewed
   // versions; a pending-review version 404s there forever, which is what

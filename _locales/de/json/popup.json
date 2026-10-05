@@ -11,6 +11,14 @@
     "message": "Anhänge",
     "description": "Title of attachment section."
   },
+  "PopupTitleLabels": {
+    "message": "Labels",
+    "description": "Title of the label picker modal."
+  },
+  "PopupPickerSearchPlaceholder": {
+    "message": "Suchen...",
+    "description": "Placeholder for the search field in the attachment/label picker modal."
+  },
   "PopupLabelSelectProject": {
     "message": "Projekt auswählen",
     "description": "Label for project select."
@@ -19,13 +27,33 @@
     "message": "Projektname suchen...",
     "description": "Label for project placeholder."
   },
+  "PopupComboboxAriaLabel": {
+    "message": "Projektvorschläge",
+    "description": "Accessible label for the project suggestion listbox."
+  },
+  "PopupComboboxNoProjectSelected": {
+    "message": "Kein Projekt ausgewählt\nWähle eines aus, um Beauftragte, Labels und Issue-Erstellung zu aktivieren",
+    "description": "Hint shown next to the project search field when no project is selected."
+  },
+  "PopupPickerDragHint": {
+    "message": "Ziehe einen Anhang auf die Beschreibung, um ihn genau dort zu platzieren.",
+    "description": "Hint shown in the attachment picker explaining the drag-and-drop placement feature."
+  },
+  "PopupIssueCreateError": {
+    "message": "Das Ticket konnte nicht erstellt werden. Bitte erneut versuchen.",
+    "description": "Inline error shown near the Create button when issue creation fails."
+  },
   "PopupLabelTitleOfProject": {
     "message": "Titel des Tickets",
     "description": "Label for project title."
   },
   "PopupLabelAttachmentsButton": {
-    "message": "Email-Anhänge hinzufügen",
+    "message": "Anhänge hinzufügen",
     "description": "Label for attachment button."
+  },
+  "PopupLabelLabelsButton": {
+    "message": "Labels",
+    "description": "Label for the button that opens the GitLab label picker."
   },
   "PopupLabelAssigneeSelect": {
     "message": "Beauftragte(r)",
@@ -71,9 +99,37 @@
     "message": "(Keine Bearbeiter gefunden)",
     "description": "Message when no assignees are available."
   },
+  "PopupAssigneesLoadError": {
+    "message": "(Bearbeiter konnten nicht geladen werden, Projekt erneut auswählen zum Wiederholen)",
+    "description": "Message when loading assignees for the selected project failed."
+  },
   "PopupNoAttachments": {
     "message": "(Keine Anhänge verfügbar)",
     "description": "Message when no attachments are available."
+  },
+  "PopupNoLabelsFound": {
+    "message": "(Keine Labels gefunden)",
+    "description": "Message when a project has no labels, or none match the search."
+  },
+  "PopupLabelsLoadError": {
+    "message": "(Labels konnten nicht geladen werden, Projekt erneut auswählen zum Wiederholen)",
+    "description": "Message when loading labels for the selected project failed."
+  },
+  "PopupProjectsLoading": {
+    "message": "Projekte werden geladen…",
+    "description": "Placeholder shown in the project search box while projects are loading for the first time."
+  },
+  "PopupProjectsSearching": {
+    "message": "Suche…",
+    "description": "Shown in the project suggestion list while a server-side search is in flight."
+  },
+  "PopupProjectsStale": {
+    "message": "Zeige zwischengespeicherte Projekte: GitLab ist nicht erreichbar",
+    "description": "Shown when the project list is served from cache because a background refresh failed."
+  },
+  "PopupRetry": {
+    "message": "Wiederholen",
+    "description": "Label for a retry affordance after a failed GitLab request."
   },
   "EmailNoContentMessage": {
     "message": "(Kein Nachrichtentext)",
@@ -90,5 +146,73 @@
   "IssueAttachmentPreviewTextDisclaimer": {
     "message": "NICHT EDITIEREN!",
     "description": "Disclaimer for issue attachment preview text."
+  },
+  "EditorTooltipBold": {
+    "message": "Fett (Strg+B)",
+    "description": "Tooltip for the description editor's bold button."
+  },
+  "EditorTooltipItalic": {
+    "message": "Kursiv (Strg+I)",
+    "description": "Tooltip for the description editor's italic button."
+  },
+  "EditorTooltipHeading": {
+    "message": "Überschrift",
+    "description": "Tooltip for the description editor's heading button."
+  },
+  "EditorTooltipQuote": {
+    "message": "Zitat",
+    "description": "Tooltip for the description editor's quote button."
+  },
+  "EditorTooltipUnorderedList": {
+    "message": "Aufzählung",
+    "description": "Tooltip for the description editor's bulleted-list button."
+  },
+  "EditorTooltipOrderedList": {
+    "message": "Nummerierte Liste",
+    "description": "Tooltip for the description editor's numbered-list button."
+  },
+  "EditorTooltipLink": {
+    "message": "Link (Strg+K)",
+    "description": "Tooltip for the description editor's link button."
+  },
+  "EditorTooltipImage": {
+    "message": "Bild hochladen",
+    "description": "Tooltip for the description editor's image-upload button."
+  },
+  "EditorTooltipPreview": {
+    "message": "Vorschau",
+    "description": "Tooltip for the description editor's preview-toggle button."
+  },
+  "EditorTooltipFullscreen": {
+    "message": "Vollbild",
+    "description": "Tooltip for the description editor's fullscreen-toggle button."
+  },
+  "EditorTooltipMention": {
+    "message": "Jemanden erwähnen",
+    "description": "Tooltip for the description editor's mention button."
+  },
+  "EditorMentionEmpty": {
+    "message": "Keine passenden Mitglieder",
+    "description": "Shown in the inline mention dropdown when no project member matches the typed query."
+  },
+  "EditorTooltipGuide": {
+    "message": "Markdown-Anleitung",
+    "description": "Tooltip for the description editor's Markdown-guide link."
+  },
+  "EditorUrlPromptPlaceholder": {
+    "message": "https://...",
+    "description": "Placeholder text for the description editor's URL input."
+  },
+  "EditorUrlPromptConfirm": {
+    "message": "Einfügen",
+    "description": "Confirm button label in the description editor's URL prompt."
+  },
+  "EditorUrlPromptCancel": {
+    "message": "Abbrechen",
+    "description": "Cancel button label in the description editor's URL prompt."
+  },
+  "EditorErrorInvalidUrl": {
+    "message": "Bitte einen gültigen http(s)- oder mailto-Link eingeben.",
+    "description": "Error shown when an invalid URL is entered in the description editor."
   }
 }

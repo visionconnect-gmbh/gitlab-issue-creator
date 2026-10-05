@@ -3,7 +3,7 @@ import {
   openPopup,
 } from "./src/background/handler/popupHandler.js";
 import { State } from "./src/background/backgroundState.js";
-import { getGitLabSettings } from "./src/gitlab/gitlab.js";
+import { getGitLabSettings, getProjects, getCurrentUser } from "./src/gitlab/gitlab.js";
 import { getEmailContent } from "./src/email/emailParser.js";
 import { LocalizeKeys } from "./src/utils/Enums.js";
 import { displayLocalizedNotification } from "./src/utils/utils.js";
@@ -30,6 +30,18 @@ async function handleClick(messageId = null) {
   }
   
   State.setEmail(email);
+
+  // Warm the GitLab caches before the popup even asks for them. api.js's
+  // GET deduplication means the popup's own request for the same data is
+  // then free: it joins this in-flight request instead of starting a new one.
+  void getProjects(
+    (projects) => {
+      State.setProjects(projects);
+      State.setProjectsStale(false); // a fresh render always supersedes a prior staleness claim
+    },
+    () => State.setProjectsStale(true),
+  );
+  void getCurrentUser();
 
   openPopup();
 }

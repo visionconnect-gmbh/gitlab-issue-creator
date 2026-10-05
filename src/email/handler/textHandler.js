@@ -7,6 +7,8 @@
  *  3. **Conversation splitting** – separating the latest message from quoted replies.
  */
 
+import { VALEDICTION_RE } from "../locales/emailLocales.js";
+
 // ---------------------------------------------------------------------------
 // MIME part discovery
 // ---------------------------------------------------------------------------
@@ -31,12 +33,39 @@ export function findTextPart(parts) {
   return null;
 }
 
+/**
+ * Recursively finds the first `text/html` part with a non-empty body in the
+ * message's MIME tree. Some clients (notably Outlook and Apple Mail forwards)
+ * only include the full conversation history in the HTML alternative, with
+ * the plain-text part containing just the new reply text: see
+ * `htmlHandler.js`, which converts this into the same quoted-text shape
+ * `emailParser()` already understands.
+ *
+ * @param {object[]|null} parts - Array of MIME part objects.
+ * @returns {object|null} The matching part, or null if none is found.
+ */
+export function findHtmlPart(parts) {
+  if (!Array.isArray(parts)) return null;
+
+  for (const part of parts) {
+    if (part.contentType === "text/html" && part.body) return part;
+    if (part.parts) {
+      const nested = findHtmlPart(part.parts);
+      if (nested) return nested;
+    }
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Text cleaning
 // ---------------------------------------------------------------------------
 
 /**
- * Removes all blank lines from a string and trims surrounding whitespace.
+ * Collapses runs of blank lines down to one and trims surrounding
+ * whitespace, preserving real paragraph breaks instead of destroying them.
+ * Same run-collapsing predicate as `htmlHandler.js`'s final cleanup, for
+ * consistency between the plain-text and HTML parsing paths.
  *
  * @param {string} text
  * @returns {string}
@@ -44,7 +73,8 @@ export function findTextPart(parts) {
 export function removeEmptyLines(text) {
   return text
     .split("\n")
-    .filter((line) => line.trim() !== "")
+    .map((line) => (line.trim() === "" ? "" : line))
+    .filter((line, i, arr) => !(line === "" && arr[i - 1] === ""))
     .join("\n")
     .trim();
 }
@@ -60,9 +90,15 @@ export function removeEmptyLines(text) {
  * @param {string} text - The message text to search.
  * @returns {number} Index of the separator, or -1 if no signature found.
  */
-export function getSignatureIndex(text) {
-  const normalised = text.replace(/\r\n/g, "\n");
+// Closing/valediction phrases with no explicit separator before them: any
+// known language (see ../locales/emailLocales.js).
 
+export function getSignatureIndex(text) {
+  // Callers operate on text already normalized to `\n` line endings (see
+  // `emailParser()`), so `match.index` here is directly usable by
+  // `removeSignature` to slice `text` itself: matching against a
+  // normalized COPY while slicing the original would shift every offset
+  // that follows a stripped `\r` by however many preceded it.
   const patterns = [
     /^-- $/m,
     /(?:<br\s*\/?>|<\/div>|<\/pre>)?\s*--\s*(?:<br\s*\/?>|<\/div>|<\/pre>)/i,
@@ -70,13 +106,23 @@ export function getSignatureIndex(text) {
   ];
 
   for (const pattern of patterns) {
-    const match = normalised.match(pattern);
+    const match = text.match(pattern);
     // Use the match's own position, not `indexOf(match[0])`: for a short,
     // generic match like "--\n" the same text can occur earlier in the
     // string by coincidence (e.g. inside a "--------" separator line),
     // which would truncate the message well before the real signature.
     if (match) return match.index;
   }
+
+  // A valediction has no explicit separator, so unlike the patterns above,
+  // use its LAST occurrence rather than its first: a multi-paragraph body
+  // could otherwise coincidentally echo a greeting-like phrase mid-message
+  // and truncate the message far too early.
+  let lastMatch = null;
+  let m;
+  while ((m = VALEDICTION_RE.exec(text))) lastMatch = m;
+  if (lastMatch) return lastMatch.index;
+
   return -1;
 }
 
@@ -89,7 +135,7 @@ export function getSignatureIndex(text) {
  */
 export function removeSignature(text) {
   const index = getSignatureIndex(text);
-  return index !== -1 ? text.slice(0, index) : text;
+  return index !== -1 ? text.slice(0, index).trimEnd() : text;
 }
 
 // ---------------------------------------------------------------------------

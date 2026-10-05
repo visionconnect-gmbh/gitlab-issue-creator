@@ -5,7 +5,7 @@
  * directories) into a temporary directory and zips it for submission to AMO,
  * which requires the reviewable source alongside the built XPI.
  *
- * Usage: npm run packSrc
+ * Usage: pnpm run packSrc
  */
 
 import fs from "fs";
@@ -33,7 +33,7 @@ const EXCLUDE_PATTERNS = [
   ".git",
   "*.zip",
   "*.xpi",
-  // Credential / local-tooling files — see the matching comment in build.js.
+  // Credential / local-tooling files: see the matching comment in build.js.
   // Without this, an .env created for local publishing would be zipped into
   // the source archive uploaded to ATN reviewers.
   ".env",

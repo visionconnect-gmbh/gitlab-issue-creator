@@ -1,0 +1,242 @@
+/* Native Markdown editor (src/popup/logic/editor/*).
+ * Uses the same --color-* custom properties as theme.css so it follows the
+ * add-on's light/dark theme automatically, unlike the old editor's
+ * hardcoded greys. */
+
+.md-editor {
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.md-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 4px;
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.md-toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0 8px;
+  font-size: 0.95rem;
+  font-weight: 400;
+  background: none;
+  color: var(--color-text);
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.md-toolbar-button:hover,
+.md-toolbar-button:focus {
+  background-color: var(--color-border);
+  outline: none;
+  color: var(--color-text);
+}
+
+.md-toolbar-button[aria-pressed="true"] {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+/* Shown briefly while a picked image uploads. A dedicated, smaller state
+ * rather than the page-level .loading utility class, which is sized for
+ * full-width buttons and would distort a 30x30 toolbar icon. */
+.md-toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.md-icon {
+  display: block;
+}
+
+.md-toolbar-separator {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 4px;
+  background-color: var(--color-border);
+}
+
+/* `[hidden]` must stay in sole control of visibility here: an unconditional
+ * `display: flex` on `.md-url-prompt` would out-rank the browser's native
+ * `[hidden] { display: none }` rule (author styles always beat the
+ * user-agent stylesheet, regardless of specificity), silently making the
+ * prompt impossible to hide. Same reasoning for `.md-textarea` below. */
+.md-url-prompt:not([hidden]) {
+  display: flex;
+}
+
+.md-url-prompt {
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.md-url-prompt input {
+  flex: 1 1 200px;
+  width: auto;
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 5px;
+}
+
+.md-url-prompt input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 6px var(--color-shadow);
+  outline: none;
+}
+
+.md-url-prompt-error {
+  flex-basis: 100%;
+  color: #d33;
+  font-size: 0.85rem;
+}
+
+.md-textarea:not([hidden]) {
+  display: block;
+}
+
+.md-textarea {
+  width: 100%;
+  min-height: 180px;
+  border: none;
+  border-radius: 0;
+  /* Grows with content (editor.js sets an explicit height on input) so the
+   * POPUP scrolls as one unit instead of the textarea scrolling internally.
+   * No manual resize handle: height is content-driven now, not user-dragged. */
+  overflow-y: hidden;
+  resize: none;
+}
+
+.md-textarea:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.md-preview {
+  padding: 0.75rem 1rem;
+  min-height: 180px;
+  background-color: var(--color-bg);
+  /* Same reasoning as .md-textarea: grows with content, no internal scroll. */
+}
+
+.md-preview > :first-child {
+  margin-top: 0;
+}
+
+.md-preview pre {
+  background-color: var(--color-border);
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.md-preview code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.md-preview blockquote {
+  margin: 0.5rem 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--color-border);
+  color: var(--color-text);
+  opacity: 0.85;
+}
+
+.md-image-placeholder {
+  display: inline-block;
+  padding: 0 0.3rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+/* `position: fixed` (viewport coordinates, computed in editor.js's
+ * positionMentionList()), not `absolute`: `.md-editor` clips overflow for
+ * its rounded corners, which would otherwise cut the dropdown off whenever
+ * it needs to extend below the editor's own bounds. */
+.md-mention-list {
+  position: fixed;
+  z-index: 1100; /* above .md-fullscreen's 1000 */
+  min-width: 180px;
+  max-width: 280px;
+  margin: 2px 0 0;
+  padding: 4px;
+  list-style: none;
+  background-color: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px var(--color-shadow);
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.md-mention-item {
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.md-mention-item.active,
+.md-mention-item:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+.md-mention-empty {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
+/* Fullscreen toggle: just a CSS class, not a parallel window/layer. */
+.md-editor.md-fullscreen {
+  position: fixed;
+  inset: 10px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Fullscreen is bounded to the viewport (no page to scroll), so here, unlike
+ * the inline, content-grows-the-popup behavior above, the textarea
+ * and preview scroll internally instead. editor.js stops setting an inline
+ * height on the textarea while fullscreen is active, letting these flex
+ * rules size it instead. */
+.md-editor.md-fullscreen .md-textarea {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.md-editor.md-fullscreen .md-preview {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}

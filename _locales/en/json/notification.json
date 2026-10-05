@@ -46,5 +46,9 @@
   "NotificationAttachmentNotFound": {
     "message": "Attachment not found. Issue creation aborted.",
     "description": "Notification when an attachment is not found."
+  },
+  "NotificationUploadDeleteError": {
+    "message": "Could not delete an uploaded file from GitLab. It may remain on the server.",
+    "description": "Notification when deleting an uploaded file from GitLab fails."
   }
 }

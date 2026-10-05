@@ -1,4 +1,4 @@
-import { LocalizeKeys } from "./Enums";
+import { LocalizeKeys } from "./Enums.js";
 
 /**
  * Replaces all text nodes within elements matching a selector using a replacer function.

@@ -21,8 +21,8 @@
  *   --keep-unreleased-details  keep the [Unreleased] section verbatim instead of
  *                               summarizing it into short bullet points
  *
- * Also usable via the npm scripts:
- *   npm run version:patch / version:minor / version:major
+ * Also usable via the pnpm scripts:
+ *   pnpm run version:patch / version:minor / version:major
  */
 
 import fs from "fs";
@@ -77,7 +77,7 @@ function resolveVersion(cur, arg) {
   if (arg === "major") [maj, min, pat] = [maj + 1, 0, 0];
   else if (arg === "minor") [min, pat] = [min + 1, 0];
   else if (arg === "patch") pat += 1;
-  else throw new Error(`Invalid bump "${arg}" — use major|minor|patch or X.Y.Z`);
+  else throw new Error(`Invalid bump "${arg}": use major|minor|patch or X.Y.Z`);
   return `${maj}.${min}.${pat}`;
 }
 
@@ -93,7 +93,7 @@ function summarizeUnreleasedBlock(rawUnreleasedText) {
   let currentCategory = "General";
   // Split on \r?\n, not just \n: on a CRLF checkout a bare "\n" split leaves
   // a trailing \r on every line, and \r counts as a line terminator for
-  // regex `.` just like \n does — so `^###\s+(.+)$` would silently never
+  // regex `.` just like \n does, so `^###\s+(.+)$` would silently never
   // match and every category would come back empty.
   const lines = rawUnreleasedText.split(/\r?\n/);
   let currentItemRaw = "";
@@ -176,7 +176,7 @@ if (fs.existsSync(changelogPath)) {
   const today = new Date().toISOString().slice(0, 10);
 
   if (cl.includes(`## [${version}]`)) {
-    // already released in the changelog — leave it
+    // already released in the changelog: leave it
   } else if (cl.includes("## [Unreleased]")) {
     const unreleasedHeader = "## [Unreleased]";
     const unreleasedIndex = cl.indexOf(unreleasedHeader);
@@ -198,7 +198,7 @@ if (fs.existsSync(changelogPath)) {
 
     edits.push({ rel: "CHANGELOG.md", write: () => fs.writeFileSync(changelogPath, updatedChangelog) });
   } else {
-    console.warn("! CHANGELOG.md has no [Unreleased] section — skipping it.");
+    console.warn("! CHANGELOG.md has no [Unreleased] section, skipping it.");
   }
 }
 
@@ -243,7 +243,7 @@ if (doTag) {
   try {
     if (git("tag", "--list", tag)) {
       console.error(
-        `\n! Tag ${tag} already exists — delete it first if you are redoing the release:` +
+        `\n! Tag ${tag} already exists: delete it first if you are redoing the release:` +
           `\n    git tag -d ${tag}` +
           `\n    git push origin :refs/tags/${tag}`,
       );
@@ -263,7 +263,7 @@ if (doTag) {
       process.exit(1);
     }
   } catch (err) {
-    console.error(err.message ?? "! Not a git repository (or git unavailable) — cannot --tag.");
+    console.error(err.message ?? "! Not a git repository (or git unavailable), cannot --tag.");
     process.exit(1);
   }
 }
@@ -307,7 +307,7 @@ if (doPush) {
   const branch = git("rev-parse", "--abbrev-ref", "HEAD");
   execFileSync("git", ["push", "origin", branch], { cwd: root, stdio: "inherit" });
   execFileSync("git", ["push", "origin", tag], { cwd: root, stdio: "inherit" });
-  console.log(`  pushed ${branch} + ${tag} — CI will build and publish to ATN.`);
+  console.log(`  pushed ${branch} + ${tag}: CI will build and publish to ATN.`);
 } else {
   console.log(`  push it to trigger the release:  git push origin HEAD ${tag}`);
 }

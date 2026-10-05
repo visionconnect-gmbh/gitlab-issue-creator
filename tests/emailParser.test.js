@@ -1,11 +1,14 @@
 /**
  * @fileoverview Unit tests for src/email/emailParser.js
  *
- * `getEmailContent` is not tested here because it depends on the Thunderbird
- * `browser.messages` API.  `emailParser` is pure and fully testable.
+ * `emailParser` is pure and tested directly. `getEmailContent` depends on
+ * `browser.messages.getFull`, stubbed per-test below for the plain-vs-HTML
+ * selection tiebreak (RC-2); the rest of its behavior is exercised
+ * end-to-end by the regression fixtures.
  */
 
-import { emailParser } from "../src/email/emailParser.js";
+import { jest } from "@jest/globals";
+import { emailParser, usableMessageCount, getEmailContent } from "../src/email/emailParser.js";
 
 describe("emailParser", () => {
   // ---------------------------------------------------------------------------
@@ -102,5 +105,87 @@ describe("emailParser", () => {
     expect(entry).toHaveProperty("time");
     expect(entry).toHaveProperty("message");
     expect(entry).toHaveProperty("forwardedMessage");
+  });
+});
+
+describe("usableMessageCount", () => {
+  test("counts only entries with non-empty message text", () => {
+    const history = [
+      { message: "real content" },
+      { message: "" },
+      { message: "   " },
+      { message: "more content" },
+    ];
+    expect(usableMessageCount(history)).toBe(2);
+  });
+
+  test("returns 0 for an empty array", () => {
+    expect(usableMessageCount([])).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getEmailContent: plain-vs-HTML selection tiebreak (RC-2)
+// ---------------------------------------------------------------------------
+
+function makeMessage({ plainBody, htmlBody }) {
+  const parts = [];
+  if (plainBody !== undefined) parts.push({ contentType: "text/plain", body: plainBody });
+  if (htmlBody !== undefined) parts.push({ contentType: "text/html", body: htmlBody });
+
+  global.browser.messages = {
+    getFull: jest.fn(async () => ({ parts })),
+  };
+
+  return { id: 1, subject: "Test", author: "someone@example.com", date: new Date() };
+}
+
+describe("getEmailContent: plain vs HTML selection", () => {
+  test("prefers the HTML parse when it recovers strictly more USABLE messages, not just more raw entries", async () => {
+    const plainBody = "Latest reply.\n\n> 01.01.2024, 10:00, Jane Doe:\n> Quoted reply.";
+    // HTML recovers an extra, genuinely distinct nested quote the plain
+    // side's ambiguous markers lost: more usable content, legitimately.
+    const htmlBody =
+      "<div>Latest reply.</div>" +
+      '<div class="moz-cite-prefix">Am 01.01.2024 um 10:00 schrieb Jane Doe:<br/></div>' +
+      "<blockquote><div>Quoted reply.<br/></div>" +
+      "<div>Am 31.12.2023 um 09:00 schrieb Ben Beispiel:<br/></div>" +
+      "<blockquote><div>Older nested reply.<br/></div></blockquote>" +
+      "</blockquote>";
+
+    const result = await getEmailContent(makeMessage({ plainBody, htmlBody }));
+    expect(result.conversationHistory.length).toBeGreaterThan(
+      emailParser(plainBody).length,
+    );
+    expect(result.conversationHistory.some((m) => m.message.includes("Older nested reply"))).toBe(
+      true,
+    );
+  });
+
+  test("prefers the plain-text parse when the HTML path is more fragmented despite having more raw entries", async () => {
+    // A pathologically fragmented HTML parse (several empty/near-empty
+    // entries) must NOT beat a clean plain-text parse just because it has
+    // more array entries, which is the exact failure mode RC-1/RC-2 fixed.
+    const plainBody = "Latest reply.\n\n> 01.01.2024, 10:00, Jane Doe:\n> A real quoted reply.";
+    const htmlBody =
+      "<div>Latest reply.</div>" +
+      '<div class="moz-cite-prefix">Am 01.01.2024 um 10:00 schrieb Jane Doe:<br/></div>' +
+      "<blockquote><div><br/></div><div><br/></div><div><br/></div></blockquote>";
+
+    const result = await getEmailContent(makeMessage({ plainBody, htmlBody }));
+    expect(result.conversationHistory.some((m) => m.message.includes("A real quoted reply"))).toBe(
+      true,
+    );
+  });
+
+  test("falls back to the HTML result when both parses are empty of real content", async () => {
+    const result = await getEmailContent(makeMessage({ plainBody: "", htmlBody: "<div></div>" }));
+    expect(Array.isArray(result.conversationHistory)).toBe(true);
+  });
+
+  test("uses the plain-text result when there is no HTML part at all", async () => {
+    const plainBody = "Just a plain reply.";
+    const result = await getEmailContent(makeMessage({ plainBody }));
+    expect(result.conversationHistory[0].message).toContain("Just a plain reply");
   });
 });

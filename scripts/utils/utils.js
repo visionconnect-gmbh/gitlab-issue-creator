@@ -44,7 +44,7 @@ export function cleanDirectory(dirPath) {
  *  - exact match or directory prefix match: `"node_modules"`
  *  - glob suffix match: `"*.zip"` (matches any file ending in `.zip`)
  *  - glob prefix match: `".env.*"` (matches any file whose basename starts
- *    with `.env.`, e.g. `.env.local` — needed so credential files with a
+ *    with `.env.`, e.g. `.env.local` (needed so credential files with a
  *    suffix are excluded, not just a bare `.env`)
  *
  * @param {string}   filePath
@@ -52,7 +52,10 @@ export function cleanDirectory(dirPath) {
  * @returns {boolean}
  */
 export function shouldExclude(filePath, patterns) {
-  const relativePath = path.relative(process.cwd(), filePath);
+  // path.relative() returns native separators ("\\" on Windows); patterns
+  // are always written with "/", so normalize before comparing or every
+  // multi-segment pattern silently never matches on Windows.
+  const relativePath = path.relative(process.cwd(), filePath).split(path.sep).join("/");
   return patterns.some((pattern) => {
     if (relativePath === pattern || relativePath.startsWith(`${pattern}/`))
       return true;

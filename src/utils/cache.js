@@ -3,17 +3,17 @@
  *
  * Two distinct layers share `browser.storage.local` but are partitioned by prefix:
  *
- * **Settings** (`s:` prefix) — persistent, never evicted, never trimmed.
+ * **Settings** (`s:` prefix): persistent, never evicted, never trimmed.
  *   Use `getSetting` / `setSetting` for credentials and user preferences.
  *   Eviction logic is structurally incapable of seeing `s:` keys.
  *
- * **Cache** (`c:` prefix) — temporary, TTL-aware, evictable.
+ * **Cache** (`c:` prefix): temporary, TTL-aware, evictable.
  *   Each entry is a `{ data, timestamp, ttlMs, label }` envelope.
  *   Eviction (LRU, stale sweep, size trimming) only operates on `c:` keys.
  *   When caching is disabled in settings, `setCache` is a no-op.
  *
  * Partition safety is enforced at two levels:
- *   1. `getCacheEntries()` / `getSettingsEntries()` filter by prefix centrally —
+ *   1. `getCacheEntries()` / `getSettingsEntries()` filter by prefix centrally:
  *      all bulk operations flow through these, so cross-contamination is impossible.
  *   2. `setSetting` / `setCache` throw on wrong-prefix writes as a second line of defence.
  *
@@ -23,7 +23,7 @@
 import { CacheKeys } from "./Enums.js";
 
 // ---------------------------------------------------------------------------
-// Prefix constants — the only place these strings are defined
+// Prefix constants: the only place these strings are defined
 // ---------------------------------------------------------------------------
 
 const SETTINGS_PREFIX = "s:";
@@ -32,8 +32,16 @@ const CACHE_PREFIX = "c:";
 /** Soft size ceiling for a single cache array key before trimming oldest entries. */
 const MAX_KEY_BYTES = 1_000_000; // 1 MB per key
 
+/**
+ * Bumped whenever the cache envelope shape changes incompatibly (e.g. adding
+ * `etag`). A mismatch wipes `c:` entries on load; `s:` settings are
+ * untouched, since they aren't versioned by this constant.
+ */
+const CACHE_SCHEMA_VERSION = 2;
+const SCHEMA_VERSION_SETTING = "cache_schema_version";
+
 // ---------------------------------------------------------------------------
-// Write queue — serialises read-modify-write ops per key to prevent races
+// Write queue: serialises read-modify-write ops per key to prevent races
 // ---------------------------------------------------------------------------
 
 /** @type {Map<string, Promise<any>>} */
@@ -84,14 +92,14 @@ async function storageSet(record) {
   } catch (err) {
     if (err.name === "QuotaExceededError" || err.message?.includes("quota")) {
       console.warn(
-        "[storage] Quota exceeded — running LRU eviction and retrying",
+        "[storage] Quota exceeded, running LRU eviction and retrying",
       );
       const needed = JSON.stringify(record).length * 2;
       const freed = await evictLRU(needed);
 
       if (freed === 0) {
         console.error(
-          "[storage] Quota hit but nothing evictable — dropping write",
+          "[storage] Quota hit but nothing evictable, dropping write",
         );
         return false;
       }
@@ -128,7 +136,7 @@ async function storageRemove(keys) {
 }
 
 // ---------------------------------------------------------------------------
-// Partition helpers — ALL bulk access flows through these two functions.
+// Partition helpers: ALL bulk access flows through these two functions.
 // Settings keys can never appear in cache operations and vice-versa.
 // ---------------------------------------------------------------------------
 
@@ -159,7 +167,7 @@ async function getSettingsEntries() {
 
 /**
  * Saves a persistent user setting.
- * Throws if `key` looks like a cache key — likely a call-site mistake.
+ * Throws if `key` looks like a cache key, likely a call-site mistake.
  *
  * @param {string} key   - Logical key (without prefix); use a value from `CacheKeys`.
  * @param {*}      value - Any JSON-serialisable value.
@@ -244,13 +252,15 @@ export function invalidateCachingDisabledFlag() {
 /**
  * Writes a value to the cache.
  * No-op when caching is disabled.
- * Throws if `key` looks like a settings key — likely a call-site mistake.
+ * Throws if `key` looks like a settings key, likely a call-site mistake.
  *
  * @param {string} key          - Logical key (without prefix).
  * @param {*}      data         - Any JSON-serialisable value.
  * @param {object} [meta={}]
  * @param {number|null} [meta.ttlMs]  - TTL stored with the entry for eviction.
  * @param {string}      [meta.label]  - Human-readable label for debugging.
+ * @param {string|null} [meta.etag]   - ETag from the response this data came
+ *   from, so a later revalidation can send `If-None-Match`.
  * @returns {Promise<boolean>}
  */
 export async function setCache(key, data, meta = {}) {
@@ -266,36 +276,55 @@ export async function setCache(key, data, meta = {}) {
     timestamp: Date.now(),
     ttlMs: meta.ttlMs ?? null,
     label: meta.label ?? key,
+    etag: meta.etag ?? null,
   };
 
   return storageSet({ [`${CACHE_PREFIX}${key}`]: entry });
 }
 
 /**
- * Reads a value from the cache.
- * Proactively removes the entry (fire-and-forget) when it is stale.
+ * Reads a cache entry with its full metadata, without deleting it when
+ * stale: stale-but-present data is often more useful than nothing (e.g.
+ * GitLab is temporarily unreachable), so eviction is left to the explicit
+ * TTL/LRU sweeps rather than happening as a side effect of a read.
  *
- * @param {string}      key             - Logical key (without prefix).
- * @param {number|null} [ttlMs]         - Max acceptable age in ms.
- *                                        Falls back to the TTL stored in the entry.
- *                                        Pass `null` to skip freshness check entirely.
- * @param {*}           [fallback=null] - Returned when absent or stale.
- * @returns {Promise<*>}
+ * @param {string}      key     - Logical key (without prefix).
+ * @param {number|null} [ttlMs] - Max acceptable age in ms; falls back to the
+ *   TTL stored in the entry. Pass `null` to skip the freshness check.
+ * @returns {Promise<{ data: *, timestamp: number, etag: string|null, isStale: boolean }|null>}
  */
-export async function getCache(key, ttlMs, fallback = null) {
+export async function getCacheEntry(key, ttlMs) {
   const prefixed = `${CACHE_PREFIX}${key}`;
   const raw = await storageGet(prefixed);
   const entry = raw[prefixed];
 
-  if (!entry) return fallback;
+  if (!entry) return null;
 
   const effectiveTtl = ttlMs ?? entry.ttlMs ?? null;
+  const isStale =
+    effectiveTtl !== null && Date.now() - entry.timestamp >= effectiveTtl;
 
-  if (effectiveTtl !== null && Date.now() - entry.timestamp >= effectiveTtl) {
-    storageRemove(prefixed); // proactive eviction, fire-and-forget
-    return fallback;
-  }
+  return {
+    data: entry.data,
+    timestamp: entry.timestamp,
+    etag: entry.etag ?? null,
+    isStale,
+  };
+}
 
+/**
+ * Reads a value from the cache. Thin convenience wrapper over
+ * `getCacheEntry()` for callers that only want the data (or a fallback),
+ * not the freshness metadata.
+ *
+ * @param {string}      key             - Logical key (without prefix).
+ * @param {number|null} [ttlMs]         - Max acceptable age in ms.
+ * @param {*}           [fallback=null] - Returned when absent or stale.
+ * @returns {Promise<*>}
+ */
+export async function getCache(key, ttlMs, fallback = null) {
+  const entry = await getCacheEntry(key, ttlMs);
+  if (!entry || entry.isStale) return fallback;
   return entry.data;
 }
 
@@ -340,7 +369,7 @@ export async function addToCacheArray(
     const approxBytes = JSON.stringify(merged).length * 2;
     if (approxBytes > MAX_KEY_BYTES) {
       console.warn(
-        `[storage] "${key}" is ~${(approxBytes / 1024).toFixed(1)} KB — trimming oldest entries to fit`,
+        `[storage] "${key}" is ~${(approxBytes / 1024).toFixed(1)} KB, trimming oldest entries to fit`,
       );
       // Remove oldest entries one-by-one until we fit, rather than slicing by half
       while (
@@ -353,7 +382,7 @@ export async function addToCacheArray(
 
       if (merged.length === 0) {
         console.error(
-          `[storage] "${key}" — single payload exceeds MAX_KEY_BYTES, dropping write`,
+          `[storage] "${key}": single payload exceeds MAX_KEY_BYTES, dropping write`,
         );
         return {
           ok: false,
@@ -370,7 +399,7 @@ export async function addToCacheArray(
 }
 
 // ---------------------------------------------------------------------------
-// Eviction strategies (cache keys only — settings are structurally unreachable)
+// Eviction strategies (cache keys only; settings are structurally unreachable)
 // ---------------------------------------------------------------------------
 
 /**
@@ -409,7 +438,7 @@ async function evictStaleEntries() {
  */
 async function evictLRU(requiredBytes = 0) {
   try {
-    const entries = await getCacheEntries(); // only c: keys — settings safe
+    const entries = await getCacheEntries(); // only c: keys, settings safe
 
     // Sort oldest-first by timestamp
     entries.sort(([, a], [, b]) => (a?.timestamp ?? 0) - (b?.timestamp ?? 0));
@@ -437,8 +466,31 @@ async function evictLRU(requiredBytes = 0) {
   }
 }
 
-// Run stale eviction once at module load — non-blocking
-evictStaleEntries();
+/**
+ * Wipes `c:` entries when the stored schema version doesn't match the
+ * current one (e.g. after adding the `etag` field): an envelope written by
+ * an older version is otherwise silently misread rather than erroring.
+ * `s:` settings, including this version marker itself, are untouched.
+ */
+async function ensureSchemaVersion() {
+  try {
+    const stored = await getSetting(SCHEMA_VERSION_SETTING, null);
+    if (stored !== CACHE_SCHEMA_VERSION) {
+      await clearAllCache();
+      await setSetting(SCHEMA_VERSION_SETTING, CACHE_SCHEMA_VERSION);
+    }
+  } catch (err) {
+    console.error("[storage] Schema version check failed:", err);
+  }
+}
+
+// Run once at module load, non-blocking (no top-level await: this module is
+// imported by the background page, every popup open, and the options page,
+// and a module-level await delays every importer's own evaluation until it
+// resolves). Order matters: a schema bump clears `c:` first so stale
+// eviction has nothing stale left to scan, enforced here via .then() instead
+// of await.
+void ensureSchemaVersion().then(() => evictStaleEntries());
 
 // ---------------------------------------------------------------------------
 // Cache management utilities

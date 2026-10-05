@@ -33,6 +33,25 @@ describe("extractForwardedMessage", () => {
     expect(result).toContain("Original body");
   });
 
+  // Thunderbird's German-locale reply-as-forward banner
+  // (mailnews.reply_header_originalmessage). The dashed-trigger regex is
+  // generic on the wrapped text, but this pins the exact real string down
+  // rather than assuming it's covered.
+  test("recognises Thunderbird's German 'Original-Nachricht' forward banner", () => {
+    const message = [
+      "My reply.",
+      "",
+      "-------- Original-Nachricht --------",
+      "Von: alice@example.com",
+      "",
+      "Original body.",
+    ].join("\n");
+
+    const result = extractForwardedMessage(message);
+    expect(result).not.toBeNull();
+    expect(result).toContain("Original body");
+  });
+
   test("strips the signature from the forwarded block", () => {
     const message = [
       "Reply.",

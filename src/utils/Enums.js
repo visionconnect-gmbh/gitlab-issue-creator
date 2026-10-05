@@ -2,10 +2,14 @@
 export const MessageTypes = Object.freeze({
   INITIAL_DATA: "initial-data",
   PROJECT_LIST: "project-list",
+  PROJECT_SEARCH_RESULT: "project-search-result",
   ASSIGNEES_LIST: "assignees-list",
+  LABELS_LIST: "labels-list",
+  PROJECTS_STALE: "projects-stale",
   CLEAR_CACHE: "clear-cache",
   SETTINGS_UPDATED: "settings-updated",
   CLOSE_POPUP: "close-popup",
+  ISSUE_CREATE_FAILED: "issue-create-failed",
 });
 
 // Message types for communication between popup and background
@@ -14,8 +18,11 @@ export const Popup_MessageTypes = Object.freeze({
   POPUP_READY: "popup-ready",
   REQUEST_INITIAL_DATA: "request-initial-data",
   REQUEST_PROJECTS: "request-projects",
+  REQUEST_PROJECT_SEARCH: "request-project-search",
   REQUEST_ASSIGNEES: "request-assignees",
+  REQUEST_LABELS: "request-labels",
   CREATE_GITLAB_ISSUE: "create-gitlab-issue",
+  REPORT_UPLOADS: "report-uploads",
 });
 
 // Keys for storing data in browser.storage.local
@@ -23,11 +30,15 @@ export const CacheKeys = Object.freeze({
   DISABLE_CACHE: "disable_cache",
   GITLAB_SETTINGS: "gitlab_settings",
   PROJECTS: "projects",
+  RECENT_PROJECTS: "recent_projects",
   ASSIGNEES: "assignees_ALL",
+  LABELS: "labels",
   CURRENT_USER: "current_user",
 
   ASSIGNEES_LOADING: "enable_assignee_loading",
   ENABLE_WATERMARK: "enable_watermark",
+
+  DESCRIPTION_DRAFT: "description_draft",
 });
 
 // Keys for localization messages in _locales
@@ -47,6 +58,7 @@ export const LocalizeKeys = Object.freeze({
     EMPTY_PROJECTS: "OptionsButtonEmptyProjects",
     EMPTY_ASSIGNEES: "OptionsButtonEmptyAsignees",
     SUBMIT: "PopupButtonSubmit",
+    LOAD_ATTACHMENTS: "PopupButtonLoadAttachments",
   },
 
   OPTIONS: {
@@ -107,6 +119,7 @@ export const LocalizeKeys = Object.freeze({
       SELECT_PROJECT: "PopupLabelSelectProject",
       TITLE: "PopupLabelTitleOfProject",
       ATTACHMENTS_BUTTON: "PopupLabelAttachmentsButton",
+      LABELS_BUTTON: "PopupLabelLabelsButton",
       ASSIGNEE_SELECT: "PopupLabelAssigneeSelect",
       ISSUE_DESCRIPTION: "PopupLabelIssueDescription",
       ISSUE_END: "PopupLabelIssueEnd",
@@ -114,18 +127,64 @@ export const LocalizeKeys = Object.freeze({
       DATE_RECEIVED: "PopupDateReceived",
       FORWARDED_MESSAGE: "PopupForwardedMessage",
     },
+    TITLES: {
+      ATTACHMENTS: "PopupTitleAttachments",
+      LABELS: "PopupTitleLabels",
+    },
     PLACEHOLDERS: {
       SELECT_PROJECT: "PopupPlaceholderSelectProject",
+      PICKER_SEARCH: "PopupPickerSearchPlaceholder",
+    },
+    COMBOBOX: {
+      ARIA_LABEL: "PopupComboboxAriaLabel",
+      NO_PROJECT_SELECTED: "PopupComboboxNoProjectSelected",
     },
     SELECT: {
       FIRST_ASSIGNEE_ENTRY: "PopupAssigneeSelectFirstEntry",
     },
     MESSAGES: {
       NO_ASSIGNEES_FOUND: "PopupNoAssigneesFound",
+      ASSIGNEES_LOAD_ERROR: "PopupAssigneesLoadError",
       NO_ATTACHMENTS: "PopupNoAttachments",
+      NO_LABELS_FOUND: "PopupNoLabelsFound",
+      LABELS_LOAD_ERROR: "PopupLabelsLoadError",
+      PROJECTS_LOADING: "PopupProjectsLoading",
+      PROJECTS_SEARCHING: "PopupProjectsSearching",
+      PROJECTS_STALE: "PopupProjectsStale",
+      RETRY: "PopupRetry",
+      PICKER_DRAG_HINT: "PopupPickerDragHint",
     },
     ERRORS: {
-      ERROR_CLOSING: "PopupErrorClosing"
+      ERROR_CLOSING: "PopupErrorClosing",
+      CREATE_FAILED: "PopupIssueCreateError",
+    },
+  },
+
+  EDITOR: {
+    TOOLTIPS: {
+      BOLD: "EditorTooltipBold",
+      ITALIC: "EditorTooltipItalic",
+      HEADING: "EditorTooltipHeading",
+      QUOTE: "EditorTooltipQuote",
+      UNORDERED_LIST: "EditorTooltipUnorderedList",
+      ORDERED_LIST: "EditorTooltipOrderedList",
+      LINK: "EditorTooltipLink",
+      IMAGE: "EditorTooltipImage",
+      PREVIEW: "EditorTooltipPreview",
+      FULLSCREEN: "EditorTooltipFullscreen",
+      MENTION: "EditorTooltipMention",
+      GUIDE: "EditorTooltipGuide",
+    },
+    URL_PROMPT: {
+      PLACEHOLDER: "EditorUrlPromptPlaceholder",
+      CONFIRM: "EditorUrlPromptConfirm",
+      CANCEL: "EditorUrlPromptCancel",
+    },
+    MENTION: {
+      EMPTY: "EditorMentionEmpty",
+    },
+    ERRORS: {
+      INVALID_URL: "EditorErrorInvalidUrl",
     },
   },
 
@@ -153,6 +212,7 @@ export const LocalizeKeys = Object.freeze({
     NO_PROJECT_SELECTED: "NotificationNoProjectSelected",
     ATTACHMENT_NOT_FOUND: "NotificationAttachmentNotFound",
     UPLOAD_ATTACHMENT_ERROR: "NotificationUploadAttachmentError",
+    UPLOAD_DELETE_ERROR: "NotificationUploadDeleteError",
   },
 
   FALLBACK: {

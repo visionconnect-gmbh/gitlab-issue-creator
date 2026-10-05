@@ -46,5 +46,9 @@
   "NotificationAttachmentNotFound": {
     "message": "Anhang nicht gefunden. Ticket-Erstellung abgebrochen.",
     "description": "Notification when an attachment is not found."
+  },
+  "NotificationUploadDeleteError": {
+    "message": "Eine hochgeladene Datei konnte nicht von GitLab gelöscht werden. Sie bleibt möglicherweise auf dem Server erhalten.",
+    "description": "Notification when deleting an uploaded file from GitLab fails."
   }
 }

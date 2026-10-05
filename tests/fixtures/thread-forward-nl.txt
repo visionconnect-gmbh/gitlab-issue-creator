@@ -1,0 +1,15 @@
+Bedankt voor de info.
+
+Doorgestuurd bericht:
+
+Van : Willem de Vries <willem@example.com>
+Verzonden : 01.10.2026 10:00
+Aan : Bob Jansen <bob@example.com>
+Onderwerp : Vraag over het project
+
+Hallo,
+
+Kun je dit punt bevestigen?
+
+Met vriendelijke groet,
+Willem de Vries

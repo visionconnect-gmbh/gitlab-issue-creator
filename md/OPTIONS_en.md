@@ -3,7 +3,7 @@
 > **Deutsche Version:** [OPTIONS.md](./OPTIONS.md)
 
 This page covers every setting on the **Options** page (`Add-ons and Themes → GitLab Issue Creator → Options`).  
-All values are stored in `browser.storage.local` on the local machine — nothing is synced automatically.
+All values are stored in `browser.storage.local` on the local machine: nothing is synced automatically.
 
 ---
 
@@ -22,7 +22,7 @@ These two fields must be filled in before the add-on can do anything.
 The base URL of your GitLab instance.  
 The `https://` protocol prefix is added automatically if you omit it. Invalid or unreachable URLs are caught on save and shown as an error.
 
-> ℹ️ Self-hosted instances work exactly the same as gitlab.com — just enter your own domain.
+> ℹ️ Self-hosted instances work exactly the same as gitlab.com: just enter your own domain.
 
 ---
 
@@ -47,7 +47,7 @@ You can also go there manually: `<your-gitlab-url>/-/user_settings/personal_acce
 
 ## Optional settings
 
-These are off by default. Each setting is saved individually when you toggle it — there is no separate Save button for checkboxes.
+These are off by default. Each setting is saved individually when you toggle it; there is no separate Save button for checkboxes.
 
 ### Load assignees automatically
 

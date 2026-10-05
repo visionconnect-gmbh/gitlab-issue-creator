@@ -1,27 +1,26 @@
-import { Popup_MessageTypes, CacheKeys } from "../utils/Enums.js";
+import { Popup_MessageTypes } from "../utils/Enums.js";
 import { localizeHtmlPage } from "../utils/localize.js";
 import { getCurrentUser } from "../gitlab/gitlab.js";
-import { getSetting } from "../utils/cache.js";
 import {
   elements,
   setSelectedAssigneeId,
   setCurrentAssignees,
   setIssueEndDate,
-  setIsAssigneeLoadingEnabled,
 } from "./logic/popupState.js";
-import {
-  loadAttachmentsPreview,
-  renderAssignees,
-  toggleAttachmentSelectorVisibility,
-} from "./logic/ui.js";
+import { renderAssignees } from "./logic/ui.js";
+import { setupAttachmentDragDrop } from "./logic/attachmentDragDrop.js";
 import { resetEditor } from "./logic/handler/resetHandler.js";
 import {
   handleIncomingMessage,
-  handleProjectSearchChange,
   handleProjectSearchInput,
+  handleProjectSearchKeydown,
+  handleProjectSearchBlur,
+  handleProjectSearchFocus,
+  handleProjectOptionMouseDown,
 } from "./logic/handler/projectHandler.js";
 import {
   handleAttachmentButtonClick,
+  handleLabelsButtonClick,
   handleCreateButtonClick,
 } from "./logic/handler/issueHandler.js";
 
@@ -32,58 +31,61 @@ document.addEventListener("DOMContentLoaded", init);
  * and notifying the background script that the popup is ready.
  */
 async function init() {
+  // resetEditor() already reads the assignee-loading setting and calls
+  // setIsAssigneeLoadingEnabled(), so there is no need to read it again here.
   await resetEditor();
   localizeHtmlPage();
-
-  // Read the assignee-loading toggle from persistent settings so the popup
-  // reflects what the user configured in the Options page.
-  const assigneeLoadingEnabled = await getSetting(
-    CacheKeys.ASSIGNEES_LOADING,
-    true,
-  );
-  setIsAssigneeLoadingEnabled(assigneeLoadingEnabled);
 
   const currentTab = await browser.tabs.getCurrent();
 
   const {
     projectSearch,
+    projectSuggestions,
     assigneeSelect,
     issueEnd,
     createBtn,
     attachmentsButton,
-    attachmentSelectorBackdrop,
-    loadAttachmentsPreviewBtn,
-    closeAttachmentSelectorBtn,
+    labelsButton,
+    issueDescription,
   } = elements;
 
-  setupProjectSearch(projectSearch);
-  await setupAssigneeSelect(assigneeSelect);
+  setupProjectSearch(projectSearch, projectSuggestions);
   setupIssueEnd(issueEnd);
-  setupAttachmentHandling(
-    attachmentsButton,
-    attachmentSelectorBackdrop,
-    closeAttachmentSelectorBtn,
-    loadAttachmentsPreviewBtn,
-  );
+  attachmentsButton.addEventListener("click", handleAttachmentButtonClick);
+  labelsButton.addEventListener("click", handleLabelsButtonClick);
+  setupAttachmentDragDrop(issueDescription);
   createBtn.addEventListener("click", handleCreateButtonClick);
 
+  // Register the listener before anything is sent: a message the
+  // background sends before this line exists would otherwise be lost
+  // silently, with no way to recover it.
+  browser.runtime.onMessage.addListener(handleIncomingMessage);
   browser.runtime.sendMessage({
     type: Popup_MessageTypes.POPUP_READY,
     tabId: currentTab.windowId,
   });
-  browser.runtime.onMessage.addListener(handleIncomingMessage);
   browser.runtime.sendMessage({
     type: Popup_MessageTypes.REQUEST_INITIAL_DATA,
   });
+
+  // Off the critical path: the assignee select fills in once the user
+  // profile resolves, but doesn't block project loading or the rest of the
+  // popup becoming interactive.
+  void setupAssigneeSelect(assigneeSelect);
 }
 
 /**
- * Sets up the project search input field.
+ * Sets up the project search combobox: the text input plus its suggestion
+ * listbox.
  * @param {HTMLInputElement} projectSearch The project search input element.
+ * @param {HTMLUListElement} projectSuggestions The suggestion listbox element.
  */
-function setupProjectSearch(projectSearch) {
+function setupProjectSearch(projectSearch, projectSuggestions) {
   projectSearch.addEventListener("input", handleProjectSearchInput);
-  projectSearch.addEventListener("change", handleProjectSearchChange);
+  projectSearch.addEventListener("keydown", handleProjectSearchKeydown);
+  projectSearch.addEventListener("focus", handleProjectSearchFocus);
+  projectSearch.addEventListener("blur", handleProjectSearchBlur);
+  projectSuggestions.addEventListener("mousedown", handleProjectOptionMouseDown);
 }
 
 /**
@@ -113,26 +115,4 @@ function setupIssueEnd(issueEnd) {
   issueEnd.addEventListener("change", (e) => {
     setIssueEndDate(e.target.value ? new Date(e.target.value) : null);
   });
-}
-
-/** Sets up attachment handling including button clicks and backdrop interactions.
- * @param {HTMLButtonElement} attachmentsButton The button to open the attachment selector.
- * @param {HTMLElement} backdrop The backdrop element for the attachment selector.
- * @param {HTMLButtonElement} closeBtn The button to close the attachment selector.
- * @param {HTMLButtonElement} previewBtn The button to load the attachment preview.
- */
-function setupAttachmentHandling(
-  attachmentsButton,
-  backdrop,
-  closeBtn,
-  previewBtn,
-) {
-  attachmentsButton.addEventListener("click", handleAttachmentButtonClick);
-
-  backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) toggleAttachmentSelectorVisibility();
-  });
-
-  closeBtn.addEventListener("click", toggleAttachmentSelectorVisibility);
-  previewBtn.addEventListener("click", loadAttachmentsPreview);
 }

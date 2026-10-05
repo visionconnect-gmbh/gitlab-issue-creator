@@ -18,7 +18,6 @@ import {
   saveWatermarkToggle,
 } from "./logic/handler/toggleHandler.js";
 import { isUrlReachable, normalizeUrl } from "./logic/handler/urlHandler.js";
-import { getGitLabSettings } from "../gitlab/gitlab.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const map = [
@@ -49,7 +48,11 @@ export const loadInitialSettings = async () => {
   try {
     localizeHtmlPage();
 
-    const gitlabSettings = await getGitLabSettings();
+    // Read the raw setting directly, not gitlab.js's getGitLabSettings():
+    // that one validates and notifies/redirects on missing settings, which
+    // is wrong here: the options page is exactly where incomplete settings
+    // are the normal first-run state, not an error.
+    const gitlabSettings = await getSetting(CacheKeys.GITLAB_SETTINGS, {});
     DOM.tokenInput.value = gitlabSettings.token || "";
     DOM.urlInput.value = gitlabSettings.url || "";
 

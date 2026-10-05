@@ -1,0 +1,59 @@
+{
+  "probedAt": "2026-10-02T10:10:00.000Z",
+  "host": "gitlab.visionconnect.de",
+  "note": "Captured manually via curl during the architecture audit, before scripts/probe-gitlab.mjs existed. Token excluded. Re-run scripts/probe-gitlab.mjs to refresh this fixture with the automated format.",
+  "version": {
+    "version": "19.4.1",
+    "revision": "191678a3764",
+    "enterprise": false
+  },
+  "user": {
+    "status": 200,
+    "headers": {
+      "etag": "W/\"747971898371247eda3030e8b27d92c7\"",
+      "cache-control": "max-age=0, private, must-revalidate"
+    }
+  },
+  "projectsPage": {
+    "status": 200,
+    "sizeBytes": 114877,
+    "timeMsSamples": [3315, 1716, 732, 2869],
+    "cors": {
+      "access-control-allow-origin": "*",
+      "access-control-expose-headers": "Link, X-Total, X-Total-Pages, X-Per-Page, X-Page, X-Next-Page, X-Prev-Page, X-Gitlab-Blob-Id, X-Gitlab-Commit-Id, X-Gitlab-Content-Sha256, X-Gitlab-Encoding, X-Gitlab-File-Name, X-Gitlab-File-Path, X-Gitlab-Last-Commit-Id, X-Gitlab-Ref, X-Gitlab-Size, X-Request-Id, ETag, X-Streaming-Format"
+    },
+    "pagination": {
+      "x-next-page": "2",
+      "x-total": "1105",
+      "x-total-pages": "12",
+      "x-per-page": "100"
+    }
+  },
+  "projectsEtagRevalidation": {
+    "status": 304,
+    "timeMs": 736,
+    "sizeBytes": 0
+  },
+  "perPageCap": {
+    "requested": 200,
+    "actual": 100
+  },
+  "search": {
+    "samples": [
+      { "term": "web", "timeMs": 753, "sizeBytes": 24820, "total": 191 },
+      { "term": "api", "timeMs": 587, "sizeBytes": 13520, "total": 12 },
+      { "term": "test", "timeMs": 718, "sizeBytes": 16756, "total": 15 }
+    ]
+  },
+  "sampleProjectUsers": {
+    "projectId": 1403,
+    "total": 19,
+    "timeMs": 197,
+    "sizeBytes": 5230,
+    "etagRevalidation": { "status": 304, "sizeBytes": 0, "timeMs": 166 }
+  },
+  "minAccessLevelFilterEffect": {
+    "note": "min_access_level=20 still returned X-Total: 1105 — does not shrink the membership set on this instance.",
+    "total": 1105
+  }
+}

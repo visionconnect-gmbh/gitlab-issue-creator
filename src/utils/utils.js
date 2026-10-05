@@ -1,4 +1,4 @@
-import { LocalizeKeys, MessageTypes, Popup_MessageTypes } from "./Enums";
+import { LocalizeKeys, MessageTypes, Popup_MessageTypes } from "./Enums.js";
 
 const TITLE = browser.i18n.getMessage(LocalizeKeys.EXTENSION.NAME) || "GitLab Issue Creator";
 

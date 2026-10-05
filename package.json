@@ -4,32 +4,29 @@
   "description": "Erstellt GitLab-Issues aus E-Mails.",
   "type": "module",
   "main": "background.js",
+  "packageManager": "pnpm@11.18.0",
   "scripts": {
     "version:patch": "node scripts/bump-version.js patch",
     "version:minor": "node scripts/bump-version.js minor",
     "version:major": "node scripts/bump-version.js major",
-    "build:dev": "npm i && rollup -c",
-    "build": "npm i && node scripts/build.js",
+    "build:dev": "pnpm install && node scripts/merge-locales.js",
+    "build": "pnpm install && node scripts/build.js",
+    "lint": "node scripts/build.js && addons-linter builds/*.xpi",
     "packSrc": "node scripts/pack-src.js",
     "publish": "node scripts/publish.js",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
   "keywords": [],
   "author": "kirchner@visionconnect.de",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.6",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "rollup": "^4.52.2",
-    "rollup-plugin-copy": "^3.5.0",
-    "jest": "^29.7.0",
+    "addons-linter": "^10.13.0",
     "archiver": "^7.0.1",
+    "dotenv": "^17.2.3",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
     "jsonwebtoken": "^9.0.2",
     "rimraf": "^6.0.1"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.3",
-    "easymde": "^2.20.0"
   }
 }

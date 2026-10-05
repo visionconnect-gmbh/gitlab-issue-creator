@@ -54,6 +54,7 @@ import {
   getSetting,
   setCache,
   getCache,
+  getCacheEntry,
   addToCacheArray,
   resetCache,
   clearAllCache,
@@ -261,7 +262,7 @@ describe("getCacheKeys", () => {
 
     const keys = await getCacheKeys();
 
-    // getCacheKeys() strips the c: prefix — callers receive logical names
+    // getCacheKeys() strips the c: prefix: callers receive logical names
     expect(keys).toContain("alpha");
     expect(keys).toContain("beta");
     // Settings must not leak through
@@ -269,6 +270,69 @@ describe("getCacheKeys", () => {
     expect(keys).not.toContain("s:setting_a");
     // Raw prefixed keys must not appear either
     expect(keys).not.toContain("c:alpha");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getCacheEntry: freshness metadata, stale-but-not-deleted, ETag round-trip
+// ---------------------------------------------------------------------------
+
+describe("getCacheEntry", () => {
+  test("returns null when the key is absent", async () => {
+    expect(await getCacheEntry("missing", 60_000)).toBeNull();
+  });
+
+  test("reports isStale: false for a fresh entry", async () => {
+    await setCache("fresh_key", "value", { ttlMs: 60_000 });
+    const entry = await getCacheEntry("fresh_key", 60_000);
+    expect(entry.isStale).toBe(false);
+    expect(entry.data).toBe("value");
+  });
+
+  test("reports isStale: true for an expired entry WITHOUT deleting it", async () => {
+    await setCache("stale_key", "value", { ttlMs: 1_000 });
+    _store["c:stale_key"].timestamp = Date.now() - 100_000;
+
+    const entry = await getCacheEntry("stale_key", 1_000);
+    expect(entry.isStale).toBe(true);
+    expect(entry.data).toBe("value"); // still present; caller decides what to do with stale data
+
+    // A second read confirms it really wasn't evicted as a side effect of the first.
+    const entryAgain = await getCacheEntry("stale_key", 1_000);
+    expect(entryAgain.data).toBe("value");
+  });
+
+  test("round-trips the etag stored alongside the data", async () => {
+    await setCache("etag_key", { id: 1 }, { ttlMs: 60_000, etag: 'W/"abc123"' });
+    const entry = await getCacheEntry("etag_key", 60_000);
+    expect(entry.etag).toBe('W/"abc123"');
+  });
+
+  test("etag defaults to null when not supplied", async () => {
+    await setCache("no_etag_key", "value");
+    const entry = await getCacheEntry("no_etag_key", null);
+    expect(entry.etag).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// addToCacheArray: the TTL-mismatch regression. The internal re-read must
+// use the TTL the caller actually passed, not a hardcoded default, or a
+// cache older than the default silently becomes a replace instead of an
+// append.
+// ---------------------------------------------------------------------------
+
+describe("addToCacheArray TTL consistency", () => {
+  test("an entry older than the default 9h TTL, but within an explicitly longer one, still appends", async () => {
+    await setCache("long_ttl_items", [{ id: 1 }], { ttlMs: 60_000 });
+    // 10 hours old: stale under the 9h default, fresh under a 5-day TTL.
+    _store["c:long_ttl_items"].timestamp = Date.now() - 10 * 60 * 60 * 1000;
+
+    const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000;
+    const result = await addToCacheArray("long_ttl_items", [{ id: 2 }], "id", FIVE_DAYS_MS);
+
+    expect(result.storedCount).toBe(2);
+    expect(await getCache("long_ttl_items", null)).toEqual([{ id: 1 }, { id: 2 }]);
   });
 });
 

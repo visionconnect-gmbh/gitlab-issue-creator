@@ -12,3 +12,8 @@ builds/
 messages.json
 # Scratch space for real email fixtures used during manual debugging
 tmp/
+# webext-linter caches
+.schema-cache/
+.lib-mozilla-hash-db-cache/
+.lib-cdn-lookup-cache/
+.experiments-cache/

@@ -5,6 +5,11 @@ stages:
 
 image: node:22
 
+variables:
+  # ATN's reviewer tool; pinned so a linter update cannot break a release.
+  WEBEXT_LINTER_REF: 84f77fdcf92a0abcf768fd8222967a421956d42e
+  WEBEXT_LINTER_DIR: /tmp/webext-linter
+
 default:
   before_script:
     - corepack enable
@@ -25,6 +30,10 @@ build_thunderbird_extension:
     - pnpm test
     - pnpm run build
     - npx addons-linter builds/*.xpi
+    - git clone -q https://github.com/thunderbird/webext-linter "$WEBEXT_LINTER_DIR"
+    - git -C "$WEBEXT_LINTER_DIR" checkout -q "$WEBEXT_LINTER_REF"
+    - npm --prefix "$WEBEXT_LINTER_DIR" ci --silent
+    - node "$WEBEXT_LINTER_DIR/verify.js" builds/*.xpi --warnings-as-errors
     - pnpm run packSrc
   artifacts:
     paths:

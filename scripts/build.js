@@ -38,7 +38,11 @@ const INCLUDE_PATHS = [
 ];
 
 /** Excluded even though it lives under an included directory. */
-const EXCLUDE_PATTERNS = ["_locales/de/json", "_locales/en/json"];
+const EXCLUDE_PATTERNS = [
+  "_locales/de/json",
+  "_locales/en/json",
+  "icons/Icon.svg",
+];
 
 async function buildAddon() {
   console.log("Starting add-on packaging...");

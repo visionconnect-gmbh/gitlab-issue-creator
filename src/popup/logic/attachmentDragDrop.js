@@ -8,7 +8,7 @@
  * markdown editor, knows nothing about attachments) and `uploadRegistry.js`
  * (stays DOM-free): this is the one place that knows about both.
  */
-import { editor, messageData, uploadRegistry } from "./popupState.js";
+import { editor, messageData, pickerModal, uploadRegistry } from "./popupState.js";
 import { getAttachmentFileOrNotify } from "./handler/issueHandler.js";
 import { textareaOffsetFromPoint } from "./editor/caretPosition.js";
 
@@ -78,4 +78,7 @@ function handleDrop(e) {
 
   if (isReposition) editor.replace(markdown, "");
   editor.insertAt(Math.max(0, adjustedOffset), markdown);
+
+  // The drop registers the attachment, so its checkbox must now show checked.
+  pickerModal.refresh();
 }

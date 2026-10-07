@@ -217,6 +217,17 @@ input[type="date"]::-moz-calendar-picker-indicator {
   display: none;
 }
 
+/* While a row is being dragged the modal is see-through and click-through,
+   so the description textarea underneath can receive the drop. */
+#picker-backdrop.drag-active {
+  background-color: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+#picker-backdrop.drag-active #picker-container {
+  opacity: 0;
+}
+
 /* Modal content box */
 #picker-container h2,
 #picker-container #picker-list {

@@ -27,7 +27,14 @@ export function createPickerModal({
   /** @type {object|null} */
   let config = null;
 
+  /** Restores the modal after a drag. Also called by `render`, because
+   * re-rendering removes the source row, whose `dragend` then never fires. */
+  function endDrag() {
+    backdrop.classList.remove("drag-active");
+  }
+
   function render() {
+    endDrag();
     if (!config) return;
 
     const query = searchInput.value.trim().toLowerCase();
@@ -60,7 +67,11 @@ export function createPickerModal({
         e.dataTransfer.setData("application/x-gitlab-attachment", payload);
         e.dataTransfer.setData("text/plain", config.getLabel(item));
         e.dataTransfer.effectAllowed = "copyMove";
+        // Deferred: changing the layout inside dragstart cancels the drag in
+        // some engines.
+        setTimeout(() => backdrop.classList.add("drag-active"), 0);
       });
+      row.addEventListener("dragend", endDrag);
     }
 
     if (config.getColor) {

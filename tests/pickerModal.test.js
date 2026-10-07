@@ -266,4 +266,54 @@ describe("pickerModal", () => {
     expect(els.hintEl.hidden).toBe(false);
     expect(els.hintEl.textContent).toBe("Drag an attachment onto the description to place it.");
   });
+
+  describe("drag in progress", () => {
+    function openDraggable(els) {
+      const modal = createPickerModal(els);
+      modal.open({
+        title: "Attachments",
+        items: [{ partName: "1.2", name: "a.png" }],
+        getId: (i) => i.partName,
+        getLabel: (i) => i.name,
+        isSelected: () => false,
+        onToggle: jest.fn(),
+        draggable: true,
+        getDragPayload: (i) => ({ partName: i.partName }),
+      });
+      return modal;
+    }
+
+    function startDrag() {
+      const event = new Event("dragstart", { bubbles: true });
+      event.dataTransfer = { setData: jest.fn(), effectAllowed: "" };
+      rows()[0].dispatchEvent(event);
+    }
+
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    test("the modal becomes click-through after dragstart and is restored on dragend", () => {
+      const els = buildDom();
+      openDraggable(els);
+
+      startDrag();
+      expect(els.backdrop.classList.contains("drag-active")).toBe(false);
+      jest.runAllTimers();
+      expect(els.backdrop.classList.contains("drag-active")).toBe(true);
+
+      rows()[0].dispatchEvent(new Event("dragend", { bubbles: true }));
+      expect(els.backdrop.classList.contains("drag-active")).toBe(false);
+    });
+
+    test("refreshing the list ends a drag whose source row was removed", () => {
+      const els = buildDom();
+      const modal = openDraggable(els);
+
+      startDrag();
+      jest.runAllTimers();
+      modal.refresh();
+
+      expect(els.backdrop.classList.contains("drag-active")).toBe(false);
+    });
+  });
 });

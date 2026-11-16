@@ -1,4 +1,4 @@
-import { imageTokenRange } from "../src/popup/logic/editor/imageToken.js";
+import { imageTokenAtOffset, imageTokenRange } from "../src/popup/logic/editor/imageToken.js";
 
 const text = "a ![one](x:1) b ![two](x:2) c";
 const one = { start: 2, end: 13 };
@@ -25,5 +25,20 @@ describe("imageTokenRange", () => {
 
   it("picks the token the selection is in when there are several", () => {
     expect(imageTokenRange(text, 20, 20)).toEqual(two);
+  });
+});
+
+describe("imageTokenAtOffset", () => {
+  it("finds the token containing the offset", () => {
+    expect(imageTokenAtOffset(text, 2)).toEqual(one);
+    expect(imageTokenAtOffset(text, 12)).toEqual(one);
+  });
+
+  it("ignores a caret right after the token", () => {
+    expect(imageTokenAtOffset(text, 13)).toBeNull();
+  });
+
+  it("returns null outside any token", () => {
+    expect(imageTokenAtOffset(text, 1)).toBeNull();
   });
 });

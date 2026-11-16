@@ -24,3 +24,14 @@ export function imageTokenRange(text, start, end) {
   }
   return null;
 }
+
+/**
+ * @param {string} text
+ * @param {number} offset - Caret offset, e.g. from a click.
+ * @returns {{ start: number, end: number }|null} The token containing the
+ *   character at `offset`. A caret right after a token does not count.
+ */
+export function imageTokenAtOffset(text, offset) {
+  const range = imageTokenRange(text, offset, offset);
+  return range && offset < range.end ? range : null;
+}

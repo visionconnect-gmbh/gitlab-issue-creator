@@ -11,7 +11,7 @@
 import { editor, messageData, pickerModal, uploadRegistry } from "./popupState.js";
 import { getAttachmentFileOrNotify } from "./handler/issueHandler.js";
 import { textareaOffsetFromPoint } from "./editor/caretPosition.js";
-import { imageTokenRange } from "./editor/imageToken.js";
+import { imageTokenAtOffset, imageTokenRange } from "./editor/imageToken.js";
 
 const DRAG_MIME = "application/x-gitlab-attachment";
 const MOVE_MIME = "application/x-md-token-move";
@@ -26,6 +26,21 @@ function isOurDrag(e) {
  *   (`elements.issueDescription`), the same node `editor.js` wraps.
  */
 export function setupAttachmentDragDrop(textarea) {
+  // A click on a placeholder selects exactly that placeholder, so it never
+  // has to be selected precisely by hand. A press on an already-selected
+  // placeholder is left alone, which is what starts the native drag.
+  textarea.addEventListener("mousedown", (e) => {
+    if (e.button !== 0 || e.shiftKey || e.detail > 1) return;
+    const offset = textareaOffsetFromPoint(textarea, e.clientX, e.clientY);
+    if (offset === null) return;
+    const range = imageTokenAtOffset(textarea.value, offset);
+    if (!range) return;
+    if (textarea.selectionStart === range.start && textarea.selectionEnd === range.end) return;
+    e.preventDefault();
+    textarea.focus();
+    textarea.setSelectionRange(range.start, range.end);
+  });
+
   // Snap a drag that starts on an image token to the whole token, so it
   // moves as one unit instead of leaving half of it behind.
   textarea.addEventListener("dragstart", (e) => {

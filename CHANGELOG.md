@@ -17,6 +17,7 @@ v5.3.0–v7.1.1 entries are backfilled verbatim from the existing
 ### Fixed
 
 - Dropped attachments now land where you release them instead of always at the end, and an attachment already in the description can be dragged to a new position
+- Clicking an attachment placeholder in the description now selects exactly that placeholder, so it can be dragged without selecting it precisely by hand
 
 ## [8.0.0] - 2026-10-05
 

@@ -11,16 +11,34 @@
 import { editor, messageData, pickerModal, uploadRegistry } from "./popupState.js";
 import { getAttachmentFileOrNotify } from "./handler/issueHandler.js";
 import { textareaOffsetFromPoint } from "./editor/caretPosition.js";
+import { imageTokenRange } from "./editor/imageToken.js";
 
 const DRAG_MIME = "application/x-gitlab-attachment";
+const MOVE_MIME = "application/x-md-token-move";
+
+function isOurDrag(e) {
+  const types = e.dataTransfer.types;
+  return types.includes(DRAG_MIME) || types.includes(MOVE_MIME);
+}
 
 /**
  * @param {HTMLTextAreaElement} textarea - The description textarea
  *   (`elements.issueDescription`), the same node `editor.js` wraps.
  */
 export function setupAttachmentDragDrop(textarea) {
+  // Snap a drag that starts on an image token to the whole token, so it
+  // moves as one unit instead of leaving half of it behind.
+  textarea.addEventListener("dragstart", (e) => {
+    const range = imageTokenRange(textarea.value, textarea.selectionStart, textarea.selectionEnd);
+    if (!range) return;
+    textarea.setSelectionRange(range.start, range.end);
+    const text = textarea.value.slice(range.start, range.end);
+    e.dataTransfer.setData("text/plain", text);
+    e.dataTransfer.setData(MOVE_MIME, JSON.stringify({ ...range, text }));
+  });
+
   textarea.addEventListener("dragover", (e) => {
-    if (!e.dataTransfer.types.includes(DRAG_MIME)) return;
+    if (!isOurDrag(e)) return;
     e.preventDefault(); // required for a `drop` event to fire at all
     textarea.classList.add("drop-target");
   });
@@ -30,11 +48,28 @@ export function setupAttachmentDragDrop(textarea) {
   });
 
   textarea.addEventListener("drop", (e) => {
-    if (!e.dataTransfer.types.includes(DRAG_MIME)) return;
-    e.preventDefault();
+    if (!isOurDrag(e)) return;
+    e.preventDefault(); // also stops the browser's own text move
     textarea.classList.remove("drop-target");
-    handleDrop(e);
+    if (e.dataTransfer.types.includes(MOVE_MIME)) handleMove(e);
+    else handleDrop(e);
   });
+}
+
+function handleMove(e) {
+  let move;
+  try {
+    move = JSON.parse(e.dataTransfer.getData(MOVE_MIME));
+  } catch {
+    return;
+  }
+
+  const textarea = e.currentTarget;
+  if (textarea.value.slice(move.start, move.end) !== move.text) return;
+
+  const target = textareaOffsetFromPoint(textarea, e.clientX, e.clientY);
+  if (target === null) return;
+  editor.moveRange(move.start, move.end, target);
 }
 
 function handleDrop(e) {
@@ -66,18 +101,11 @@ function handleDrop(e) {
   const targetOffset = rawOffset ?? textarea.value.length;
 
   const existingIndex = textarea.value.indexOf(markdown);
-  const isReposition = existingIndex !== -1;
-
-  // Removing the old occurrence shifts everything after it left by its own
-  // length, so adjust the target offset to compensate: the drop still
-  // lands where the user actually pointed rather than drifting.
-  const adjustedOffset =
-    isReposition && existingIndex < targetOffset
-      ? targetOffset - markdown.length
-      : targetOffset;
-
-  if (isReposition) editor.replace(markdown, "");
-  editor.insertAt(Math.max(0, adjustedOffset), markdown);
+  if (existingIndex !== -1) {
+    editor.moveRange(existingIndex, existingIndex + markdown.length, targetOffset);
+  } else {
+    editor.insertAt(targetOffset, markdown);
+  }
 
   // The drop registers the attachment, so its checkbox must now show checked.
   pickerModal.refresh();

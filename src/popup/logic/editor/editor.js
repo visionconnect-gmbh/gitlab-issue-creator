@@ -68,7 +68,7 @@ const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 /**
  * @param {HTMLTextAreaElement} textarea
  * @param {{ draftCacheKey?: string, onPickImage?: (file: File) => Promise<{markdown: string}|null>, getMentionCandidates?: () => Array<{id: number|string, username: string, name?: string}>, onUserInput?: () => void }} [options]
- * @returns {{ value: (v?: string) => string|undefined, replace: (search: string, replacement: string) => boolean, insertAtEnd: (raw: string) => void, insertAt: (offset: number, raw: string) => void, clearDraft: () => void, destroy: () => void }}
+ * @returns {{ value: (v?: string) => string|undefined, replace: (search: string, replacement: string) => boolean, insertAtEnd: (raw: string) => void, insertAt: (offset: number, raw: string) => void, moveRange: (start: number, end: number, target: number) => void, clearDraft: () => void, destroy: () => void }}
  */
 export function createEditor(textarea, { draftCacheKey, onPickImage, getMentionCandidates, onUserInput } = {}) {
   const wrapper = document.createElement("div");
@@ -479,6 +479,37 @@ export function createEditor(textarea, { draftCacheKey, onPickImage, getMentionC
     insertAtOffset(offset, raw);
   }
 
+  /** Moves the text in `[start, end)` so it begins at `target` (an offset
+   * into the current text). No-op when `target` lies inside the range.
+   * Same non-focusing contract as `insertAt()`. */
+  function moveRange(start, end, target) {
+    if (target > start && target < end) return;
+    const text = textarea.value;
+    const slice = text.slice(start, end);
+    const without = text.slice(0, start) + text.slice(end);
+    const insertion = target >= end ? target - slice.length : target;
+
+    closeMention();
+    const focused = document.activeElement === textarea;
+    const { selectionStart, selectionEnd } = textarea;
+
+    textarea.value = without.slice(0, insertion) + slice + without.slice(insertion);
+
+    if (focused) {
+      const shift = (pos) => {
+        if (pos >= start && pos <= end) return insertion + (pos - start);
+        let p = pos > end ? pos - slice.length : pos;
+        if (p >= insertion) p += slice.length;
+        return p;
+      };
+      textarea.setSelectionRange(shift(selectionStart), shift(selectionEnd));
+    }
+
+    autoResizeTextarea();
+    refreshPreview();
+    scheduleAutosave();
+  }
+
   function insertAtOffset(offset, raw) {
     closeMention();
     const focused = document.activeElement === textarea;
@@ -522,7 +553,7 @@ export function createEditor(textarea, { draftCacheKey, onPickImage, getMentionC
 
   autoResizeTextarea();
 
-  return { value, replace, insertAtEnd, insertAt, clearDraft, destroy };
+  return { value, replace, insertAtEnd, insertAt, moveRange, clearDraft, destroy };
 }
 
 function buildButton(def, onActivate) {

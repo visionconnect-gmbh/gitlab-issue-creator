@@ -2,7 +2,8 @@
  * @fileoverview Maps a pixel position to a character offset inside a plain
  * `<textarea>`, for drag-and-drop placement. A `<textarea>` has no native
  * hit-testing API (unlike a contenteditable element), so this uses the
- * standard workaround: a hidden "mirror" `<div>` with the textarea's exact
+ * standard workaround (used when the browser does not resolve the point to
+ * the textarea itself): an invisible "mirror" `<div>` with the textarea's exact
  * font/box metrics and the textarea's own text as content, queried via
  * `document.caretPositionFromPoint()`, a Firefox API available well
  * before this add-on's `strict_min_version: "91"` floor.
@@ -48,6 +49,11 @@ const MIRROR_COPIED_PROPERTIES = [
 export function textareaOffsetFromPoint(textarea, clientX, clientY) {
   if (typeof document.caretPositionFromPoint !== "function") return null;
 
+  // Gecko retargets hits inside a text control to the control itself, with
+  // an offset into its value, so no mirror is needed when that happens.
+  const direct = document.caretPositionFromPoint(clientX, clientY);
+  if (direct?.offsetNode === textarea) return direct.offset;
+
   const rect = textarea.getBoundingClientRect();
   const mirror = document.createElement("div");
   const style = getComputedStyle(textarea);
@@ -58,7 +64,8 @@ export function textareaOffsetFromPoint(textarea, clientX, clientY) {
   mirror.style.width = `${rect.width}px`;
   mirror.style.height = `${rect.height}px`;
   mirror.style.overflow = "hidden";
-  mirror.style.visibility = "hidden";
+  // Not `visibility: hidden`: hit testing skips such frames.
+  mirror.style.opacity = "0";
   // Above everything so caretPositionFromPoint hits the mirror, not
   // whatever the textarea itself renders at this same spot.
   mirror.style.zIndex = "2147483647";

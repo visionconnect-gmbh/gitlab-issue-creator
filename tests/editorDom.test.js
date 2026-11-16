@@ -698,3 +698,46 @@ describe("createEditor: onUserInput", () => {
     editor.destroy();
   });
 });
+
+describe("createEditor: moveRange()", () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
+  function setup(value) {
+    const textarea = makeTextarea();
+    const editor = createEditor(textarea);
+    editor.value(value);
+    return { textarea, editor };
+  }
+
+  it("moves a range forward", () => {
+    const { editor } = setup("aa [T] bb cc");
+    editor.moveRange(3, 6, 9);
+    expect(editor.value()).toBe("aa  bb[T] cc");
+    editor.destroy();
+  });
+
+  it("moves a range backward", () => {
+    const { editor } = setup("aa bb [T] cc");
+    editor.moveRange(6, 9, 3);
+    expect(editor.value()).toBe("aa [T]bb  cc");
+    editor.destroy();
+  });
+
+  it("does nothing when the target is inside the range", () => {
+    const { editor } = setup("aa [T] bb");
+    editor.moveRange(3, 6, 4);
+    expect(editor.value()).toBe("aa [T] bb");
+    editor.destroy();
+  });
+
+  it("keeps the caret on the same text when focused", () => {
+    const { textarea, editor } = setup("aa bb [T] cc");
+    textarea.focus();
+    textarea.setSelectionRange(10, 10);
+    editor.moveRange(6, 9, 0);
+    expect(textarea.selectionStart).toBe(10);
+    editor.destroy();
+  });
+});

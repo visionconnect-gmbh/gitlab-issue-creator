@@ -14,6 +14,10 @@ v5.3.0–v7.1.1 entries are backfilled verbatim from the existing
 
 ## [Unreleased]
 
+### Fixed
+
+- Dropped attachments now land where you release them instead of always at the end, and an attachment already in the description can be dragged to a new position
+
 ## [8.0.0] - 2026-10-05
 
 ### Added

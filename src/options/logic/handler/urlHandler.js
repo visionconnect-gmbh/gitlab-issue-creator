@@ -1,6 +1,7 @@
 /**
  * Validates and normalizes a URL string.
- * Defaults to https:// if no protocol.
+ * Defaults to https:// if no protocol and upgrades http:// to https://, so
+ * the token and issue data never travel unencrypted.
  * @param {string} url
  * @returns {string|false}
  */
@@ -10,13 +11,9 @@ export const normalizeUrl = (url) => {
   if (!pattern.test(trimmed)) return false;
 
   try {
-    const parsed = new URL(
-      trimmed.startsWith("http") ? trimmed : `https://${trimmed}`
-    );
-    if (["http:", "https:"].includes(parsed.protocol) && !!parsed.hostname) {
-      return parsed.href.replace(/\/$/, "");
-    }
-    return false;
+    const host = trimmed.replace(/^https?:\/\//, "");
+    const parsed = new URL(`https://${host}`);
+    return parsed.hostname ? parsed.href.replace(/\/$/, "") : false;
   } catch {
     return false;
   }

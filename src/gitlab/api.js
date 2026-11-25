@@ -84,7 +84,9 @@ async function resolveBaseUrl() {
   if (_apiBaseUrl) return _apiBaseUrl;
 
   const settings = await getSetting(CacheKeys.GITLAB_SETTINGS, {});
-  _apiBaseUrl = settings.url || null;
+  // A stored non-https URL (saved before options enforced https) is treated
+  // as unconfigured so the token is never sent in the clear.
+  _apiBaseUrl = settings.url?.startsWith("https://") ? settings.url : null;
 
   if (!_apiBaseUrl) {
     displayLocalizedNotification(

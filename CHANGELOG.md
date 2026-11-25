@@ -14,6 +14,10 @@ v5.3.0–v7.1.1 entries are backfilled verbatim from the existing
 
 ## [Unreleased]
 
+### Fixed
+
+- A GitLab URL entered as `http://` is now upgraded to `https://` when saved, and a previously saved `http://` URL is no longer used: Options opens so it can be re-saved, which keeps the access token and issue data from being sent unencrypted
+
 ## [8.0.1] - 2026-11-16
 
 ### Fixed

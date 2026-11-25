@@ -70,6 +70,19 @@ beforeEach(() => {
 // doRequest: success, timeout vs. abort, retries
 // ---------------------------------------------------------------------------
 
+describe("doRequest: transport security", () => {
+  it("refuses a stored http:// base URL and never calls fetch", async () => {
+    _store["s:gitlab_settings"] = { url: "http://gitlab.example.com", token: "test-token" };
+    invalidateBaseUrl();
+
+    const res = await doRequest("/projects");
+
+    expect(res).toBeUndefined();
+    expect(global.fetch).not.toHaveBeenCalled();
+    expect(mockOpenOptionsPage).toHaveBeenCalled();
+  });
+});
+
 describe("doRequest", () => {
   test("returns the response on success", async () => {
     global.fetch.mockResolvedValueOnce(mockResponse({ body: { ok: true } }));
